@@ -19,25 +19,67 @@
 using namespace std;
 //VE MAN HINH
 void CreateScreen(int maxx, int maxy){
-	setcolor(RED);
-	setlinestyle(0, 4, 9);
-	rectangle(0, 0, maxx, maxy);// ve hinh chu nhat
+	initwindow(1009, 713);
+	setbkcolor(15);
+	setcolor(LIGHTBLUE);
+	setlinestyle(0, 0, 10);
+	cleardevice();
+	//ve khung man hinh
+	rectangle(0, 0, maxx, maxy);
+	setlinestyle(0, 0, 2);
+	
+	//ve thanh cong cu
+	for(int i=1; i<8; i++){
+		rectangle(10 + i*123, 10, 10 + (i-1)*123, 52);
+	}
+	//ve khung thanh cong cu
+	rectangle(10, 10, maxx - 10, 52);
+	
+	//ve khung menu
+	rectangle(10, 58, 326, 366);
+	//ve bang menu. co su support cua Hung
+	for(int i = 1; i <= 3; i++){
+		for(int j = 1; j <= 3; j++){
+			rectangle(10 + j*100 + (j)*4, 62 + (i-1)*76, 10 + (j-1)*100 + j*4, 72+62 + (i-1)*76);
+		}
+	}
+	//ve o Topo Sort
+	rectangle(14, 290, 322, 362);
+	//ghi chu Topo Sort
+	setfillstyle(1, 14); bar(14, 290, 322, 362);
+	setbkcolor(14);
+	settextstyle(4, HORIZ_DIR, 1);
+	outtextxy(100, 315, "Topo Sort");
+	
+	//ve khung ma tran don vi
+	rectangle(10, 372, 326, maxy - 10);
+	
+	//ve khung huong dan
+	rectangle(332, 550, maxx - 10, maxy -10);
+	
+	//ve khung xu ly
+	rectangle(332, 58, maxx - 10, 544);
+	
+	///////////////////////////////////////////////////
+	//ghi chu MA TRAN TRONG SO
+	settextstyle(4, HORIZ_DIR, 1);
+	setbkcolor(WHITE);
+	outtextxy(18, 382, "MA TRAN TRONG SO");
+	
 }
 //TAO NODE
-void CreateNode(int x, int y, char name[], int thinkness, int color){
+void CreateNode(int x, int y, char name[], int color){
 	setcolor(color);
-	settextstyle(4, HORIZ_DIR, 2);
-	outtextxy(x-13, y-12, name);
+	setlinestyle(0, 0, 3);//(kieu duong, ..., kich thuoc)
+	settextstyle(4, HORIZ_DIR, 2);//(font, ngang doc, do dam)
+	outtextxy(x-18, y-12, name);
 	circle(x, y, 25);
 }
 //
 int main(){
-	initwindow(1009, 713);
-	char node1[] = "00", node2[] = "fi";
-	CreateNode(500, 500, node1, 0, WHITE);
-	CreateNode(250, 500, node2, 0, WHITE);
 	CreateScreen(1000, 700);
-	
+	char node1[] = "00";
+	CreateNode(500, 500, node1, BLACK); 
 	while(!kbhit());
 	return 0;
 }
