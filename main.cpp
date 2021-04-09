@@ -1,6 +1,7 @@
 #include<winbgim.h>
 #include<iostream>
 #include<string>
+#include<windows.h>
 #define BLACK 0
 #define BLUE 1 
 #define GREEN 2 
@@ -288,19 +289,7 @@ int main(){
 	CreateScreen(1200, 800);
 	int x, y;
 	string ten;
-	// while(!kbhit()){
-	// 	cout<<mousex()<<' '<<mousey()<<'\n';
-	// }
-//	char node1[] = "00";
-//	CreateNode(500, 500, node1, BLACK); 
-//	NotificationFull(1200, 800);
-	
-	// // for (int i = 0; i < numberNode; ++i){
-	// // 	cout<<node[i]->x<<' '<<node[i]->y<<' '<<node[i]->name<<'\n';
-	// // }
-	
-	NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
-	label:
+
 	while(true){
 		if(kbhit()){
 			char key = getch();
@@ -310,97 +299,114 @@ int main(){
 		}
 		if(ismouseclick(WM_LBUTTONDOWN)) {
 			getmouseclick(WM_LBUTTONDOWN, x, y);
-			if(x < 590 && x > 445 && y > 10 && y < 52){//Nhan nut AddVerTex
-				NotificationFull(1200, 800, "HAY CLICK CHUOT TRAI VAO VUNG TRONG DE THEM DINH!");
-				if(numberNode < 15){
-					while(!kbhit()){
-						if (numberNode >= 15) 
-							break;
-						AddNode(x, y, ten, true);
-						if(x != -1 && y != -1){
-							Node *n = new Node;
-							n->name = ten;
-							n->x = x;
-							n->y = y;
-							node[numberNode] = n;
-							numberNode++;
-							NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
-							break;
-						}
-					}	
-				}
-				else{
-					NotificationFull(1200, 800, "DO THI DA DAY, KHONG THE THEM DINH!");
-				}
-			}
-			else if(x < 1025 && x > 880 && y > 10 && y < 52){//Nhan nut Rename
-				NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN DOI TEN!");
-				while(!kbhit()){
-					getmouseclick(WM_LBUTTONDOWN, x, y);
-					if(x != -1 && y != -1){
-						bool flag = false;
-						for(int i=0; i < numberNode; i++){
-							if(CheckNode(node[i]->x, node[i]->y, x, y)){
-								Rename(node[i]->x, node[i]->y , node[i]->name);
-								flag = true;
-								break;
-							}
-						}
-						if(flag == false) NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN DOI TEN!");
-						else {
-							NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
+			if(x>10 && x < 155 && y > 10 && y < 52){//Nhat nut New
+				NotificationFull(1200, 800, "HAY NHAP DO THI MOI!");
+				Sleep(1500);
+				NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
+				label:
+				while(true){
+					if(kbhit()){
+						char key = getch();
+						if(key == 27){
 							break;
 						}
 					}
-				}	
-			}
-			// else if(x < 735 && x > 590 && y > 10 && y < 52){//Nhan nut AddEdge
-
-			// }
-			else if(x < 880 && x > 735 && y > 10 && y < 52){//Nhan nut Move
-				NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN DI CHUYEN!");
-				while(!kbhit()){
-					getmouseclick(WM_LBUTTONDOWN, x, y);
-					if(x != -1 && y != -1){
-						string tmp;
-						for(int i=0; i<numberNode; i++){
-							if(CheckNode(node[i]->x, node[i]->y, x, y)){
-								NotificationFull(1200, 800, "HAY CLICK VAO NOI CAN DI CHUYEN TOI!");
-								tmp = node[i]->name;
+					if(ismouseclick(WM_LBUTTONDOWN)){
+						getmouseclick(WM_LBUTTONDOWN, x, y);
+						if(x < 590 && x > 445 && y > 10 && y < 52){//Nhan nut AddVerTex
+							NotificationFull(1200, 800, "HAY CLICK CHUOT TRAI VAO VUNG TRONG DE THEM DINH!");
+							if(numberNode < 15){
 								while(!kbhit()){
-									AddNode(x, y, tmp, false);
-									setcolor(WHITE);
-									fillellipse(node[i]->x, node[i]->y, 30, 30);
-									setcolor(BLUE);
+									if (numberNode >= 15) 
+										break;
+									AddNode(x, y, ten, true);
 									if(x != -1 && y != -1){
-										node[i]->x = x;
-										node[i]->y = y;
+										Node *n = new Node;
+										n->name = ten;
+										n->x = x;
+										n->y = y;
+										node[numberNode] = n;
+										numberNode++;
 										NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
-										goto label;
+										break;
+									}
+								}	
+							}
+							else{
+								NotificationFull(1200, 800, "DO THI DA DAY, KHONG THE THEM DINH!");
+							}
+						}
+						else if(x < 1025 && x > 880 && y > 10 && y < 52){//Nhan nut Rename
+							NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN DOI TEN!");
+							while(!kbhit()){
+								getmouseclick(WM_LBUTTONDOWN, x, y);
+								if(x != -1 && y != -1){
+									bool flag = false;
+									for(int i=0; i < numberNode; i++){
+										if(CheckNode(node[i]->x, node[i]->y, x, y)){
+											Rename(node[i]->x, node[i]->y , node[i]->name);
+											flag = true;
+											break;
+										}
+									}
+									if(flag == false) NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN DOI TEN!");
+									else {
+										NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
+										break;
+									}
+								}
+							}	
+						}
+						// else if(x < 735 && x > 590 && y > 10 && y < 52){//Nhan nut AddEdge
+
+						// }
+						else if(x < 880 && x > 735 && y > 10 && y < 52){//Nhan nut Move
+							NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN DI CHUYEN!");
+							while(!kbhit()){
+								getmouseclick(WM_LBUTTONDOWN, x, y);
+								if(x != -1 && y != -1){
+									string tmp;
+									for(int i=0; i<numberNode; i++){
+										if(CheckNode(node[i]->x, node[i]->y, x, y)){
+											NotificationFull(1200, 800, "HAY CLICK VAO NOI CAN DI CHUYEN TOI!");
+											tmp = node[i]->name;
+											while(!kbhit()){
+												AddNode(x, y, tmp, false);
+												setcolor(WHITE);
+												fillellipse(node[i]->x, node[i]->y, 30, 30);
+												setcolor(BLUE);
+												if(x != -1 && y != -1){
+													node[i]->x = x;
+													node[i]->y = y;
+													NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
+													goto label;
+												}
+											}
+										}
 									}
 								}
 							}
 						}
-					}
-				}
-			}
-			else if(x < 1170 && x > 1025 && y > 10 && y < 52){//Nhan nut Delete
-				NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN XOA!");
-				while(!kbhit()){
-					getmouseclick(WM_LBUTTONDOWN, x, y);
-					if(x != -1 && y != -1){
-						string tmp;
-						for(int i=0; i<numberNode; i++){
-							if(CheckNode(node[i]->x, node[i]->y, x, y)){
-								setcolor(WHITE);
-								fillellipse(node[i]->x, node[i]->y, 30, 30);
-								setcolor(BLUE);
-								delete node[i];
-								NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
-								goto label;
+						else if(x < 1170 && x > 1025 && y > 10 && y < 52){//Nhan nut Delete
+							NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN XOA!");
+							while(!kbhit()){
+								getmouseclick(WM_LBUTTONDOWN, x, y);
+								if(x != -1 && y != -1){
+									string tmp;
+									for(int i=0; i<numberNode; i++){
+										if(CheckNode(node[i]->x, node[i]->y, x, y)){
+											setcolor(WHITE);
+											fillellipse(node[i]->x, node[i]->y, 30, 30);
+											setcolor(BLUE);
+											delete node[i];
+											NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
+											goto label;
+										}
+									}
+								}
 							}
 						}
-					}
+					}	
 				}
 			}
 		}	
