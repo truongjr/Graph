@@ -1,5 +1,6 @@
 #include<winbgim.h>
 #include<iostream>
+#include<string>
 #define BLACK 0
 #define BLUE 1 
 #define GREEN 2 
@@ -55,11 +56,11 @@ void CreateScreen(int maxx, int maxy){
 	//ve khung man hinh
 	rectangle(0, 0, maxx, maxy);
 	setlinestyle(0, 0, 2);
-	settextstyle(4, HORIZ_DIR, 5);
+	settextstyle(3, HORIZ_DIR, 3);
 	//ve thanh cong cu
 	for(int i=1; i<8; i++){
 		rectangle(10 + i*(maxx/8-5), 10, 10 + (i-1)*(maxx/8-5), 52);
-		settextstyle(3, HORIZ_DIR, 2);
+		settextstyle(3, HORIZ_DIR, 3);
 		outtextxy(10 + (i-1)*(maxx/8 - 5) + 10, 10 + 10, Toolbar[i-1]);
 		if(i == 7){
 			outtextxy(10 + (i)*(maxx/8-5) + 10, 10 + 10, Toolbar[i]);
@@ -114,18 +115,132 @@ void CreateScreen(int maxx, int maxy){
 void CreateNode(int x, int y, char name[], int color){
 	setcolor(color);
 	setlinestyle(0, 0, 3);//(kieu duong, ..., kich thuoc)
-	settextstyle(4, HORIZ_DIR, 2);//(font, ngang doc, do dam)
+	settextstyle(3, HORIZ_DIR, 3);//(font, ngang doc, do dam)
 	outtextxy(x-18, y-12, name);
 	circle(x, y, 25);
 }
-//
+//TAO BAN PHIM SO
+void CreatePhim(int x, int y, char name[]){
+	setcolor(BLUE);
+	setlinestyle(0, 0, 2);//(kieu duong, ..., kich thuoc)
+	settextstyle(3, HORIZ_DIR, 3);//(font, ngang doc, do dam)
+	outtextxy(x - 8, y-12, name);
+	circle(x, y, 35);
+}
+void Notification(int maxx, int maxy, string name){
+	label1:
+	bar(maxx/3 + 10, 602, maxx - 11, maxy - 11);
+	string s = "Nhap vao ";
+	int x, y;
+	s += name + ": ";
+	char *n= (char*)s.c_str();
+	outtextxy(maxx/3 + 20, 610, n);
+	char a[10][2] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+	int c=0;
+	rectangle(maxx/3 + 9, 601, 735, maxy - 10);
+	for(int i=0; i<2; i++){
+		for(int j=0; j<5; j++){
+			CreatePhim(785 + j*90, 650 + i*90, a[c]);
+			c++;
+		}
+	}
+	c = 0;
+	s = "";
+	while(!kbhit()){
+		getmouseclick(WM_LBUTTONDOWN, x, y);
+		if(c >= 2){
+			while(!kbhit()){
+				rectangle(maxx/3 + 9, 640, 735, 787);
+				rectangle(410, 690, 578, maxy - 10);
+				rectangle(578, 690, 735, maxy - 10);
+				outtextxy(maxx/3 + 9 + 85, 650, "Thong bao");
+				outtextxy(435, 723, "Tiep tuc");
+				outtextxy(582, 723, "Chinh sua");
+				getmouseclick(WM_LBUTTONDOWN, x, y);
+				if(x > 410 && x < 578 && y < maxy - 10 && y > 690){
+					goto label2;
+					break;
+				}
+				else if(x > 578 && x < 735  && y < maxy - 10 && y > 690){
+					c = 0;
+					s = "";
+					goto label1;
+				}
+			}
+		}
+		if((x - 785)*(x - 785) + (y - 640)*(y-640) <= 35*35){
+			s += "0";
+			c++;
+			outtextxy(640, 610, (char*)s.c_str());
+		}
+		else if((x - 875)*(x - 875) + (y - 640)*(y-640) <= 35*35){
+			s += "1";
+			c++;
+			outtextxy(640, 610, (char*)s.c_str());
+		}
+		else if((x - 965)*(x - 965) + (y - 640)*(y-640) <= 35*35){
+			s += "2";
+			c++;
+			outtextxy(640, 610, (char*)s.c_str());
+		}
+		else if((x - 1055)*(x - 1055) + (y - 640)*(y-640) <= 35*35){
+			s += "3";
+			c++;
+			outtextxy(640, 610, (char*)s.c_str());
+		}
+		else if((x - 1145)*(x - 1145) + (y - 640)*(y-640) <= 35*35){
+			s += "4";
+			c++;
+			outtextxy(640, 610, (char*)s.c_str());
+		}
+		else if((x - 785)*(x - 785) + (y - 740)*(y-740) <= 35*35){
+			s += "5";
+			c++;
+			outtextxy(640, 610, (char*)s.c_str());
+		}
+		else if((x - 875)*(x - 875) + (y - 740)*(y-740) <= 35*35){
+			s += "6";
+			c++;
+			outtextxy(640, 610, (char*)s.c_str());
+		}
+		else if((x - 965)*(x - 965) + (y - 740)*(y-740) <= 35*35){
+			s += "7";
+			c++;
+			outtextxy(640, 610, (char*)s.c_str());
+		}
+		else if((x - 1055)*(x - 1055) + (y - 740)*(y-740) <= 35*35){
+			s += "8";
+			c++;
+			outtextxy(640, 610, (char*)s.c_str());
+		}
+		else if((x - 1145)*(x - 1145) + (y - 740)*(y-740) <= 35*35){
+			s += "9";
+			c++;
+			outtextxy(640, 610, (char*)s.c_str());
+		}
+	}
+	label2:
+	bar(maxx/3 + 10, 602, maxx - 11, maxy - 11);
+}
 
+void AddNode(){
+	int x, y;
+	getmouseclick(WM_LBUTTONDOWN, x, y);
+	if(x > 440 && x < 1150 && y > 90 && y < 560){
+		CreateNode(x, y, "09", 0);
+	}
+}
 
 int main(){
 	//createScreenWelcome();
 	CreateScreen(1200, 800);
 //	char node1[] = "00";
 //	CreateNode(500, 500, node1, BLACK); 
-	while(!kbhit());
+	Notification(1200, 800, "trong so");
+	while(!kbhit()){
+//		AddNode();
+		
+//		cout<<mousex()<<' '<<mousey()<<'\n';
+	}
 	return 0;
 }
