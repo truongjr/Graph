@@ -67,7 +67,6 @@ void CreateScreen(int maxx, int maxy){
 		rectangle(10 + i*(maxx/8-5), 10, 10 + (i-1)*(maxx/8-5), 52);
 		settextstyle(3, HORIZ_DIR, 3);
 		outtextxy(10 + (i-1)*(maxx/8 - 5) + 10, 10 + 10, Toolbar[i-1]);
-		cout<<10 + i*(maxx/8-5)<<' '<<10 + (i-1)*(maxx/8-5)<<'\n';
 		if(i == 7){
 			outtextxy(10 + (i)*(maxx/8-5) + 10, 10 + 10, Toolbar[i]);
 		}
@@ -234,14 +233,24 @@ bool CheckNode(int x, int y, int mx, int my){
 	return ((mx - x)*(mx - x) + (my - y)*(my - y) <= 25*25);
 }
 //THEM NODE 
-void AddNode(int &x, int &y, string &ten){
-	getmouseclick(WM_LBUTTONDOWN, x, y);
-	if(x > 440 && x < 1150 && y > 90 && y < 560){
-		setlinestyle(0, 0, 2);
-		circle(x, y, 25);
-		ten = AddName_Weight(1200, 800, "ten");
-		CreateNode(x, y, (char*)ten.c_str(), BLUE);
+void AddNode(int &x, int &y, string &ten, bool flag){
+	if(flag == true){
+		getmouseclick(WM_LBUTTONDOWN, x, y);
+		if(x > 440 && x < 1150 && y > 90 && y < 560){
+			setlinestyle(0, 0, 2);
+			circle(x, y, 25);
+			ten = AddName_Weight(1200, 800, "ten");
+			CreateNode(x, y, (char*)ten.c_str(), BLUE);
+		}
 	}
+	else{
+		getmouseclick(WM_LBUTTONDOWN, x, y);
+		if(x > 440 && x < 1150 && y > 90 && y < 560){
+			setlinestyle(0, 0, 2);
+			circle(x, y, 25);
+			CreateNode(x, y, (char*)ten.c_str(), BLUE);
+		}
+	}	
 }
 //DOI TEN NODE
 void Rename(int x, int y, string &ten){// x, y sau nay se truyen node[i].x, node[i].y
@@ -251,23 +260,19 @@ void Rename(int x, int y, string &ten){// x, y sau nay se truyen node[i].x, node
 	ten = AddName_Weight(1200, 800, "ten");
 	CreateNode(x, y, (char*)ten.c_str(), BLUE);
 }
+//KIEM TRA VI TRI
+bool CheckPos(int mx, int my, Node *node[], int numberNode){
+	int count = 0;
+	if(mx > 440 && mx < 1150 && my > 90 && my < 560) return true;
+	for (int i = 0; i < numberNode; ++i){
+		if((mx - node[i]->x)*(mx - node[i]->x) + (my - node[i]->y)*(my - node[i]->y) >=  75*75){
+			count++;
+		}
+	}
+	if(count == numberNode) return true;
+	else return false;
+}
 
-//SUA NODE 
-// void EditNode(int x, int y, string &ten){
-// 	int mx, my;
-// 	getmouseclick(WM_LBUTTONDOWN, mx, my);
-// 	// for(int i=0; i<15; i++){
-// 	// 	if(CheckNode(node[i].x, node[i].y, x, y)){
-// 	// 		node[i].name = Notification(1200, 800, "ten");
-// 	// 	}
-// 	// }
-// 	// if()
-// 	if(CheckNode(x, y, mx, my)){
-
-// 		ten = AddName_Weight(1200, 800, "ten");
-
-// 	}
-// }
 //Thong bao
 void NotificationFull(int maxx, int maxy, string Noti){
 	bar(maxx/3 + 10, 602, maxx - 11, maxy - 11);
@@ -289,11 +294,13 @@ int main(){
 //	char node1[] = "00";
 //	CreateNode(500, 500, node1, BLACK); 
 //	NotificationFull(1200, 800);
-	// label:
+	
 	// // for (int i = 0; i < numberNode; ++i){
 	// // 	cout<<node[i]->x<<' '<<node[i]->y<<' '<<node[i]->name<<'\n';
 	// // }
-	NotificationFull(1200, 800, "HAY CHON CHUC NANG");
+	
+	NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
+	label:
 	while(true){
 		if(kbhit()){
 			char key = getch();
@@ -304,12 +311,12 @@ int main(){
 		if(ismouseclick(WM_LBUTTONDOWN)) {
 			getmouseclick(WM_LBUTTONDOWN, x, y);
 			if(x < 590 && x > 445 && y > 10 && y < 52){//Nhan nut AddVerTex
-				NotificationFull(1200, 800, "HAY CLICK CHUOT TRAI VAO VUNG TRONG DE THEM DINH");
+				NotificationFull(1200, 800, "HAY CLICK CHUOT TRAI VAO VUNG TRONG DE THEM DINH!");
 				if(numberNode < 15){
 					while(!kbhit()){
 						if (numberNode >= 15) 
 							break;
-						AddNode(x, y, ten);
+						AddNode(x, y, ten, true);
 						if(x != -1 && y != -1){
 							Node *n = new Node;
 							n->name = ten;
@@ -317,7 +324,7 @@ int main(){
 							n->y = y;
 							node[numberNode] = n;
 							numberNode++;
-							NotificationFull(1200, 800, "HAY CHON CHUC NANG");
+							NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
 							break;
 						}
 					}	
@@ -341,7 +348,7 @@ int main(){
 						}
 						if(flag == false) NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN DOI TEN!");
 						else {
-							NotificationFull(1200, 800, "HAY CHON CHUC NANG");
+							NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
 							break;
 						}
 					}
@@ -350,13 +357,52 @@ int main(){
 			// else if(x < 735 && x > 590 && y > 10 && y < 52){//Nhan nut AddEdge
 
 			// }
-			// else if(x < 880 && x > 735 && y > 10 && y < 52){//Nhan nut Move
-
-			// }
-			
-			// else if(x < 1170 && x > 1025 && y > 10 && y < 52){//Nhan nut Delete
-
-			// }
+			else if(x < 880 && x > 735 && y > 10 && y < 52){//Nhan nut Move
+				NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN DI CHUYEN!");
+				while(!kbhit()){
+					getmouseclick(WM_LBUTTONDOWN, x, y);
+					if(x != -1 && y != -1){
+						string tmp;
+						for(int i=0; i<numberNode; i++){
+							if(CheckNode(node[i]->x, node[i]->y, x, y)){
+								NotificationFull(1200, 800, "HAY CLICK VAO NOI CAN DI CHUYEN TOI!");
+								tmp = node[i]->name;
+								while(!kbhit()){
+									AddNode(x, y, tmp, false);
+									setcolor(WHITE);
+									fillellipse(node[i]->x, node[i]->y, 30, 30);
+									setcolor(BLUE);
+									if(x != -1 && y != -1){
+										node[i]->x = x;
+										node[i]->y = y;
+										NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
+										goto label;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(x < 1170 && x > 1025 && y > 10 && y < 52){//Nhan nut Delete
+				NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN XOA!");
+				while(!kbhit()){
+					getmouseclick(WM_LBUTTONDOWN, x, y);
+					if(x != -1 && y != -1){
+						string tmp;
+						for(int i=0; i<numberNode; i++){
+							if(CheckNode(node[i]->x, node[i]->y, x, y)){
+								setcolor(WHITE);
+								fillellipse(node[i]->x, node[i]->y, 30, 30);
+								setcolor(BLUE);
+								delete node[i];
+								NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
+								goto label;
+							}
+						}
+					}
+				}
+			}
 		}	
 	}
 	return 0;
