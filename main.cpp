@@ -18,6 +18,7 @@
 #define LIGHTMAGENTA 13 
 #define YELLOW 14 
 #define WHITE 15
+const int maxx = 1200, maxy = 800;
 using namespace std;
 //VE MAN HINH
 struct Node{
@@ -51,9 +52,9 @@ void createScreenWelcome(){
 	Sleep(3000);
 	closegraph();
 }
-void CreateScreen(int maxx, int maxy){
-	char Menu[9][10] = {"DFS", "BFS", "X->Y", "TPLT", "Hamilton", "Euler", "Dinh tru", "Dinh that", "Canh cau"};
-	char Toolbar[8][10] = {"New", "Open", "Save", "AddVertex", "AddEdge", "Move", "Rename", "Delete"};
+void CreateScreen(){
+	char Menu[9][15] = {"    DFS", "    BFS", "    X->Y", "   TPLT", "Hamilton", "    Euler", "  Dinh tru", "Dinh that", "Canh cau"};
+	char Toolbar[8][15] = {"      New", "     Open", "     Save", " AddVertex", "  AddEdge", "     Move", "   Rename", "      Delete"};
 	initwindow(1209, 813);
 	setbkcolor(15);
 	setcolor(BLUE);
@@ -67,9 +68,9 @@ void CreateScreen(int maxx, int maxy){
 	for(int i=1; i<8; i++){
 		rectangle(10 + i*(maxx/8-5), 10, 10 + (i-1)*(maxx/8-5), 52);
 		settextstyle(3, HORIZ_DIR, 3);
-		outtextxy(10 + (i-1)*(maxx/8 - 5) + 10, 10 + 10, Toolbar[i-1]);
+		outtextxy(10 + (i-1)*(maxx/8 - 5) + 10, 10 + 5, Toolbar[i-1]);
 		if(i == 7){
-			outtextxy(10 + (i)*(maxx/8-5) + 10, 10 + 10, Toolbar[i]);
+			outtextxy(10 + (i)*(maxx/8-5) + 10, 10 + 5, Toolbar[i]);
 		}
 	}
 	//ve khung thanh cong cu
@@ -83,18 +84,16 @@ void CreateScreen(int maxx, int maxy){
 	int c = 0;// bien c la bien lay vi tri cua ten menu trong mang Menu
 	for(int i = 1; i <= 3; i++){
 		for(int j = 1; j <= 3; j++){
-			rectangle(10 + j*125 + (j)*4, 95 + (i-1)*69 + (i)*4, 10 + (j-1)*125 + j*4, 69 + 95 + (i-1)*69 + i*4);
+			rectangle(10 + j*125 + j*4, 95 + (i-1)*69 + (i)*4, 10 + (j-1)*125 + j*4, 69 + 95 + (i-1)*69 + i*4);
 			//123 la chieu dai cua tung o trong menu; 10, 95 lan luot la vi tri bat dau cua x, y; 65 la do rong cua o
 			//setbkcolor(14);
-			outtextxy(10 + (j-1)*123 + j*4 + 20, 80 + (i-1)*76 + 35, Menu[c]);
+			outtextxy(10 + (j-1)*125 + j*4 + 14, 95 + (i-1)*69 + (i)*4 + 18, Menu[c]);
 			c++;
 		}
 	}
 	//ve o Topo Sort
-	rectangle(15, 318, maxx/3 - 2, maxy/2-5-4);
+	rectangle(15, 318, maxx/3 - 2, maxy/2 - 9);
 	//ghi chu Topo Sort
-	//setfillstyle(1, 7); bar(10, 320, 322, 362);
-	//setbkcolor(7);
 	outtextxy(155, 340, "Topo Sort");
 	
 	//ve khung huong dan
@@ -133,12 +132,12 @@ void CreatePhim(int x, int y, char name[]){
 	circle(x, y, 35);
 }
 //NHAP TRONG SO && NHAP TEN
-string AddName_Weight(int maxx, int maxy, string name){
+string AddName_Weight(string name){
 	label1:
 	bar(maxx/3 + 10, 602, maxx - 11, maxy - 11);
 	string s = "Nhap vao ";
 	int x, y;
-	if(name == "ten") s += name + "(00 -> 99): ";
+	if(name == "ten") s += name + "(01 -> 99): ";
 	else s += name + "(0 -> 99): ";
 	char *n= (char*)s.c_str();
 	outtextxy(maxx/3 + 20, 610, n);
@@ -240,7 +239,7 @@ void AddNode(int &x, int &y, string &ten, bool flag){
 		if(x > 440 && x < 1150 && y > 90 && y < 560){
 			setlinestyle(0, 0, 2);
 			circle(x, y, 25);
-			ten = AddName_Weight(1200, 800, "ten");
+			ten = AddName_Weight("ten");
 			CreateNode(x, y, (char*)ten.c_str(), BLUE);
 		}
 	}
@@ -258,7 +257,7 @@ void Rename(int x, int y, string &ten){// x, y sau nay se truyen node[i].x, node
 	fillellipse(x, y, 25, 25);
 	setlinestyle(0, 0, 2);
 	circle(x, y, 25);
-	ten = AddName_Weight(1200, 800, "ten");
+	ten = AddName_Weight("ten");
 	CreateNode(x, y, (char*)ten.c_str(), BLUE);
 }
 //KIEM TRA VI TRI
@@ -275,46 +274,125 @@ bool CheckPos(int mx, int my, Node *node[], int numberNode){
 }
 
 //Thong bao
-void NotificationFull(int maxx, int maxy, string Noti){
+void NotificationFull(string Noti){
 	bar(maxx/3 + 10, 602, maxx - 11, maxy - 11);
 	setcolor(RED);
 	outtextxy(500, 680, (char *)Noti.c_str());
 	setcolor(BLUE);
 	//bar(maxx/3 + 10, 602, maxx - 11, maxy - 11);
 }
+void SubEffect(int x1, int y1, int x2, int y2, char a[], int color, bool flag){
+	if(flag == true){
+		setfillstyle(1, color); 
+		bar(x1+2, y1+2, x2-2, y2-2);
+		setbkcolor(color);
+		outtextxy(x1 + 10, y1 + 5, a); 
+		Sleep(1);
+	}
+	else{
+		setfillstyle(1, color); 
+		bar(x1+2, y1+2, x2-2, y2-2);
+		setbkcolor(color);
+		outtextxy(x1 + 14, y1 + 18, a); 
+		Sleep(1);
+	}
+}
+//Hieu ung cho dep 
+void Effect(bool flag){
+	char Menu[9][15] = {"    DFS", "    BFS", "    X->Y", "   TPLT", "Hamilton", "    Euler", "  Dinh tru", "Dinh that", "Canh cau"};
+	char Toolbar[8][15] = {"      New", "     Open", "     Save", " AddVertex", "  AddEdge", "     Move", "   Rename", "      Delete"};
+	if(flag == true){//flag == true : dang tao do thi moi
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 10 && mousex() < 155 && mousey() > 10 && mousey() < 52) SubEffect(10, 10, 155, 52, Toolbar[0], LIGHTGREEN, true);
+		else SubEffect(10, 10, 155, 52, Toolbar[0], WHITE, true);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 155 && mousex() < 300 && mousey() > 10 && mousey() < 52) SubEffect(155, 10, 300, 52, Toolbar[1], LIGHTGREEN, true);
+		else SubEffect(155, 10, 300, 52, Toolbar[1], WHITE, true);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 300 && mousex() < 445 && mousey() > 10 && mousey() < 52) SubEffect(300, 10, 445, 52, Toolbar[2], LIGHTGREEN, true);	
+		else SubEffect(300, 10, 445, 52, Toolbar[2], WHITE, true);	
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 445 && mousex() < 590 && mousey() > 10 && mousey() < 52) SubEffect(445, 10, 590, 52, Toolbar[3], LIGHTGREEN, true);
+		else SubEffect(445, 10, 590, 52, Toolbar[3], WHITE, true);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 590 && mousex() < 735 && mousey() > 10 && mousey() < 52) SubEffect(590, 10, 735, 52, Toolbar[4], LIGHTGREEN, true);
+		else SubEffect(590, 10, 735, 52, Toolbar[4], WHITE, true);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 735 && mousex() < 880 && mousey() > 10 && mousey() < 52) SubEffect(735, 10, 880, 52, Toolbar[5], LIGHTGREEN, true);
+		else SubEffect(735, 10, 880, 52, Toolbar[5], WHITE, true);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 880 && mousex() < 1025 && mousey() > 10 && mousey() < 52) SubEffect(880, 10, 1025, 52, Toolbar[6], LIGHTGREEN, true);
+		else SubEffect(880, 10, 1025, 52, Toolbar[6], WHITE, true);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 1025 && mousex() < 1190 && mousey() > 10 && mousey() < 52) SubEffect(1025, 10, 1190, 52, Toolbar[7], LIGHTGREEN, true);
+		else SubEffect(1025, 10, 1190, 52, Toolbar[7], WHITE, true);
+	}
+	else{
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 14 && mousex() < 139 && mousey() > 99 && mousey() < 168) SubEffect(14, 99, 139, 168, Menu[0], LIGHTGREEN, false);
+		else SubEffect(14, 99, 139, 168, Menu[0], WHITE, false);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 143 && mousex() < 268 && mousey() > 99 && mousey() < 168) SubEffect(143, 99, 268, 168, Menu[1], LIGHTGREEN, false);
+		else SubEffect(143, 99, 268, 168, Menu[1], WHITE, false);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 272 && mousex() < 397 && mousey() > 99 && mousey() < 168) SubEffect(272, 99, 397, 168, Menu[2], LIGHTGREEN, false);
+		else SubEffect(272, 99, 397, 168, Menu[2], WHITE, false);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 14 && mousex() < 139 && mousey() > 172 && mousey() < 241) SubEffect(14, 172, 139, 241, Menu[3], LIGHTGREEN, false);
+		else SubEffect(14, 172, 139, 241, Menu[3], WHITE, false);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 143 && mousex() < 268 && mousey() > 172 && mousey() < 241) SubEffect(143, 172, 268, 241, Menu[4], LIGHTGREEN, false);
+		else SubEffect(143, 172, 268, 241, Menu[4], WHITE, false);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 272 && mousex() < 397 && mousey() > 172 && mousey() < 241) SubEffect(272, 172, 397, 241, Menu[5], LIGHTGREEN, false);
+		else SubEffect(272, 172, 397, 241, Menu[5], WHITE, false);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 14 && mousex() < 139 && mousey() > 245 && mousey() < 314) SubEffect(14, 245, 139, 314, Menu[6], LIGHTGREEN, false);
+		else SubEffect(14, 245, 139, 314, Menu[6], WHITE, false);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 143 && mousex() < 268 && mousey() > 245 && mousey() < 314) SubEffect(143, 245, 268, 314, Menu[7], LIGHTGREEN, false);
+		else SubEffect(143, 245, 268, 314, Menu[7], WHITE, false);
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 272 && mousex() < 397 && mousey() > 245 && mousey() < 314) SubEffect(272, 245, 397, 314, Menu[8], LIGHTGREEN, false);
+		else SubEffect(272, 245, 397, 314, Menu[8], WHITE, false);
+		
+		if(ismouseclick(WM_LBUTTONDOWN) == false && mousex() > 15 && mousex() < 398 && mousey() > 318 && mousey() < 391){
+			setfillstyle(1, LIGHTGREEN); 
+			bar(17, 320, 396, 391);
+			setbkcolor(LIGHTGREEN);
+			outtextxy(155, 340, "Topo Sort");
+			Sleep(1);
+		} 
+		else{
+			setfillstyle(1, WHITE); 
+			bar(17, 320, 396, 391);
+			setbkcolor(WHITE);
+			outtextxy(155, 340, "Topo Sort");
+			Sleep(1);
+		} 
+	}
+}
 int main(){
 	Node *node[15];
 	int numberNode = 0;
-	//createScreenWelcome();
-	CreateScreen(1200, 800);
+	// createScreenWelcome();
+	CreateScreen();
+
 	int x, y;
 	string ten;
-
-	while(true){
+	NotificationFull("HAY MO DO THI CO SAN HOAC TAO MOT DO THI MOI!");
+	while(true){//Kiem tra khi mới vào. CHỉ được nhấn 1 trong 2 nút: New, Open
+		cout<<mousex()<<' '<<mousey()<<"\n";
 		if(kbhit()){
 			char key = getch();
 			if(key == 27){
 				break;
 			}
 		}
+		Effect(true);
 		if(ismouseclick(WM_LBUTTONDOWN)) {
 			getmouseclick(WM_LBUTTONDOWN, x, y);
-			if(x>10 && x < 155 && y > 10 && y < 52){//Nhat nut New
-				NotificationFull(1200, 800, "HAY NHAP DO THI MOI!");
+			if(x > 10 && x < 155 && y > 10 && y < 52){//Nhat nut New
+				NotificationFull("HAY NHAP DO THI MOI!");
 				Sleep(1500);
-				NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
+				NotificationFull("CHON CHUC NANG HOAC NHAN ESC DE DUNG TAO DO THI!");
 				label:
 				while(true){
 					if(kbhit()){
 						char key = getch();
 						if(key == 27){
+							NotificationFull("BAN DA THOAT. NHAN SAVE DE LUU DO THI");
 							break;
 						}
 					}
+					Effect(false);
 					if(ismouseclick(WM_LBUTTONDOWN)){
 						getmouseclick(WM_LBUTTONDOWN, x, y);
 						if(x < 590 && x > 445 && y > 10 && y < 52){//Nhan nut AddVerTex
-							NotificationFull(1200, 800, "HAY CLICK CHUOT TRAI VAO VUNG TRONG DE THEM DINH!");
+							NotificationFull("HAY CLICK CHUOT TRAI VAO VUNG TRONG DE THEM DINH!");
 							if(numberNode < 15){
 								while(!kbhit()){
 									if (numberNode >= 15) 
@@ -327,17 +405,17 @@ int main(){
 										n->y = y;
 										node[numberNode] = n;
 										numberNode++;
-										NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
+										NotificationFull("CHON CHUC NANG HOAC NHAN ESC DE DUNG TAO DO THI!");
 										break;
 									}
 								}	
 							}
 							else{
-								NotificationFull(1200, 800, "DO THI DA DAY, KHONG THE THEM DINH!");
+								NotificationFull("DO THI DA DAY, KHONG THE THEM DINH!");
 							}
 						}
 						else if(x < 1025 && x > 880 && y > 10 && y < 52){//Nhan nut Rename
-							NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN DOI TEN!");
+							NotificationFull("HAY CLICK VAO DINH CAN DOI TEN!");
 							while(!kbhit()){
 								getmouseclick(WM_LBUTTONDOWN, x, y);
 								if(x != -1 && y != -1){
@@ -349,9 +427,9 @@ int main(){
 											break;
 										}
 									}
-									if(flag == false) NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN DOI TEN!");
+									if(flag == false) NotificationFull("HAY CLICK VAO DINH CAN DOI TEN!");
 									else {
-										NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
+										NotificationFull("CHON CHUC NANG HOAC NHAN ESC DE DUNG TAO DO THI!");
 										break;
 									}
 								}
@@ -361,14 +439,14 @@ int main(){
 
 						// }
 						else if(x < 880 && x > 735 && y > 10 && y < 52){//Nhan nut Move
-							NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN DI CHUYEN!");
+							NotificationFull("HAY CLICK VAO DINH CAN DI CHUYEN!");
 							while(!kbhit()){
 								getmouseclick(WM_LBUTTONDOWN, x, y);
 								if(x != -1 && y != -1){
 									string tmp;
 									for(int i=0; i<numberNode; i++){
 										if(CheckNode(node[i]->x, node[i]->y, x, y)){
-											NotificationFull(1200, 800, "HAY CLICK VAO NOI CAN DI CHUYEN TOI!");
+											NotificationFull("HAY CLICK VAO NOI CAN DI CHUYEN TOI!");
 											tmp = node[i]->name;
 											while(!kbhit()){
 												AddNode(x, y, tmp, false);
@@ -378,7 +456,7 @@ int main(){
 												if(x != -1 && y != -1){
 													node[i]->x = x;
 													node[i]->y = y;
-													NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
+													NotificationFull("CHON CHUC NANG HOAC NHAN ESC DE DUNG TAO DO THI!");
 													goto label;
 												}
 											}
@@ -388,7 +466,7 @@ int main(){
 							}
 						}
 						else if(x < 1170 && x > 1025 && y > 10 && y < 52){//Nhan nut Delete
-							NotificationFull(1200, 800, "HAY CLICK VAO DINH CAN XOA!");
+							NotificationFull("HAY CLICK VAO DINH CAN XOA!");
 							while(!kbhit()){
 								getmouseclick(WM_LBUTTONDOWN, x, y);
 								if(x != -1 && y != -1){
@@ -399,7 +477,7 @@ int main(){
 											fillellipse(node[i]->x, node[i]->y, 30, 30);
 											setcolor(BLUE);
 											delete node[i];
-											NotificationFull(1200, 800, "HAY CHON CHUC NANG!");
+											NotificationFull("CHON CHUC NANG HOAC NHAN ESC DE DUNG TAO DO THI!");
 											goto label;
 										}
 									}
@@ -409,6 +487,12 @@ int main(){
 					}	
 				}
 			}
+			// else if(x > 155 && x < 300 && y > 10 && y < 52){//Nhan nut Save
+
+			// }
+			// else if(x > 300 && x < 445 && y > 10 && y < 52){//Nhan nut Open
+
+			// }
 		}	
 	}
 	return 0;
