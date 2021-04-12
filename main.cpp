@@ -107,7 +107,9 @@ int main(){
 								goto label;
 							}
 						}
+						// else if(x < 735 && x > 590 && y > 10 && y < 52){//Nhan nut AddEdge
 
+						// }
 						else if(x < 1025 && x > 880 && y > 10 && y < 52){//Nhan nut Rename
 							NotificationFull("HAY CLICK VAO DINH CAN DOI TEN!");
 							while(!kbhit()){
@@ -129,9 +131,7 @@ int main(){
 								}
 							}	
 						}
-						// else if(x < 735 && x > 590 && y > 10 && y < 52){//Nhan nut AddEdge
-
-						// }
+						
 						else if(x < 880 && x > 735 && y > 10 && y < 52){//Nhan nut Move
 							move:
 							NotificationFull("CLICK VAO DINH CAN DI CHUYEN HOAC NHAN ESC DE THOAT!");
@@ -612,3 +612,4 @@ void drawcurved1(int x1, int y1, int x2, int y2, int color) {
 	arc(xI, yI, startAngle, endAngle, r1);
 }
 
+///////////////////////////////////////////thuat toan/////////////////////////////////////////////////

@@ -23,7 +23,7 @@ struct Queue{
 		}
 		rear = p;
 	}
-	int pop(int &tmp){
+	int pop(){
 		if (empty()) return -1;
 		//delete p=front
 		qNode *p = front;
