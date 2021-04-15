@@ -1,3 +1,4 @@
+
 void createScreenWelcome(string s);
 void CreateScreen();
 void CreateNode(int x, int y, char name[], int color);

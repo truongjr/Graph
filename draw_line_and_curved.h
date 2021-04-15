@@ -1,3 +1,27 @@
+#include<winbgim.h>
+#include<iostream>
+#include<string>
+#include<windows.h>
+#include<algorithm>
+#include<cmath>
+#define BLACK 0
+#define BLUE 1 
+#define GREEN 2 
+#define CYAN 3 
+#define RED 4
+#define MAGENTA 5 
+#define BROWN 6 
+#define LIHGTGRAY 7 
+#define DARKGRAY 8 
+#define LIGHTBLUE 9 
+#define LIGHTGREEN 10 
+#define LIGHTCYAN 11 
+#define LIGHTRED 12 
+#define LIGHTMAGENTA 13 
+#define YELLOW 14 
+#define WHITE 15
+#define M_PI 3.14159265358979323846
+const int maxx = 1200, maxy = 800;
 void drawtriangle(int x1, int y1, int x2, int y2, int color) {
 	setcolor(color);
 	double s60 = sin(60 * M_PI / 180);
