@@ -37,24 +37,23 @@ void DrawCurved1(int x1, int y1, int x2, int y2, char *tt, int color) {
 	double param2 = (x4 - xI) * 1.0 / r1;
 	double angle1 = acos(param1) * 180.0 / M_PI;
 	double angle2 = acos(param2) * 180.0 / M_PI;
-	double startAngle, endAngle;
-	int cnt;
+	double startAngle = 0.0, endAngle = 0.0;
 	if (x3 >= xI && y3 <= yI && x4 >= xI && y4 <= yI)
-		startAngle = -360 + angle2, endAngle = -360 + angle1, cnt = 1;
+		startAngle = -360 + angle2, endAngle = -360 + angle1;
 	else if (x3 >= xI && y3 <= yI && x4 >= xI && y4 > yI) 
-		startAngle = -angle2, endAngle = -360 + angle1, cnt = 2;
+		startAngle = -angle2, endAngle = -360 + angle1;
 	else if (x3 >= xI && y3 > yI && x4 >= xI && y4 > yI)
-		startAngle = -angle2, endAngle = -angle1, cnt = 3;
+		startAngle = -angle2, endAngle = -angle1;
 	else if (x3 >= xI && y3 > yI && x4 < xI && y4 > yI)
-		startAngle = -angle2, endAngle = -angle1, cnt = 4;
+		startAngle = -angle2, endAngle = -angle1;
 	else if (x3 < xI && y3 > yI && x4 < xI && y4 > yI) 
-		startAngle = -angle2, endAngle = -angle1, cnt = 5;
+		startAngle = -angle2, endAngle = -angle1;
 	else if (x3 < xI && y3 > yI && x4 < xI && y4 <= yI) 
-		startAngle = -360 + angle2, endAngle = -angle1, cnt = 6;
+		startAngle = -360 + angle2, endAngle = -angle1;
 	else if (x3 < xI && y3 <= yI && x4 < xI && y4 <= yI)
-		startAngle = -360 + angle2, endAngle = -360 + angle1, cnt = 7;
+		startAngle = -360 + angle2, endAngle = -360 + angle1;
 	else if (x3 < xI && y3 <= yI && x4 >= xI && y4 <= yI)
-		startAngle = -360 + angle2, endAngle = -360 + angle1, cnt = 8;
+		startAngle = -360 + angle2, endAngle = -360 + angle1;
 //	cout << cnt << "\n";
 	double s45 = sin(45 * M_PI / 180.0);
 	double c45 = cos(45 * M_PI / 180.0);
@@ -70,7 +69,7 @@ void DrawCurved1(int x1, int y1, int x2, int y2, char *tt, int color) {
 	double y5 = -sAngle3 * (x4 - xI) + cAngle3 * (y4 - yI) + yI;
 	DrawTriangle(x5, y5, x4, y4, color);
 	arc(xI, yI, startAngle, endAngle, r1);
-	outtextxy(xT, yT, tt);
+	outtextxy(xT - 5, yT - 5, tt);
 }
 void CreateCurved(int x1, int y1, int x2, int y2, char *tt, int color) {
 	setcolor(color);
@@ -97,24 +96,23 @@ void CreateCurved(int x1, int y1, int x2, int y2, char *tt, int color) {
 	double angle1 = acos(param1) * 180.0 / M_PI;
 	double angle2 = acos(param2) * 180.0 / M_PI;
 //	cout << angle1 << " " << angle2 << "\n";
-	double startAngle, endAngle;
-	int cnt;
+	double startAngle = 0.0, endAngle = 0.0;
 	if (x3 >= xI && y3 <= yI && x4 >= xI && y4 <= yI)
-		startAngle = angle1, endAngle = angle2, cnt = 1;
+		startAngle = angle1, endAngle = angle2;
 	else if (x3 >= xI && y3 > yI && x4 >= xI && y4 <= yI) 
-		startAngle = 360 - angle1, endAngle = 360 + angle2, cnt = 2;
+		startAngle = 360 - angle1, endAngle = 360 + angle2;
 	else if (x3 >= xI && y3 > yI && x4 >= xI && y4 > yI)
-		startAngle = 360 - angle1, endAngle = 360 - angle2, cnt = 3;
+		startAngle = 360 - angle1, endAngle = 360 - angle2;
 	else if (x3 < xI && y3 > yI && x4 >= xI && y4 > yI)
-		startAngle = 360 - angle1, endAngle = 360 - angle2, cnt = 4;
+		startAngle = 360 - angle1, endAngle = 360 - angle2;
 	else if (x3 < xI && y3 > yI && x4 < xI && y4 > yI) 
-		startAngle = 360 - angle1, endAngle = 360 - angle2, cnt = 5;
+		startAngle = 360 - angle1, endAngle = 360 - angle2;
 	else if (x3 < xI && y3 <= yI && x4 < xI && y4 > yI) 
-		startAngle = angle1, endAngle = 360 - angle2, cnt = 6;
+		startAngle = angle1, endAngle = 360 - angle2;
 	else if (x3 < xI && y3 <= yI && x4 < xI && y4 <= yI)
-		startAngle = angle1, endAngle = angle2, cnt = 7;
+		startAngle = angle1, endAngle = angle2;
 	else if (x3 >= xI && y3 <= yI && x4 < xI && y4 <= yI)
-		startAngle = angle1, endAngle = angle2, cnt = 8;
+		startAngle = angle1, endAngle = angle2;
 	double s45 = sin(45 * M_PI / 180.0);
 	double c45 = cos(45 * M_PI / 180.0); 
 	double xT = c45 * (x2 - xI) - s45 * (y2 - yI) + xI;
@@ -133,7 +131,7 @@ void CreateCurved(int x1, int y1, int x2, int y2, char *tt, int color) {
 	//line(xI, yI, x5, y5);
 	DrawTriangle(x5, y5, x4, y4, color);
 	arc(xI, yI, startAngle, endAngle, r1);
-	outtextxy(xT, yT, tt);
+	outtextxy(xT - 5, yT - 5, tt);
 }
 void CreateLine(int x1, int y1, int x2, int y2, char *tt, int color) {
 	// tim diem dau tien
@@ -175,20 +173,20 @@ void CreateLine(int x1, int y1, int x2, int y2, char *tt, int color) {
 	// ve duong thang
 	line(ax, ay, bx, by);
 	DrawTriangle(x3, y3, ax, ay, color);
-	outtextxy(xT, yT, tt);
+	outtextxy(xT - 5, yT - 5, tt);
 }
 void DrawGraph(Node *node[14], int numberNode, int adj[14][14], int type[14][14]) {
 	for (int i = 0; i < numberNode; ++i) {
 		string temp = node[i]->name;
 		char *res = &temp[0];
-		CreateNode(node[i]->x, node[i]->y, res, 3);
+		CreateNode(node[i]->x, node[i]->y, res, BLUE);
 	}
 	for (int i = 0; i < numberNode; ++i) {
 		for (int row = i; row < numberNode; ++row) {
 			if (adj[row][i]) {
 				string s = to_string(adj[row][i]);
 				char *res = &s[0];
-				CreateLine(node[row]->x, node[row]->y, node[i]->x, node[i]->y, res, 3);
+				CreateLine(node[row]->x, node[row]->y, node[i]->x, node[i]->y, res, BLUE);
 				type[row][i] = 1;
 			}
 		}
@@ -196,20 +194,20 @@ void DrawGraph(Node *node[14], int numberNode, int adj[14][14], int type[14][14]
 			if (adj[i][col]) {
 				string s = to_string(adj[i][col]);
 				char *res = &s[0];
-				if (adj[i][col]) {
-					CreateCurved(node[i]->x, node[i]->y, node[col]->x, node[col]->y, res, 3);
+				if (adj[col][i]) {
+					CreateCurved(node[i]->x, node[i]->y, node[col]->x, node[col]->y, res, BLUE);
 					type[i][col] = 2;
 				} else {
-					CreateLine(node[i]->x, node[i]->y, node[col]->x, node[col]->y, res, 3);
-					type[i][col] = 2;
+					CreateLine(node[i]->x, node[i]->y, node[col]->x, node[col]->y, res, BLUE);
+					type[i][col] = 1;
 				}
 			}
 		}
 	}
 }
-void DeleteEdge(int &numberNode, Node *node[14], int adj[14][14], int type[14][14]) {
+void DeleteEdge(Node *node[14], int &numberNode, int adj[14][14], int type[14][14]) {
 	int x1, y1, x2, y2;
-	int src, dest;
+	int src = -1, dest = -1;
 	bool flag = true;
 	while(!kbhit() && flag) {
 		getmouseclick(WM_LBUTTONDOWN, x1, y1);
@@ -242,20 +240,22 @@ void DeleteEdge(int &numberNode, Node *node[14], int adj[14][14], int type[14][1
 	}
 	if (src != dest) {
 		if (adj[src][dest]) {
+			string empty = "  ";
+			char *res = &empty[0];
 			if (type[src][dest] == 1) 
-				CreateLine(node[src]->x, node[src]->y, node[dest]->x, node[dest]->y, "  ", 0);
+				CreateLine(node[src]->x, node[src]->y, node[dest]->x, node[dest]->y, res, WHITE);
 			else if (type[src][dest] == 2) 
-				CreateCurved(node[src]->x, node[src]->y, node[dest]->x, node[dest]->y, "  ", 0);
+				CreateCurved(node[src]->x, node[src]->y, node[dest]->x, node[dest]->y, res, WHITE);
 			adj[src][dest] = 0;
 			type[src][dest] = 0;
 			DrawGraph(node, numberNode, adj, type);
 		}
 	}
 }
-void DeleteVertex(int &numberNode, Node *node[14], int adj[14][14], int type[14][14]) {
+void DeleteVertex(Node *node[14], int &numberNode, int adj[14][14], int type[14][14]) {
 	int x, y;
 	bool flag = true;
-	int index;
+	int index = -1;
 	while(!kbhit() && flag) {
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if (x != -1 && y != -1) {
@@ -270,33 +270,38 @@ void DeleteVertex(int &numberNode, Node *node[14], int adj[14][14], int type[14]
 			}
 		}
 	}
-	CreateNode(x, y, "  ", 0);
+	string empty = "  ";
+	char *res = &empty[0];
+	CreateNode(x, y, res, 0);
 	for (int row = 0; row < numberNode; ++row) {
 		if (adj[row][index]) {
 			if (type[row][index] == 1) {
-				CreateLine(node[row]->x, node[row]->y, node[index]->x, node[index]->y, "  ", 0);
+				CreateLine(node[row]->x, node[row]->y, node[index]->x, node[index]->y, res, WHITE);
 			} else if (type[row][index] == 2) {
-				CreateCurved(node[row]->x, node[row]->y, node[index]->x, node[index]->y, "  ", 0);
+				CreateCurved(node[row]->x, node[row]->y, node[index]->x, node[index]->y, res, WHITE);
 			}
 		}
 	}
 	for (int col = 0; col < numberNode; ++col) {
 		if (adj[index][col]) {
 			if (type[index][col] == 1) {
-				CreateLine(node[index]->x, node[index]->y, node[col]->x, node[col]->y, "  ", 0);
+				CreateLine(node[index]->x, node[index]->y, node[col]->x, node[col]->y, res, WHITE);
 			} else if (type[index][col] == 2) {
-				CreateCurved(node[index]->x, node[index]->y, node[col]->x, node[col]->y, "  ", 0);
+				CreateCurved(node[index]->x, node[index]->y, node[col]->x, node[col]->y, res, WHITE);
 			}
 		}
 	}
+	// xoa dinh -> xoa node trong mang node
 	for (int i = index; i < numberNode - 1; ++i)
 		node[i] = node[i + 1];
+	// xoa cot
 	for (int i = index; i < numberNode - 1; ++i) {
 		for (int j = 0; j < numberNode; ++j) {
 			adj[j][i] = adj[j][i + 1]; 
 			type[j][i] = type[j][i + 1];
 		}
 	} 
+	// xoa hang
 	for (int i = index; i < numberNode - 1; ++i) {
 		for (int j = 0; j < numberNode - 1; ++j) {
 			adj[i][j] = adj[i + 1][j];
@@ -304,5 +309,65 @@ void DeleteVertex(int &numberNode, Node *node[14], int adj[14][14], int type[14]
 		}
 	}
 	numberNode--;
+	DrawGraph(node, numberNode, adj, type);
+}
+void Move(Node *node[14], int &numberNode, int adj[14][14], int type[14][14]) {
+	int x1, y1, x2, y2;
+	int index = -1;
+	bool flag = true;
+	// bat phim dau
+	while(!kbhit() && flag) {
+		getmouseclick(WM_LBUTTONDOWN, x1, y1);
+		if (x1 != -1 && y1 != -1) {
+			for (int i = 0; i < numberNode; ++i) {
+				if (CheckNode(node[i]->x, node[i]->y, x1, y1)) {
+					x1 = node[i]->x;
+					y1 = node[i]->y;
+					flag = false;
+					index = i;
+					break;
+				}
+			}
+		}
+	}
+	// bat phim sau
+	while(!kbhit() && !flag) {
+		getmouseclick(WM_LBUTTONDOWN, x2, y2);
+		if (x2 != -1 && y2 != -1) {
+			int i;
+			for (i = 0; i < numberNode; ++i) {
+				if (CheckNode(node[i]->x, node[i]->y, x2, y2)) {
+					break;	
+				}
+			}
+			if (i == numberNode) {
+				break;
+			} 
+		}
+	}
+	// xoa nut hien tai
+	string empty = "  ";
+	char *res = &empty[0];
+	CreateNode(x1, y1, res, 0);
+	// xoa cac canh hien tai
+	for (int row = 0; row < numberNode; ++row) {
+		if (adj[row][index]) {
+			if (type[row][index] == 1) {
+				CreateLine(node[row]->x, node[row]->y, node[index]->x, node[index]->y, res, WHITE);
+			} else if (type[row][index] == 2) {
+				CreateCurved(node[row]->x, node[row]->y, node[index]->x, node[index]->y, res, WHITE);
+			}
+		}
+	}
+	for (int col = 0; col < numberNode; ++col) {
+		if (adj[index][col]) {
+			if (type[index][col] == 1) {
+				CreateLine(node[index]->x, node[index]->y, node[col]->x, node[col]->y, res, WHITE);
+			} else if (type[index][col] == 2) {
+				CreateCurved(node[index]->x, node[index]->y, node[col]->x, node[col]->y, res, WHITE);
+			}
+		}
+	}
+	node[index]->x = x2, node[index]->y = y2;
 	DrawGraph(node, numberNode, adj, type);
 }
