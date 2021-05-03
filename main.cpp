@@ -4,8 +4,9 @@
 #include <windows.h>
 #include <algorithm>
 #include <cmath>
+#include <fstream>
 #include "stack.h"
-// #include"queue.h"
+#include "queue.h"
 using namespace std;
 #define BLACK 0
 #define BLUE 1 
@@ -24,9 +25,17 @@ using namespace std;
 #define YELLOW 14 
 #define WHITE 15
 #define M_PI 3.14159265358979323846
+const int maxx = 1200, maxy = 800, MAXN = 14;
 struct Node{
 	string name;
 	int x, y;
+	Node() { }
+    Node(string Name, int X, int Y) {
+        name = Name;
+        x = X; 
+        y = Y;
+    }
+    ~Node() { }
 };
 typedef struct Node Node;
 struct Button{
@@ -35,20 +44,35 @@ struct Button{
 };
 typedef struct Button Button;
 struct ButtonCircle{
+	string name;
 	int x, y, r;
 };
 typedef struct ButtonCircle ButtonCircle;
-const int maxx = 1200, maxy = 800;
-int d[100];
-int cu=0;
+struct Graph{
+	int numberNode;
+	int adj[MAXN][MAXN], type[MAXN][MAXN];
+	Node *node[MAXN];
+	Graph(){
+		numberNode = 0;
+		for(int i = 0; i < MAXN; i++){
+			node[i] = NULL;
+			for(int j = 0; j < MAXN; j++){
+				adj[i][j] = 0;
+				type[i][j] = 0;
+			}
+		}
+	}
+	~Graph(){}
+};
+typedef struct Graph Graph;
 Button newButton, openButton, saveButton, addVertexButton, addEdgeButton, moveButton, renameButton, deleteButton; 
-Button dfsButton, bfsButton, shortestPathButton, tpltButton, hamiltonButton, eulerButton, dinhTruButton, dinhThatButton, canhCauButton, topoSortButton;
+Button dfsButton, bfsButton, shortestPathButton, ComponentButton, hamiltonButton, eulerButton, dinhTruButton, dinhThatButton, bridgeEdgeButton, topoSortButton;
 Button helpArea, processingArea, realProcessingArea, closeButton, scannerArea, continueButton, cancelButton;
 ButtonCircle delVertex, delEdge;
 void createScreenWelcome(string s);
 void CreateScreen();
 void CreateNode(int x, int y, char name[], int color);
-void CreateNotificationDel();
+void DrawSubDel();
 void CreateButton();
 void DrawMenuTable();
 void DrawToolBar();
@@ -58,10 +82,11 @@ void DrawButtonForToolBar(Button button);
 void DrawButtonForNoti(Button button);
 string AddName_Weight(string name);
 bool CheckNode(int x, int y, int mx, int my);
-bool CheckButton(Button button, int x, int y);
-bool CheckName(Node *node[], int numberNode, string name);
-bool CheckPos(Node *node[], int numberNode, int mx, int my);
-bool AddNode(Node *node[], int numberNode, int &x, int &y, string &ten, bool flag);
+bool CheckClickButton(Button button, int x, int y);
+bool CheckClickCircle(ButtonCircle button, int x, int y);
+bool CheckName(Graph &graph, string name);
+bool CheckPos(Graph &graph, int mx, int my);
+bool AddNode(Graph &graph, int &x, int &y, string &ten, bool flag);
 void Rename(int x, int y, string &ten);
 void NotificationFull(string Noti);
 // void SubEffectToolbar(Button button);
@@ -73,31 +98,24 @@ void NotificationFull(string Noti);
 // void EffectDel();
 // void EffectNumber();
 void DrawTriangle(int x1, int y1, int x2, int y2, int color);
-void DrawCurved1(Node *node1, Node *node2, char *tt, int color);
+void FlipCurved(Node *node1, Node *node2, char *tt, int color);
 void CreateCurved(Node *node1, Node *node2, char *tt, int color);
 void CreateLine(Node *node1, Node *node2, char *tt, int color);
-void DrawGraph(Node *node[], int numberNode, int adj[14][14], int type[14][14]);
-void DeleteEdge(Node *node[], int &numberNode, int adj[14][14], int type[14][14], int x1, int y1, int x2, int y2, int index1, int index2);
-void DeleteVertex(Node *node[], int &numberNode, int adj[14][14], int type[14][14], int x, int y, int index);
-void Move(Node *node[], int &numberNode, int adj[14][14], int type[14][14], int x1, int y1, int x2, int y2, int index);
-void DFS (Node *node[14], int numberNode, int adj[14][14], Node *n);
-
+void DrawGraph(Graph &graph);
+void DeleteEdge(Graph &graph, int x1, int y1, int x2, int y2, int index1, int index2);
+void DeleteVertex(Graph &graph, int x, int y, int index);
+void Move(Graph &graph, int x1, int y1, int x2, int y2, int index);
+void DFS (Graph &graph, int f);
+string ToStringLen2(int n);
+string ToString(int n);
+int ToInt(string s);
+void WriteFile(char *fileName, Graph &graph);
+void ReadFile(char *fileName, Graph &graph);
 int main(){
-	
-	Node *node[14];
-	int adj[14][14], type[14][14];
-	int numberNode = 0;
-	
-	//loai dinh: 0 la dinh
-	for(int i=0; i<14; i++){
-		for(int j=0; j<14; j++){
-			adj[i][j] = 0;
-			type[i][j] = 0;
-		}
-	}
+	Graph graph;
+
 	// createScreenWelcome();
 	CreateScreen();
-	//Tao Button id
 	CreateButton();
 	int x, y;
 	string ten;
@@ -111,7 +129,7 @@ int main(){
 		}
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if(x != -1 && y != -1){
-			if(x > closeButton.x1 && x < closeButton.x2 && y > closeButton.y1 && y < closeButton.y2){
+			if(CheckClickButton(closeButton, x, y)){
 				break;
 				closegraph();
 				// setbkcolor(BLACK);
@@ -119,6 +137,8 @@ int main(){
 			}
 			else{
 				if(x > newButton.x1 && x < newButton.x2 && y > newButton.y1 && y < newButton.y2){//Nhat nut New
+					ofstream outfile("saves/temp.txt");
+					// ReadFile("saves/temp.txt", graph);
 					NotificationFull("HAY NHAP DO THI MOI!");
 					gtnew:
 					while(true){
@@ -129,12 +149,12 @@ int main(){
 						// EffectToolbar();
 						getmouseclick(WM_LBUTTONDOWN, x, y);
 						if(x != -1 && y != -1){
-							if(x > closeButton.x1 && x < closeButton.x2 && y > closeButton.y1 && y < closeButton.y2){
+							if(CheckClickButton(closeButton, x, y)){
 								goto lable;
 							}
-							else if(x > addVertexButton.x1 && x < addVertexButton.x2 && y > addVertexButton.y1 && y < addVertexButton.y2){//Nhan nut AddVerTex
+							else if(CheckClickButton(addVertexButton, x, y)){//Nhan nut AddVerTex
 								addV:
-								if(numberNode < 14){
+								if(graph.numberNode < 14){
 									NotificationFull("CLICK CHUOT VAO VUNG TRONG DE THEM DINH HOAC NHAN THOAT!");
 									while(true){
 										if(kbhit()){
@@ -143,14 +163,14 @@ int main(){
 										}
 										getmouseclick(WM_LBUTTONDOWN, x, y);
 										if(x != -1 && y != -1){
-											if(x > closeButton.x1 && x < closeButton.x2 && y > closeButton.y1 && y < closeButton.y2){
+											if(CheckClickButton(closeButton, x, y)){
 												NotificationFull("BAN DA THOAT CHUC NANG!");
 												goto gtnew;
 											}
-											else if(x > realProcessingArea.x1 && x < realProcessingArea.x2 && y > realProcessingArea.y1 && y < realProcessingArea.y2){
-												if(CheckPos(node, numberNode, x, y)){
-													AddNode(node, numberNode, x, y, ten, true);
-													while(CheckName(node, numberNode, ten) == false){
+											else if(CheckClickButton(processingArea, x, y)){
+												if(CheckPos(graph, x, y)){
+													AddNode(graph, x, y, ten, true);
+													while(CheckName(graph, ten) == false){
 														ten = AddName_Weight("ten");
 														Rename(x, y, ten);
 													}
@@ -158,8 +178,8 @@ int main(){
 													n->name = ten;
 													n->x = x;
 													n->y = y;
-													node[numberNode] = n;
-													numberNode++;
+													graph.node[graph.numberNode] = n;
+													graph.numberNode++;
 													goto addV;
 
 												}
@@ -178,8 +198,8 @@ int main(){
 									goto gtnew;
 								}
 							}
-							else if(x > addEdgeButton.x1 && x < addEdgeButton.x2 && y > addEdgeButton.y1 && y < addEdgeButton.y2){//Nhan nut AddEdge
-								if(numberNode < 2){
+							else if(CheckClickButton(addEdgeButton, x, y)){//Nhan nut AddEdge
+								if(graph.numberNode < 2){
 									NotificationFull("SO LUONG DINH CHUA DU. MOI NHAP THEM DINH!");
 								}
 								else{
@@ -192,18 +212,19 @@ int main(){
 										}
 										getmouseclick(WM_LBUTTONDOWN, x, y);
 										if(x != -1 && y != -1){
-											if(x > closeButton.x1 && x < closeButton.x2 && y > closeButton.y1 && y < closeButton.y2){												NotificationFull("BAN DA THOAT CHUC NANG!");
+											if(CheckClickButton(closeButton, x, y)){												
+												NotificationFull("BAN DA THOAT CHUC NANG!");
 												goto gtnew;
 											}
-											else if(x > realProcessingArea.x1 && x < realProcessingArea.x2 && y > realProcessingArea.y1 && y < realProcessingArea.y2){
+											else if(CheckClickButton(realProcessingArea, x, y)){
 												bool flag = true;	
 												int x1 = 0, y1 = 0, x2 = 0, y2 = 0, idx1 = -1, idx2 = -1;
 												string value = "";
-												for(int i=0; i<numberNode; i++){
-													if(CheckNode(node[i]->x, node[i]->y, x, y)){
+												for(int i=0; i<graph.numberNode; i++){
+													if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
 														idx1 = i;
-														x1 = node[i]->x;
-														y1 = node[i]->y;
+														x1 = graph.node[i]->x;
+														y1 = graph.node[i]->y;
 														flag = false;
 													}
 												}
@@ -221,11 +242,11 @@ int main(){
 														getmouseclick(WM_LBUTTONDOWN, x, y);
 														if(x != -1 && y != -1){
 															bool flag = true;
-															for(int i = 0; i<numberNode; i++){
-																if(CheckNode(node[i]->x, node[i]->y, x, y)){
+															for(int i = 0; i < graph.numberNode; i++){
+																if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
 																	idx2 = i; 
-																	x2 = node[i]->x;
-																	y2 = node[i]->y;
+																	x2 = graph.node[i]->x;
+																	y2 = graph.node[i]->y;
 																	flag = false;
 																}
 															}
@@ -238,21 +259,21 @@ int main(){
 														}
 													}
 													value = AddName_Weight("trong so");
-													if(adj[idx1][idx2] == 0 && adj[idx2][idx1] != 0) {
-														CreateCurved(node[idx1], node[idx2], (char*)value.c_str(), BLUE);
-														type[idx1][idx2] = 2;
+													if(graph.adj[idx1][idx2] == 0 && graph.adj[idx2][idx1] != 0) {
+														CreateCurved(graph.node[idx1], graph.node[idx2], (char*)value.c_str(), BLUE);
+														graph.type[idx1][idx2] = 2;
 													}
-													else if(adj[idx1][idx2] == 0 && adj[idx2][idx1] == 0){
-														CreateLine(node[idx1], node[idx2], (char*)value.c_str(), BLUE);
-														type[idx1][idx2] = 1;
+													else if(graph.adj[idx1][idx2] == 0 && graph.adj[idx2][idx1] == 0){
+														CreateLine(graph.node[idx1], graph.node[idx2], (char*)value.c_str(), BLUE);
+														graph.type[idx1][idx2] = 1;
 													}
-													else if(adj[idx1][idx2] != 0){
+													else if(graph.adj[idx1][idx2] != 0){
 														//value = AddName_Weight("trong so");
-														CreateLine(node[idx1], node[idx2], (char*)value.c_str(), BLUE);
-														type[idx1][idx2] = 1;
+														CreateLine(graph.node[idx1], graph.node[idx2], (char*)value.c_str(), BLUE);
+														graph.type[idx1][idx2] = 1;
 													}
 													//DrawGraph(node, numberNode, adj, type);
-													adj[idx1][idx2] = (value[0]-'0')*10+(value[1]-'0');
+													graph.adj[idx1][idx2] = (value[0]-'0')*10+(value[1]-'0');
 													setfillstyle(1, WHITE);
 													goto addE;
 												}
@@ -264,8 +285,8 @@ int main(){
 									}
 								}																			
 							}
-							else if(x > renameButton.x1 && x < renameButton.x2 && y > renameButton.y1 && y < renameButton.y2){//Nhan nut Rename
-								if(numberNode < 1){
+							else if(CheckClickButton(renameButton, x, y)){//Nhan nut Rename
+								if(graph.numberNode < 1){
 									NotificationFull("DO THI RONG. HAY THEM DINH!");
 								}
 								else{
@@ -278,27 +299,27 @@ int main(){
 										}
 										getmouseclick(WM_LBUTTONDOWN, x, y);
 										if(x != -1 && y != -1){
-											if(x > closeButton.x1 && x < closeButton.x2 && y > closeButton.y1 && y < closeButton.y2){
+											if(CheckClickButton(closeButton, x, y)){
 												NotificationFull("BAN DA THOAT CHUC NANG!");
 												goto gtnew;
 											}
-											else if(x > realProcessingArea.x1 && x < realProcessingArea.x2 && y > realProcessingArea.y1 && y < realProcessingArea.y2){
+											else if(CheckClickButton(realProcessingArea, x, y)){
 												bool flag = false;
 												string nameNode = "";
-												for(int i=0; i < numberNode; i++){
-													if(CheckNode(node[i]->x, node[i]->y, x, y)){
+												for(int i=0; i < graph.numberNode; i++){
+													if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
 														setcolor(RED);
 														setlinestyle(0, 0, 3);
-														circle(node[i]->x, node[i]->y, 25);
+														circle(graph.node[i]->x, graph.node[i]->y, 25);
 														setcolor(BLUE);
 														setlinestyle(0, 0, 2);
 														nameNode = AddName_Weight("trong so");
-														Rename(node[i]->x, node[i]->y, nameNode);
-														while(CheckName(node, numberNode, nameNode) == false){
+														Rename(graph.node[i]->x, graph.node[i]->y, nameNode);
+														while(CheckName(graph, nameNode) == false){
 															nameNode = AddName_Weight("trong so");
 														}
-														Rename(node[i]->x, node[i]->y, nameNode);
-														node[i]->name = nameNode;
+														Rename(graph.node[i]->x, graph.node[i]->y, nameNode);
+														graph.node[i]->name = nameNode;
 														flag = true;
 														break;
 													}
@@ -316,8 +337,8 @@ int main(){
 								}
 							}
 							
-							else if(x > moveButton.x1 && x < moveButton.x2 && y > moveButton.y1 && y < moveButton.y2){//Nhan nut Move
-								if(numberNode < 1){
+							else if(CheckClickButton(moveButton, x, y)){//Nhan nut Move
+								if(graph.numberNode < 1){
 									NotificationFull("DO THI RONG. HAY THEM DINH");
 								}
 								else{
@@ -331,22 +352,22 @@ int main(){
 										}
 										getmouseclick(WM_LBUTTONDOWN, x, y);
 										if(x != -1 && y != -1){
-											if(x > closeButton.x1 && x < closeButton.x2 && y > closeButton.y1 && y < closeButton.y2){
+											if(CheckClickButton(closeButton, x, y)){
 												NotificationFull("BAN DA THOAT CHUC NANG!");
 												goto gtnew;
 											}
-											else if(x > realProcessingArea.x1 && x < realProcessingArea.x2 && y > realProcessingArea.y1 && y < realProcessingArea.y2){
+											else if(CheckClickButton(realProcessingArea, x, y)){
 												string nameNode="";
 												bool flag = true;
-												for(int i=0; i<numberNode; i++){
-													if(CheckNode(node[i]->x, node[i]->y, x, y)){
-														x1 = node[i]->x;
-														y1 = node[i]->y;
+												for(int i=0; i<graph.numberNode; i++){
+													if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
+														x1 = graph.node[i]->x;
+														y1 = graph.node[i]->y;
 														idx = i;
-														nameNode = node[i]->name;
+														nameNode = graph.node[i]->name;
 														setcolor(RED);
 														setlinestyle(0, 0, 3);
-														circle(node[i]->x, node[i]->y, 25);
+														circle(graph.node[i]->x, graph.node[i]->y, 25);
 														flag = false;
 														break;
 													}
@@ -358,7 +379,7 @@ int main(){
 													while(!kbhit()){
 														getmouseclick(WM_LBUTTONDOWN, x, y);
 														if(x != -1 && y != -1){
-															if(CheckPos(node, numberNode, x, y)){
+															if(CheckPos(graph, x, y)){
 																x2 = x;
 																y2 = y;
 																break;
@@ -368,7 +389,7 @@ int main(){
 															}	
 														}	
 													}
-													Move(node, numberNode, adj, type, x1, y1, x2, y2, idx);
+													Move(graph, x1, y1, x2, y2, idx);
 												}
 											}
 											else{
@@ -379,14 +400,14 @@ int main(){
 								}
 							}
 
-							else if(x > deleteButton.x1 && x < deleteButton.x2 && y > deleteButton.y1 && y < deleteButton.y2){//Nhan nut Delete
+							else if(CheckClickButton(realProcessingArea, x, y)){//Nhan nut Delete
 								del:
-								if(numberNode < 1){
+								if(graph.numberNode < 1){
 									NotificationFull("DO THI RONG. HAY THEM DINH!");
 								}
 								else{
 									NotificationFull("HAY CHON CHUC NANG XOA HOAC NHAN X DE THOAT!");
-									CreateNotificationDel();
+									DrawSubDel();
 									while(true){
 										if(kbhit()){
 											char key = getch();
@@ -395,15 +416,15 @@ int main(){
 										// EffectDel();
 										getmouseclick(WM_LBUTTONDOWN, x, y);
 										if(x != -1 && y != -1){
-											if(x > closeButton.x1 && x < closeButton.x2 && y > closeButton.y1 && y < closeButton.y2){
+											if(CheckClickButton(realProcessingArea, x, y)){
 												NotificationFull("BAN DA THOAT CHUC NANG!");
 												bar(maxx/3 + 12, 61, maxx - 13, 592);
-												DrawGraph(node, numberNode, adj, type);
+												DrawGraph(graph);
 												goto gtnew;
 											}
-											else if((x - 1025)*(x - 1025) + (y - 102)*(y-102) <= 40*40){// xoa dinh
+											else if(CheckClickCircle(delVertex, x, y)){// xoa dinh
 												bar(maxx/3 + 12, 61, maxx - 13, 592);
-												DrawGraph(node, numberNode, adj, type);
+												DrawGraph(graph);
 												delV:
 												NotificationFull("HAY CLICK VAO DINH CAN XOA!");
 												int x, y, idx;
@@ -415,18 +436,18 @@ int main(){
 													}
 													getmouseclick(WM_LBUTTONDOWN, x, y);
 													if(x != -1 && y != -1){
-														if((x - 1025)*(x - 1025) + (y - 102)*(y-102) <= 40*40){
+														if(CheckClickButton(closeButton, x, y)){
 															NotificationFull("BAN DA THOAT CHUC NANG!");
 															goto gtnew;
 														}
-														else if(x > realProcessingArea.x1 && x < realProcessingArea.x2 && y > realProcessingArea.y1 && y < realProcessingArea.y2){
-															for(int i=0; i<numberNode; i++){
-																if(CheckNode(node[i]->x, node[i]->y, x, y)){
+														else if(CheckClickButton(realProcessingArea, x, y)){
+															for(int i=0; i<graph.numberNode; i++){
+																if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
 																	setcolor(RED);
 																	setlinestyle(0, 0, 3);
-																	circle(node[i]->x, node[i]->y, 25);
-																	x = node[i]->x;
-																	y = node[i]->y;
+																	circle(graph.node[i]->x, graph.node[i]->y, 25);
+																	x = graph.node[i]->x;
+																	y = graph.node[i]->y;
 																	idx = i;
 																	flag = false;
 																	break;
@@ -436,7 +457,7 @@ int main(){
 																goto delV;
 															}
 															else{
-																DeleteVertex(node, numberNode, adj, type, x, y, idx);
+																DeleteVertex(graph, x, y, idx);
 																goto del;
 															}
 														}
@@ -446,16 +467,16 @@ int main(){
 													}
 												}
 											}
-											else if((x - 1140)*(x - 1140) + (y - 102)*(y-102) <= 40*40){//xoa canh
-												if(numberNode < 2){
+											else if(CheckClickCircle(delEdge, x, y)){//xoa canh
+												if(graph.numberNode < 2){
 													NotificationFull("DO THI KHONG CO CANH DE XOA!");
 													bar(maxx/3 + 12, 61, maxx - 13, 592);
-													DrawGraph(node, numberNode, adj, type);
+													DrawGraph(graph);
 													goto addV;
 												}
 												else{
 													bar(maxx/3 + 12, 61, maxx - 13, 592);
-													DrawGraph(node, numberNode, adj, type);
+													DrawGraph(graph);
 													delE:
 													NotificationFull("HAY CLICK VAO DINH DAU!");
 													int x1, y1, x2, y2, idx1, idx2;
@@ -466,20 +487,20 @@ int main(){
 														}
 														getmouseclick(WM_LBUTTONDOWN, x, y);
 														if(x != -1 && y != -1){
-															if(x > closeButton.x1 && x < closeButton.x2 && y > closeButton.y1 && y < closeButton.y2){
+															if(CheckClickButton(closeButton, x, y)){
 																NotificationFull("BAN DA THOAT CHUC NANG!");
 																goto gtnew;
 															}
-															else if(x > realProcessingArea.x1 && x < realProcessingArea.x2 && y > realProcessingArea.y1 && y < realProcessingArea.y2){
+															else if(CheckClickButton(realProcessingArea, x, y)){
 																bool flag = true;
-																for(int i=0; i<numberNode; i++){
-																	if(CheckNode(node[i]->x, node[i]->y, x, y)){
-																		x1 = node[i]->x;
-																		y1 = node[i]->y;
+																for(int i=0; i < graph.numberNode; i++){
+																	if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
+																		x1 = graph.node[i]->x;
+																		y1 = graph.node[i]->y;
 																		idx1 = i;
 																		setcolor(RED);
 																		setlinestyle(0, 0, 3);
-																		circle(node[i]->x, node[i]->y, 25);
+																		circle(graph.node[i]->x, graph.node[i]->y, 25);
 																		flag = false;
 																		break;
 																	}
@@ -492,14 +513,14 @@ int main(){
 																		getmouseclick(WM_LBUTTONDOWN, x, y);
 																		if(x != -1 && y != -1){
 																			bool flag = true;
-																			for(int i=0; i<numberNode; i++){
-																				if(CheckNode(node[i]->x, node[i]->y, x, y) && node[i]->x != x1 && node[i]->y != y1){
-																					x2 = node[i]->x;
-																					y2 = node[i]->y;
+																			for(int i=0; i < graph.numberNode; i++){
+																				if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y) && graph.node[i]->x != x1 && graph.node[i]->y != y1){
+																					x2 = graph.node[i]->x;
+																					y2 = graph.node[i]->y;
 																					idx2 = i;
 																					setcolor(RED);
 																					setlinestyle(0, 0, 3);
-																					circle(node[i]->x, node[i]->y, 25);
+																					circle(graph.node[i]->x, graph.node[i]->y, 25);
 																					flag = false;
 																					break;
 																				}
@@ -508,7 +529,7 @@ int main(){
 																				goto delEE;
 																			}
 																			else{
-																				DeleteEdge(node, numberNode, adj, type, x1, y1, x2, y2, idx1, idx2);
+																				DeleteEdge(graph, x1, y1, x2, y2, idx1, idx2);
 																				goto del;
 																			}
 																		}	
@@ -528,19 +549,62 @@ int main(){
 							}
 						}	
 					}
+					WriteFile("saves/temp.txt", graph);
+				}
+				else if(CheckClickButton(saveButton, x, y)){//Nhan nut Save
+
+				}
+				else if(CheckClickButton(openButton, x, y)){//Nhan nut Open
+					NotificationFull("HAY CLICK VAO THUAT TOAN CAN DEMO");
+					while(true){
+						if(kbhit()){
+							char key = getch();
+							if(key == 27) break;
+						}
+						getmouseclick(WM_LBUTTONDOWN, x, y);
+						if(x != -1 && y != -1){
+							if(CheckClickButton(dfsButton, x, y)){
+
+							}
+							else if(CheckClickButton(bfsButton, x, y)){
+								
+							}
+							else if(CheckClickButton(shortestPathButton, x, y)){
+								
+							}
+							else if(CheckClickButton(ComponentButton, x, y)){
+								
+							}
+							else if(CheckClickButton(hamiltonButton, x, y)){
+								
+							}
+							else if(CheckClickButton(eulerButton, x, y)){
+								
+							}
+							else if(CheckClickButton(dinhTruButton, x, y)){
+								
+							}
+							else if(CheckClickButton(dinhThatButton, x, y)){
+								
+							}
+							else if(CheckClickButton(bridgeEdgeButton, x, y)){
+								
+							}
+							else if(CheckClickButton(topoSortButton, x, y)){
+								
+							}
+						}
+					}
 				}
 			}
 		}
-		// else if(x > 155 && x < 300 && y > 10 && y < 52){//Nhan nut Save
-
-		// }
-		// else if(x > 300 && x < 445 && y > 10 && y < 52){//Nhan nut Open
-
-		// }
 	}
 	return 0;
 }
 
+void RunningAlgorithm(Graph graph, int x, int y){
+
+}
 //TAO MAN HINH CHAO MUNG
 void createScreenWelcome(string s){
 	initwindow(1209, 813);
@@ -593,17 +657,14 @@ void CreateNode(int x, int y, char name[], int color){
 	settextstyle(3, HORIZ_DIR, 3);//(font, ngang doc, do dam)
 	outtextxy(x-13, y-13, name);
 	circle(x, y, 25);
-	
 }
 //Tao lua chon cho nut Delete
-void CreateNotificationDel(){
-	setlinestyle(0, 0, 3);
-	settextstyle(3, HORIZ_DIR, 2);
-	outtextxy(995, 90, "Vertex");
-	outtextxy(1118, 90, "Edge");
-	circle(1025, 102, 40);
-	circle(1140, 102, 40);
-	setlinestyle(0, 0, 2);
+void DrawSubDel(){
+	// settextstyle(3, HORIZ_DIR, 2);
+	circle(delVertex.x, delVertex.y, delVertex.r);
+	circle(delEdge.x, delEdge.y, delEdge.r);
+	outtextxy(delVertex.x - 30, delVertex.y - 12, (char*)delVertex.name.c_str());
+	outtextxy(delEdge.x - 22, delEdge.y - 12, (char*)delEdge.name.c_str());
 }
 //NHAP TRONG SO && NHAP TEN
 string AddName_Weight(string name){
@@ -635,10 +696,10 @@ string AddName_Weight(string name){
 		}
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if(x != -1 && y != -1){
-			if(CheckButton(continueButton, x, y)){
+			if(CheckClickButton(continueButton, x, y)){
 				return ans;
 			}
-			else if(CheckButton(cancelButton, x, y)){
+			else if(CheckClickButton(cancelButton, x, y)){
 				goto reAdd;
 			}
 		}
@@ -655,13 +716,13 @@ void CreateButton (){
 	deleteButton.name = "  Delete", deleteButton.x1 = 1025, deleteButton.y1 = 10, deleteButton.x2 = 1140, deleteButton.y2 = 52;
 	dfsButton.name = "    DFS", dfsButton.x1 = 14, dfsButton.y1 = 99, dfsButton.x2 = 139, dfsButton.y2 = 168;
 	bfsButton.name = "    BFS", bfsButton.x1 = 143, bfsButton.y1 = 99, bfsButton.x2 = 268, bfsButton.y2 = 168;
-	shortestPathButton.name = "    X->Y", shortestPathButton.x1 = 272, shortestPathButton.y1 = 99, shortestPathButton.x2 = 397, shortestPathButton.y2 = 168;
-	tpltButton.name = "   TPLT", tpltButton.x1 = 14, tpltButton.y1 = 172, tpltButton.x2 = 139, tpltButton.y2 =241;
+	shortestPathButton.name = "    X=>Y", shortestPathButton.x1 = 272, shortestPathButton.y1 = 99, shortestPathButton.x2 = 397, shortestPathButton.y2 = 168;
+	ComponentButton.name = "   TPLT", ComponentButton.x1 = 14, ComponentButton.y1 = 172, ComponentButton.x2 = 139, ComponentButton.y2 =241;
 	hamiltonButton.name = "Hamilton", hamiltonButton.x1 = 143, hamiltonButton.y1 = 172, hamiltonButton.x2 = 268, hamiltonButton.y2 = 241;
 	eulerButton.name = "    Euler", eulerButton.x1 = 272, eulerButton.y1 = 172, eulerButton.x2 = 397, eulerButton.y2 = 241;
 	dinhTruButton.name = "  Dinh tru", dinhTruButton.x1 = 14, dinhTruButton.y1 = 245, dinhTruButton.x2 = 139, dinhTruButton.y2 = 314;
 	dinhThatButton.name = "Dinh that", dinhThatButton.x1 = 143, dinhThatButton.y1 = 245, dinhThatButton.x2 = 268, dinhThatButton.y2 = 314;
-	canhCauButton.name = "Canh cau", canhCauButton.x1 = 272, canhCauButton.y1 = 245, canhCauButton.x2 = 397, canhCauButton.y2 = 314;
+	bridgeEdgeButton.name = "Canh cau", bridgeEdgeButton.x1 = 272, bridgeEdgeButton.y1 = 245, bridgeEdgeButton.x2 = 397, bridgeEdgeButton.y2 = 314;
 	topoSortButton.name = "Topo Sort", topoSortButton.x1 = 14, topoSortButton.y1 = 318, topoSortButton.x2 = maxx/3 - 3, topoSortButton.y2 = maxy/2 - 9;
 	helpArea.name = "", helpArea.x1 = maxx/3 + 9, helpArea.y1 = 601, helpArea.x2 = maxx - 10, helpArea.y2 = maxy - 10;
 	processingArea.name = "", processingArea.x1 = maxx/3 + 9, processingArea.y1 = 58, processingArea.x2 = maxx - 10, processingArea.y2 = 595; 
@@ -670,8 +731,8 @@ void CreateButton (){
 	scannerArea.name = "", scannerArea.x1 = maxx/3 + 9, scannerArea.y1 = 601, scannerArea.x2 = maxx - 10, scannerArea.y2 = 696;
 	continueButton.name = "Tiep tuc", continueButton.x1 = maxx/3 + 9, continueButton.y1 = 696, continueButton.x2 = 800, continueButton.y2 = maxy - 10;
 	cancelButton.name = "Chinh sua", cancelButton.x1 = 800, cancelButton.y1 = 696, cancelButton.x2 = maxx-10, cancelButton.y2 = maxy - 10;
-	delVertex.x = 1025, delVertex.y = 102, delVertex.r = 40;
-	delEdge.x = 1140, delEdge.y = 102, delEdge.r = 40;
+	delVertex.name = "Vertex", delVertex.x = 1025, delVertex.y = 102, delVertex.r = 40;
+	delEdge.name = "  Edge", delEdge.x = 1140, delEdge.y = 102, delEdge.r = 40;
 }
 void DrawButtonForMenu(Button button){
 	rectangle(button.x1, button.y1, button.x2, button.y2);
@@ -705,12 +766,12 @@ void DrawMenuTable(){
 	DrawButtonForMenu(dfsButton);
 	DrawButtonForMenu(bfsButton);
 	DrawButtonForMenu(shortestPathButton);
-	DrawButtonForMenu(tpltButton);
+	DrawButtonForMenu(ComponentButton);
 	DrawButtonForMenu(hamiltonButton);
 	DrawButtonForMenu(eulerButton);
 	DrawButtonForMenu(dinhTruButton);
 	DrawButtonForMenu(dinhThatButton);
-	DrawButtonForMenu(canhCauButton);
+	DrawButtonForMenu(bridgeEdgeButton);
 	DrawButtonForMenu(topoSortButton);
 }
 void DrawWeightMatrix(){
@@ -728,21 +789,24 @@ void DrawWeightMatrix(){
 /////////////////////////////////////////////////Tao Dinh///////////////////////////////////////
 //Kiem tra vi tri click chuot co o ben trong Node hay khong
 bool CheckNode(int x, int y, int mx, int my){
-	return (((mx - x)*(mx - x) + (my - y)*(my - y) <= 25*25)&&((mx > 440 && mx < 1150 && my > 90 && my < 560)));
+	return (((mx - x)*(mx - x) + (my - y)*(my - y) <= 25*25) && ((mx > realProcessingArea.x1 && mx < realProcessingArea.x2 && my > realProcessingArea.y1 && my < realProcessingArea.y2)));
 }
-bool CheckButton(Button button, int x, int y){
+bool CheckClickButton(Button button, int x, int y){	
 	return (x > button.x1 && x < button.x2 && y > button.y1 && y < button.y2);
 }
+bool CheckClickCircle(ButtonCircle button, int x, int y){
+	return ((x - button.x) * (x - button.x) + (y - button.y) * (y - button.y) <= button.r * button.r);
+}
 //KIEM TRA VI TRI
-bool CheckPos(Node *node[], int numberNode, int mx, int my){
-	if(numberNode == 0){
-		if(mx > 440 && mx < 1150 && my > 90 && my < 560) return true;
+bool CheckPos(Graph &graph, int mx, int my){
+	if(graph.numberNode == 0){
+		if(mx > realProcessingArea.x1 && mx < realProcessingArea.x2 && my > realProcessingArea.y1 && my < realProcessingArea.y2) return true;
 		else return false;
 	}
 	else {
-		if(mx > 440 && mx < 1150 && my > 90 && my < 560){ //return true;
-			for (int i = 0; i < numberNode; ++i){
-				if((mx - node[i]->x)*(mx - node[i]->x) + (my - node[i]->y)*(my - node[i]->y) <  75 * 75){
+		if(mx > realProcessingArea.x1 && mx < realProcessingArea.x2 && my > realProcessingArea.y1 && my < realProcessingArea.y2){ //return true;
+			for (int i = 0; i < graph.numberNode; ++i){
+				if((mx - graph.node[i]->x)*(mx - graph.node[i]->x) + (my - graph.node[i]->y)*(my - graph.node[i]->y) <  75 * 75){
 					return false;
 				}
 			}
@@ -752,8 +816,8 @@ bool CheckPos(Node *node[], int numberNode, int mx, int my){
 	}		
 }
 //THEM NODE 
-bool AddNode(Node *node[], int numberNode, int &x, int &y, string &ten, bool flag){
-	if(CheckPos(node, numberNode, x, y)){
+bool AddNode(Graph &graph, int &x, int &y, string &ten, bool flag){
+	if(CheckPos(graph, x, y)){
 		if(flag == true){//tao moi dinh
 			setlinestyle(0, 0, 2);
 			circle(x, y, 25);
@@ -777,11 +841,11 @@ void Rename(int x, int y, string &ten){// x, y sau nay se truyen node[i].x, node
 	CreateNode(x, y, (char*)ten.c_str(), BLUE);
 }
 //KIEM TRA TEN NODE 
-bool CheckName(Node *node[], int numberNode, string nameNode){
-	if(numberNode == 0) return true;
+bool CheckName(Graph &graph, string nameNode){
+	if(graph.numberNode == 0) return true;
 	else{
-		for(int i = 0; i < numberNode; i++){
-			if(node[i]->name == nameNode){
+		for(int i = 0; i < graph.numberNode; i++){
+			if(graph.node[i]->name == nameNode){
 				return false;
 			}
 		}
@@ -813,7 +877,7 @@ void DrawTriangle(int x1, int y1, int x2, int y2, int color) {
   	fillpoly(4, polypoints);
   	setfillstyle(1, WHITE);
 }
-void DrawCurved1(Node *node1, Node *node2, char *tt, int color) {
+void FlipCurved(Node *node1, Node *node2, char *tt, int color) {//Dao nguoc vong cung hien tai
 	setcolor(color);
 	setlinestyle(0, 0, 2);
 	int x1 = node1->x, y1 = node1->y, x2 = node2->x, y2 = node2->y;
@@ -935,7 +999,7 @@ void CreateCurved(Node *node1, Node *node2, char *tt, int color) {
 	double xT = c45 * (x2 - xI) - s45 * (y2 - yI) + xI;
 	double yT = s45 * (x2 - xI) + c45 * (y2 - yI) + yI;
 	if (!(xT > 440 && xT < 1150 && yT > 90 && yT < 560)) {
-		DrawCurved1(node1, node2, tt, color);
+		FlipCurved(node1, node2, tt, color);
 		return;
 	}
 	double param = 5 * 1.0 / r1;
@@ -1003,141 +1067,660 @@ void CreateLine(Node *node1, Node *node2, char *tt, int color) {
 	DrawTriangle(x3, y3, ax, ay, color);
 	outtextxy(xT - 5, yT - 5, tt);
 }
-void DrawGraph(Node *node[14], int numberNode, int adj[14][14], int type[14][14]) {
+void DrawGraph(Graph &graph) {
 	setlinestyle(0, 0, 2);
-	for (int i = 0; i < numberNode; ++i) {
-		string s = node[i]->name;
-		CreateNode(node[i]->x, node[i]->y, (char*)s.c_str(), BLUE);
+	for (int i = 0; i < graph.numberNode; ++i) {
+		string s = graph.node[i]->name;
+		CreateNode(graph.node[i]->x, graph.node[i]->y, (char*)s.c_str(), BLUE);
 	}
-	for (int i = 0; i < numberNode; ++i) {
-		for(int j = 0; j < numberNode; j++){
-			if(type[i][j] == 1){
-				string value = (to_string(adj[i][j]).size() == 1 ? "0" + to_string(adj[i][j]) : to_string(adj[i][j]));
-				CreateLine(node[i], node[j], (char*)value.c_str(), BLUE);
+	for (int i = 0; i < graph.numberNode; ++i) {
+		for(int j = 0; j < graph.numberNode; j++){
+			if(graph.type[i][j] == 1){
+				string value = (to_string(graph.adj[i][j]).size() == 1 ? "0" + to_string(graph.adj[i][j]) : to_string(graph.adj[i][j]));
+				CreateLine(graph.node[i], graph.node[j], (char*)value.c_str(), BLUE);
 			}
-			else if(type[i][j] == 2){
-				string value = (to_string(adj[i][j]).size() == 1 ? "0" + to_string(adj[i][j]) : to_string(adj[i][j]));
-				CreateCurved(node[i], node[j], (char*)value.c_str(), BLUE);
+			else if(graph.type[i][j] == 2){
+				string value = (to_string(graph.adj[i][j]).size() == 1 ? "0" + to_string(graph.adj[i][j]) : to_string(graph.adj[i][j]));
+				CreateCurved(graph.node[i], graph.node[j], (char*)value.c_str(), BLUE);
 			}
 		}
 	}
 }
-void DeleteEdge(Node *node[14], int &numberNode, int adj[14][14], int type[14][14], int x1, int y1, int x2, int y2, int index1, int index2) {
+void DeleteEdge(Graph &graph, int x1, int y1, int x2, int y2, int index1, int index2) {
 	if (index1 != index2) {
-		if (adj[index1][index2]) {
+		if (graph.adj[index1][index2]) {
 			string empty = "     ";
-			if (type[index1][index2] == 1) 
-				CreateLine(node[index1], node[index2], (char*)empty.c_str(), WHITE);
-			else if (type[index1][index2] == 2) 
-				CreateCurved(node[index1], node[index2], (char*)empty.c_str(), WHITE);
-			adj[index1][index2] = 0;
-			type[index1][index2] = 0;
-			DrawGraph(node, numberNode, adj, type);
+			if (graph.type[index1][index2] == 1) 
+				CreateLine(graph.node[index1], graph.node[index2], (char*)empty.c_str(), WHITE);
+			else if (graph.type[index1][index2] == 2) 
+				CreateCurved(graph.node[index1], graph.node[index2], (char*)empty.c_str(), WHITE);
+			graph.adj[index1][index2] = 0;
+			graph.type[index1][index2] = 0;
+			DrawGraph(graph);
 		}
 	}
 }
-void DeleteVertex(Node *node[14], int &numberNode, int adj[14][14], int type[14][14], int x, int y, int index) {
+void DeleteVertex(Graph &graph, int x, int y, int index) {
 	string empty = "      ";
-	for (int row = 0; row < numberNode; ++row) {
-		if (adj[row][index]) {
-			if (type[row][index] == 1) {
-				CreateLine(node[row], node[index], (char*)empty.c_str(), WHITE);
-			} else if (type[row][index] == 2) {
-				CreateCurved(node[row], node[index], (char*)empty.c_str(), WHITE);
+	for (int row = 0; row < graph.numberNode; ++row) {
+		if (graph.adj[row][index]) {
+			if (graph.type[row][index] == 1) {
+				CreateLine(graph.node[row], graph.node[index], (char*)empty.c_str(), WHITE);
+			} else if (graph.type[row][index] == 2) {
+				CreateCurved(graph.node[row], graph.node[index], (char*)empty.c_str(), WHITE);
 			}
 		}
 	}
-	for (int col = 0; col < numberNode; ++col) {
-		if (adj[index][col]) {
-			if (type[index][col] == 1) {
-				CreateLine(node[index], node[col], (char*)empty.c_str(), WHITE);
-			} else if (type[index][col] == 2) {
-				CreateCurved(node[index], node[col], (char*)empty.c_str(), WHITE);
+	for (int col = 0; col < graph.numberNode; ++col) {
+		if (graph.adj[index][col]) {
+			if (graph.type[index][col] == 1) {
+				CreateLine(graph.node[index], graph.node[col], (char*)empty.c_str(), WHITE);
+			} else if (graph.type[index][col] == 2) {
+				CreateCurved(graph.node[index], graph.node[col], (char*)empty.c_str(), WHITE);
 			}
 		}
 	}
 	CreateNode(x, y, (char*)empty.c_str(), WHITE);
 	// xoa dinh -> xoa node trong mang node
-	for (int i = index; i < numberNode - 1; ++i)
-		node[i] = node[i + 1];
+	for (int i = index; i < graph.numberNode - 1; ++i)
+		graph.node[i] = graph.node[i + 1];
 	// xoa cot
-	for (int i = index; i < numberNode - 1; ++i) {
-		for (int j = 0; j < numberNode; ++j) {
-			adj[j][i] = adj[j][i + 1]; 
-			type[j][i] = type[j][i + 1];
+	for (int i = index; i < graph.numberNode - 1; ++i) {
+		for (int j = 0; j < graph.numberNode; ++j) {
+			graph.adj[j][i] = graph.adj[j][i + 1]; 
+			graph.type[j][i] = graph.type[j][i + 1];
 		}
 	} 
 	// xoa hang
-	for (int i = index; i < numberNode - 1; ++i) {
-		for (int j = 0; j < numberNode - 1; ++j) {
-			adj[i][j] = adj[i + 1][j];
-			type[i][j] = type[i + 1][j];
+	for (int i = index; i < graph.numberNode - 1; ++i) {
+		for (int j = 0; j < graph.numberNode - 1; ++j) {
+			graph.adj[i][j] = graph.adj[i + 1][j];
+			graph.type[i][j] = graph.type[i + 1][j];
 		}
 	}
-	numberNode--;
-	DrawGraph(node, numberNode, adj, type);
+	graph.numberNode--;
+	DrawGraph(graph);
 }
-void Move(Node *node[14], int &numberNode, int adj[14][14], int type[14][14], int x1, int y1, int x2, int y2, int index) {
+void Move(Graph &graph, int x1, int y1, int x2, int y2, int index) {
 	// xoa nut hien tai
 	string empty = "      ";
-	for (int row = 0; row < numberNode; ++row) {
-		if (adj[row][index]) {
-			if (type[row][index] == 1) {
-				CreateLine(node[row], node[index], (char*)empty.c_str(), WHITE);
-			} else if (type[row][index] == 2) {
-				CreateCurved(node[row], node[index], (char*)empty.c_str(), WHITE);
+	for (int row = 0; row < graph.numberNode; ++row) {
+		if (graph.adj[row][index]) {
+			if (graph.type[row][index] == 1) {
+				CreateLine(graph.node[row], graph.node[index], (char*)empty.c_str(), WHITE);
+			} else if (graph.type[row][index] == 2) {
+				CreateCurved(graph.node[row], graph.node[index], (char*)empty.c_str(), WHITE);
 			}
 		}
 	}
-	for (int col = 0; col < numberNode; ++col) {
-		if (adj[index][col]) {
-			if (type[index][col] == 1) {
-				CreateLine(node[index], node[col], (char*)empty.c_str(), WHITE);
-			} else if (type[index][col] == 2) {
-				CreateCurved(node[index], node[col], (char*)empty.c_str(), WHITE);
+	for (int col = 0; col < graph.numberNode; ++col) {
+		if (graph.adj[index][col]) {
+			if (graph.type[index][col] == 1) {
+				CreateLine(graph.node[index], graph.node[col], (char*)empty.c_str(), WHITE);
+			} else if (graph.type[index][col] == 2) {
+				CreateCurved(graph.node[index], graph.node[col], (char*)empty.c_str(), WHITE);
 			}
 		}
 	}
 	CreateNode(x1, y1, (char*)empty.c_str(), WHITE);
-	node[index]->x = x2, node[index]->y = y2;
-	DrawGraph(node, numberNode, adj, type);
+	graph.node[index]->x = x2, graph.node[index]->y = y2;
+	DrawGraph(graph);
 }
-///////////////////////////////////////////thuat toan/////////////////////////////////////////////////
-
-// void DFS (Node *node[14], int numberNode, int adj[14][14], int n){
-	
+//////////////////////////////////////////file///////////////////////////////////////////////////////
+int ToInt(string s) {
+	int n = s.length(), res = 0;
+	for (int i = 0; i < n; ++i)
+		res = res * 10 + s[i] - '0';
+	return res;
+}
+string ToString(int n) {
+    if (n == 0) return "0";
+    string ans = "";
+    while(n) {
+        int r = n % 10;
+        ans = (char)(r + '0') + ans;
+        n /= 10;
+    }
+    return ans;
+}
+string ToStringLen2(int n) {
+    string s = ToString(n);
+    if (s.length() == 1) s = "0" + s;
+    return s;
+}
+void WriteFile(char *fileName, Graph &graph) {
+	ofstream myFile;
+	myFile.open(fileName);
+	myFile << graph.numberNode << "\n";
+	for (int i = 0; i < graph.numberNode; ++i) {
+		for (int j = 0; j < graph.numberNode; ++j) 
+			myFile << graph.adj[i][j] << " ";
+		myFile << "\n";
+	}
+	for (int i = 0; i < graph.numberNode; ++i) {
+		int name = ToInt(graph.node[i]->name); 
+		myFile << name << " " << graph.node[i]->x << " " << graph.node[i]->y << "\n";
+	}
+	myFile.close();
+}
+void ReadFile(char *fileName, Graph &graph) {
+	ifstream myFile;
+	myFile.open(fileName);
+	myFile >> graph.numberNode;
+	for (int i = 0; i < graph.numberNode; ++i) 
+		for (int j = 0; j < graph.numberNode; ++j) {
+			myFile >> graph.adj[i][j];
+			if (graph.adj[i][j]) 
+				if (i > j) 
+					graph.type[i][j] = 1;
+				else 
+					if (graph.adj[j][i])
+						graph.type[i][j] = 2;
+					else
+						graph.type[i][j] = 1;
+		}
+	int name, x, y;
+	for (int i = 0; i < graph.numberNode; ++i) {
+		myFile >> name >> x >> y;
+		graph.node[i] = new Node(ToStringLen2(name), x, y);
+	} 
+	myFile.close();
+}
+// ///////////////////////////////////////////thuat toan/////////////////////////////////////////////////
+// void DFS (Graph graph, int n){
+// 	int tmp = 0;
+// 	bool tick[graph.numberNode];
+// 	for(int i = 0; i < graph.numberNode; i++) tick[i] = false;
+// 	Stack st;
+// 	st.push(0);
+// 	while(st.empty() == false){
+// 		st.pop(tmp);
+// 		if(tick[tmp] == false){
+// 			tick[tmp] = true;
+// 			cout<<tmp<<' ';
+// 			setcolor(tmp);
+// 			setlinestyle(0, 0, 3);
+// 			circle(node[tmp]->x, node[tmp]->y, 25);
+// 			setcolor(BLUE);
+// 			Sleep(1000);
+// 		}
+// 		for(int j = graph.numberNode - 1; j >= 0; j--){
+// 			if(adj[tmp][j] != 0 && tick[j] == false){
+// 				st.push(j);
+// 			}
+// 		}
+// 	}
 // }
-// for(int i=0; i<numberNode; i++){
-// 									for(int j=0; j<numberNode; j++){
-// 										cout<<adj[i][j]<<' ';
-// 									}
-// 									cout<<'\n';
-// 								}
-// 								for(int i=0; i<numberNode; i++){
-// 									cout<<node[i]->name<<' ';
-// 								}
-// 								cout<<'\n';
+// void BFS (Graph graph, int start){
+// 	bool tick[graph.numberNode];
+// 	int tmp = 0;
+// 	for(int i=0; i<graph.numberNode; i++) tick[i] = false;
+// 	Queue q;
+// 	q.push(0);
+// 	while(q.empty() == false){
+// 		q.pop(tmp);
+// 		if(tick[tmp] == false){
+// 			tick[tmp] = true;
+// 			cout<<tmp<<' ';
+// 			setcolor(tmp);
+// 			setlinestyle(0, 0, 3);
+// 			circle(node[tmp]->x, node[tmp]->y, 25);
+// 			setcolor(BLUE);
+// 			Sleep(1000);
+// 		}
+// 		for(int i = 0; i < graph.numberNode; i++){
+// 			if(adj[tmp][i] != 0 && tick[i] == false){
+// 				q.push(i);
+// 			}
+// 		}	
+// 	}
+// }	
+// void Component (Graph graph){
+// 	int T[graph.numberNode];
+// 	int count = 0;
+// 	for(int i=0; i<graph.numberNode; i++) T[i] = 0;
+// 	for(int i=0; i < graph.numberNode; i++){
+// 		bool tick[graph.numberNode];
+// 		int tmp = 0;
+// 		for(int j=0; j<graph.numberNode; j++) tick[j] = false;
+// 		Stack st;
+// 		bool flag = true;
+// 		st.push(i);
+// 		if(T[i] == 0){
+// 			count++;
+// 			cout<<'\n'<<count<<": ";
+// 			flag = false;	
+// 		} 
+// 		while(st.empty() == false){
+// 			st.pop(tmp);
+// 			if(tick[tmp] == false){
+// 				tick[tmp] = true;
+// 				T[tmp]++;
+// 				if(flag == false)
+// 				cout<<tmp + 1<<' ';
+// 			}
+// 			for(int k=graph.numberNode - 1; k >= 0; k--){
+// 				if(graph.adj[tmp][k] != 0 && tick[k] == false){
+// 					st.push(k);
+// 				}
+// 			}	
+// 		}
+// 	}	
+// 	cout<<"So thanh phan lien thong la: "<<count;
+// }	
+// /////////////////////////////////////////////////////////////////Dijkstra/////////////////////////////////////////////////////////////////////////////////
+// int minDistance(int distance[], bool tick[]){
+// 	int min = INT_MAX, minIndex = -1;
+// 	for(int i=0; i<V; i++) {
+// 		if(min >= distance[i] && tick[i] == false){
+// 			min = distance[i];
+// 			minIndex = i;
+// 		}
+// 	}
+// 	return minIndex;
+// }	
+// void Dijkstra(Graph graph, int f){
+// 	bool tick[graph.numberNode];
+// 	int distance[graph.numberNode];
+// 	for(int i=0; i<graph.numberNode; i++){
+// 		tick[i] = false;
+// 		distance[i] = INT_MAX;
+// 	}
+// 	dist[f] = 0;
+// 	for(int count = 0; count < graph.numberNode - 1; count++){
+// 		int u = minDistance(distance, tick);
+// 		tick[u] = true;
+// 		for(int v = 0; v < graph.numberNode; v++){
+// 			if(tick[v] == false && graph.adj[u][v] && distance[u] != INT_MAX && distance[u] + graph.adj[u][v] < distance[v]){
+// 				distance[v] = distance[u] + graph.adj[u][v];
+// 			}
+// 		}
+// 	}
+// 	for(int i=0; i < graph.numberNode; i++){
+// 		cout<<i+1<<' '<<distance[i]<<'\n';
+// 	}
+// }
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////			
+// int StringToInt(string s) {
+//     int n = s.length(), ans = 0;
+//     for (int i = 0; i < n; ++i) 
+//         ans = ans * 10 + (s[i] - '0');
+//     return ans;
+// }
+// int CountComponents(int adj[MAXN][MAXN], int n, int i) {
+//     int temp[MAXN][MAXN];
+//     memset(temp, 0, sizeof(temp));
+//     for (int i = 0; i < n; ++i) 
+//         for (int j = 0; j < n; ++j)
+//             if (adj[i][j]) 
+//                 temp[i][j] = temp[j][i] = 1;       
+//     bool vis[MAXN];
+//     for (int i = 0; i < n; ++i) vis[i] = false;
+//     if (i != -1) vis[i] = true;
+//     int count = 0;
+//     for (int i = 0; i < n; ++i) {
+//         if (vis[i] == false) {
+//             count++;
+//             Queue q;
+//             q.push(i);
+//             vis[i] = true;
+//             while(!q.empty()) {
+//                 int u;
+//                 q.pop(u);
+//                 for (int i = 0; i < n; ++i) {
+//                     if (temp[u][i] && vis[i] == false) {
+//                         q.push(i);
+//                         vis[i] = true;
+//                     }
+//                 }
+//             }
+//         }
+//     }
+//     return count;
+// }
 
-// 								int tmp = 0;
-// 								bool tick[numberNode];
-// 								for(int i = 0; i < numberNode; i++) tick[i] = false;
-// 								Stack st;
-// 								st.push(0);
-// 								while(st.empty() == false){
-// 									st.pop(tmp);
-// 									if(tick[tmp] == false){
-// 										tick[tmp] = true;
-// 										cout<<tmp<<' ';
-// 										setcolor(tmp);
-// 										setlinestyle(0, 0, 3);
-// 										circle(node[tmp]->x, node[tmp]->y, 25);
-// 										setcolor(BLUE);
-// 										Sleep(1000);
-// 									}
-// 									for(int j = numberNode - 1; j >= 0; j--){
-// 										if(adj[tmp][j] != 0 && tick[j] == false){
-// 											st.push(j);
-// 										}
-// 									}
-// 								}
-// 								while(!kbhit());
+// /////////////////////// Dinh that ////////////////////////////
+// bool dfsCheck(int u, int v, int adj[MAXN][MAXN], int n) {
+//     bool *vis = new bool[n];
+//     for (int i = 0; i < n; ++i) vis[i] = false;
+//     Stack stack;
+//     stack.push(u);
+//     vis[u] = true;
+//     int numCheckedVertex = 0;
+//     while(!stack.empty()) {
+//         int start;
+//         stack.pop(start);
+//         if (start == v) return 1;
+//         ++numCheckedVertex;
+//         for (int i = 0; i < n; ++i) 
+//             if (!vis[i] && adj[start][i]) {
+//                 vis[i] = true;
+//                 stack.push(i);
+//             }
+//     }
+//     return (numCheckedVertex == n);
+// }
+// bool IsConnected(int u, int v, int adj[MAXN][MAXN], int n) {
+//     bool vis[MAXN];
+//     for (int i = 0; i < n; ++i) vis[i] = false;
+//     Queue q;
+//     q.push(u);
+//     vis[u] = true;
+//     while(!q.empty()) {
+//         int t;
+//         q.pop(t);
+//         for (int i = 0; i < n; ++i) {
+//             if (adj[t][i] && !vis[i]) {
+//                 q.push(i);
+//                 vis[i] = true;
+//                 /// neu nut i = v thi co lien thong //////////
+//                 if (i == v)
+//                     return true;
+//             }
+//         }
+//     }
+//     return false;
+// }
+// void KnotPoint(int u, int v, int adj[MAXN][MAXN], int n) {
+// 	if (adj[u][v] || !dfsCheck(u, v, adj, n)) {
+// 		cout << "Khong co dinh that (Ton tai duong di truc tiep / Khong co duong di)\n";
+// 		return;
+// 	}
+//     int temp[MAXN][MAXN];
+//     int *res = new int[n];
+//     int index = 0;
+//     for (int i = 0; i < n; ++i) 
+//         for (int j = 0; j < n; ++j)
+//             temp[i][j] = adj[i][j];
+//     for (int i = 0; i < n; ++i) {
+//         ///////////////////// loai bo dinh /////////////////////
+//         for (int j = 0; j < n; ++j) 
+//             adj[j][i] = adj[i][j] = 0;
+//         // kiem tra co duong di tu u den v hay ko//////////////
+//         if (!IsConnected(u, v, adj, n)) 
+//             if (i != u && i != v) 
+//                 res[index++] = i;
+//         // khoi phuc lai trang thai truoc do///////////////////
+//         for (int j = 0; j < n; ++j) 
+//             adj[j][i] = temp[j][i], adj[i][j] = temp[i][j];
+//     }
+//     if (index == 0) {
+//     	cout << "Khong co dinh that giua " << u << " va " << v << "\n"; 
+// 	} else {
+// 		cout << "Co " << index << " dinh that giua " << u << " va " << v << ":\n";
+// 		for (int i = 0; i < index; ++i)
+// 			cout << res[i] << "\n";
+// 	}
+// }
+// ///////////////////////////////////////////////////////////////
+
+// /////////////////////Chu trinh Euler///////////////////////////
+// bool IsEulerCircuit(int adj[MAXN][MAXN], int n) {
+//     if (n == 0) return false;
+//     int numberComponents = CountComponents(adj, n, -1);
+//     if (numberComponents != 1) return false;
+//     for (int i = 0; i < n; ++i) {
+//         int degPlus = 0, degNeg = 0;
+//         for (int j = 0; j < n; ++j) { 
+//             if (adj[i][j])
+//                 degPlus++;
+//             if (adj[j][i]) 
+//                 degNeg++;
+//         }
+//         if (degPlus != degNeg) 
+//             return false;
+//     }
+//     return true;
+// }
+// void EulerCycle(int adj[MAXN][MAXN], int n) {
+//     if (!IsEulerCircuit(adj, n)) {
+//         cout << "Khong ton tai chu trinh Euler";
+//         return;
+//     }
+//     int temp[MAXN][MAXN];
+//     int len = 0;
+//     for (int i = 0; i < n; ++i) 
+//         for (int j = 0; j < n; ++j) {
+//             temp[i][j] = adj[i][j];
+//             if (adj[i][j]) len++;
+//         }
+//     int *path = new int[len];
+//     Stack stack;
+//     stack.push(0); 
+//     int currVertex = 0, index = 0;
+//     while(!stack.empty()) {
+//         int t = -1;
+//         /* tim node dau tien ma currVertex noi toi */
+//         for (int i = 0; i < n; ++i) 
+//             if (temp[currVertex][i]) {
+//                 t = i;
+//                 break;
+//             }
+//         if (t != -1) {
+//             stack.push(currVertex);
+//             int nextVertex = t;
+//             temp[currVertex][nextVertex] = 0;
+//             currVertex = nextVertex;
+//         } else {
+//             path[index++] = currVertex;
+//             len++;
+//             int u;
+//             stack.pop(u);
+//             currVertex = u;
+//         }
+//     }
+//     cout << "Ton tai chu trinh Euler:\n";
+//     for (int i = 0; i < len; ++i)
+//         cout << path[i] << " -> ";
+//     cout << 0 << "\n";
+//     delete[] path;
+// }
+// ///////////////////////////////////////////////////////////////
+
+// /////////////////// Chu trinh Hamilton /////////////////////////////////
+// /* Ham kiem tra xem dinh 'v' co the them vao vi tri 'pos' 
+// trong chu trinh hamilton duoc hay khong */
+// bool IsSafe(int v, int adj[MAXN][MAXN], int *path, int pos, int *count) {
+//     /* Kiem tra dinh hien tai co phai la dinh lien ke 
+//         cua dinh truoc do hay khong */ 
+//     if (!adj[path[pos - 1]][v]) return false;
+//     /* Kiem tra dinh da co truoc do hay chua*/
+//     if (count[v] > 1) return false;
+//     return true;
+// }
+// bool RecursiveHam(int adj[MAXN][MAXN], int n, int *path, int *count, int pos) {
+//     /* Kiem tra neu toan bo cac dinh da duoc tham*/
+//     if (pos == n) {
+//         /* Va kiem tra xem co canh noi tu dinh cuoi den
+//             dinh dau trong 'path' hay khong*/
+//         if (adj[path[pos - 1]][path[0]])
+//             return true;
+//         else
+//             return false;
+//     }
+//     /* Khong tham dinh 0 vi ta mac dinh 0 la diem bat dau cua chu trinh*/
+//     for (int v = 1; v < n; ++v) {
+//         if (IsSafe(v, adj, path, pos, count)) {
+//             path[pos] = v;
+//             count[pos]++;
+//             if (RecursiveHam(adj, n, path, count, pos + 1))
+//                 return true;
+//             path[pos] = -1;
+//             count[pos]--;
+//         }
+//     }
+//     return false;
+// }
+// void HamCycle(int adj[MAXN][MAXN], int n) {
+//     int *path = new int[n];
+//     int *count = new int[n];
+//     for (int i = 0; i < n; ++i) {
+//         path[i] = -1;
+//         count[i] = 0;
+//     }
+//     path[0] = 0;
+//     count[0] = 1;
+//     if (RecursiveHam(adj, n, path, count, 1) == false) {
+//         cout << "Khong ton tai chu trinh Hamilton";
+//         return;
+//     } 
+//     cout << "Ton tai chu trinh Hamilton:\n";
+//     for (int i = 0; i < n; ++i)
+//         cout << path[i] << " -> ";
+//     cout << path[0] << "\n"; 
+//     delete[] path;
+//     delete[] count;
+// }
+// ////////////////////////////////////////////////////////////////////////
+
+// ///////////////////////////////Canh cau/////////////////////////////////
+// void BridgeEdge(int adj[MAXN][MAXN], int n) {
+//     int numComponents = CountComponents(adj, n, -1);
+//     int count = 0, numEdges = 0;
+//     for (int i = 0; i < n; ++i) 
+//         for (int j = 0; j < n; ++j)
+//             if (adj[i][j])
+//                 numEdges++;
+//     int **edges = new int*[numEdges];
+//     for (int i = 0; i < numEdges; ++i)
+//         edges[i] = new int[2];
+//     for (int i = 0; i < n; ++i) {
+//         for (int j = 0; j < n; ++j) {
+//             if (adj[i][j]) {
+//                 int value = adj[i][j];
+//                 // Loai bo canh
+//                 adj[i][j] = 0;
+//                 // Dem so thanh phan lien thong sau khi da cat canh
+//                 int numComAfterRemove = CountComponents(adj, n, -1);
+//                 // Khoi phuc lai ban dau
+//                 adj[i][j] = value;
+//                 if (numComAfterRemove > numComponents) {
+//                     edges[count][0] = i;
+//                     edges[count][1] = j;
+//                     count++;
+//                 }
+//             }
+//         }
+//     }
+//     if (count == 0) {
+//         cout << "Khong ton tai canh cau";
+//     } else {
+//         cout << "Co " << count << " canh cau:\n";
+//         for (int i = 0; i < count; ++i) 
+//             cout << "(" << edges[i][0] << ", " << edges[i][1] << ")\n";
+//     }
+// }
+// ////////////////////////////////////////////////////////////////////////
+
+// ///////////////////////////////Dinh Tru/////////////////////////////////
+// void ArticulationPoint(int adj[MAXN][MAXN], int n) {
+//     int numberComponents = CountComponents(adj, n, -1);
+//     int count = 0;
+//     int *vertex = new int[n];
+//     int **temp = new int*[n];
+//     for (int i = 0; i < n; ++i)
+//         temp[i] = new int[n];
+//     for (int i = 0; i < n; ++i) 
+//         for (int j = 0; j < n; ++j)
+//             temp[i][j] = adj[i][j];
+//     for (int i = 0; i < n; ++i) {
+//         // Xoa dinh
+//         for (int j = 0; j < n; ++j)
+//             adj[i][j] = adj[j][i] = 0;
+//         cout << "\n";
+//         int numComAfterRemove = CountComponents(adj, n, i);
+//         cout << numComAfterRemove << "\n";
+//         // Khoi phuc
+//         for (int j = 0; j < n; ++j)
+//             adj[i][j] = temp[i][j], adj[j][i] = temp[j][i];
+//         if (numComAfterRemove > numberComponents)
+//             vertex[count++] = i;
+//     }
+//     if (count == 0) {
+//         cout << "Do thi khong co dinh tru";
+//     } else {
+//         cout << "Do thi co " << count << " dinh tru:\n";
+//         for (int i = 0; i < count; ++i)
+//             cout << i << "\n"; 
+//     }
+//     for (int i = 0; i < n; ++i)
+//         delete[] temp[i];
+//     delete[] temp;
+//     delete[] vertex;
+// }
+// ////////////////////////////////////////////////////////////////////////
+
+// ////////////////////////////Topo Sort///////////////////////////////////
+// void RecursiveTopoSort(int adj[MAXN][MAXN], int n, int *res, bool *vis, int *inDegree, int &index) {
+//     for (int i = 0; i < n; ++i) {
+//         if (inDegree[i] == 0 && !vis[i]) {
+//             for (int j = 0; j < n; ++j)
+//                 if (adj[i][j])
+//                     inDegree[j]--;
+//             res[index] = i;
+//             vis[i] = true;
+//             index++;
+//             RecursiveTopoSort(adj, n, res, vis, inDegree, index);
+//             for (int j = 0; j < n; ++j)
+//                 if (adj[i][j])
+//                     inDegree[j]++;
+//             vis[i] = false;
+//             index--;
+//         }
+//     }
+//     if (index == n) {
+//         cout << "[";
+//         for (int i = 0; i < n - 1; ++i)
+//             cout << res[i] << ", ";
+//         cout << res[n - 1] << "]\n";
+//     }
+// }
+// bool IsDAG(int adj[MAXN][MAXN], int n, int *inDegree) {
+//     Queue queue;
+//     int *tempInDeg = new int[n];
+//     for (int i = 0; i < n; ++i)
+//         tempInDeg[i] = inDegree[i];
+//     for (int i = 0; i < n; ++i)
+//         if (!inDegree[i])
+//             queue.push(i);
+//     while(!queue.empty()) {
+//         int u;
+//         queue.pop(u);
+//         for (int i = 0; i < n; ++i) 
+//             if (adj[u][i]) {
+//                 inDegree[i]--;
+//                 if (!inDegree[i])
+//                     queue.push(i);
+//             }
+//     }
+//     bool isDag = true;
+//     for (int i = 0; i < n; ++i) 
+//         if (inDegree[i]) {
+//             isDag = false;
+//             break;
+//         }
+//     for (int i = 0; i < n; ++i)
+//         inDegree[i] = tempInDeg[i];
+//     return isDag;
+// }
+// void TopoSort(int adj[MAXN][MAXN], int n) {
+//     bool *vis = new bool[n];
+//     int *inDegree = new int[n];
+//     for (int i = 0; i < n; ++i)
+//         vis[i] = false, inDegree[i] = 0;
+//     for (int i = 0; i < n; ++i)
+//         for (int j = 0; j < n; ++j)
+//             if (adj[i][j])
+//                 inDegree[j]++;
+//     if (!IsDAG(adj, n, inDegree)) {
+//         cout << "Do thi ton tai chu trinh";
+//     } else {
+//         cout << "Tat ca cac thu tu sap xep Topo duoc tim thay:\n";
+//         int *res = new int[n];
+//         int index = 0;
+//         RecursiveTopoSort(adj, n, res, vis, inDegree, index);
+//         delete[] res;
+//     }
+//     delete[] inDegree;
+//     delete[] vis;
+// }
