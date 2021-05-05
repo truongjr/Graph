@@ -87,6 +87,7 @@ bool CheckClickButton(Button button, int x, int y);
 bool CheckClickCircle(ButtonCircle button, int x, int y);
 bool CheckName(Graph &graph, string name);
 bool CheckPos(Graph &graph, int mx, int my);
+void CheckSave(Graph graph, bool isfirstSave, string &nameFile);
 bool AddNode(Graph &graph, int &x, int &y, string &ten, bool flag);
 void Rename(int x, int y, string &ten);
 void NotificationFull(string Noti);
@@ -132,8 +133,36 @@ int main(){
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if(x != -1 && y != -1){
 			if(CheckClickButton(closeButton, x, y)){// VO TINH NHAN NUT THOAT LUON
+				saveExit:
+				NotificationFull("BAN CO MUON LUU LAI KHONG?");
+				DrawButtonForNoti(continueButton);
+				DrawButtonForNoti(cancelButton);
+				while(true){
+					if(kbhit()){
+						char key = getch();
+						if(key == 27) break;
+					}
+					getmouseclick(WM_LBUTTONDOWN, x, y);
+					if(x != -1 && y != -1){
+						if(CheckClickButton(continueButton, x, y)){
+							reAddExit:
+							nameFile = AddFileName();
+							if(!nameFile.empty()){
+								nameFile = "saves/" + nameFile;
+								nameFile += ".txt";
+								ofstream graphFile((char*)nameFile.c_str());
+								graphFile.close();
+								WriteFile((char*)nameFile.c_str(), graph);
+								goto exit;
+							}
+							else goto reAddExit;
+						}
+						else if(CheckClickButton(cancelButton, x, y)) goto exit;
+					}
+				}
 				exit:
 				closegraph();
+				return 0;
 				// setbkcolor(BLACK);
 				// createScreenWelcome("VIET NAM VO DOI");
 			}
@@ -150,65 +179,40 @@ int main(){
 						// EffectToolbar();
 						getmouseclick(WM_LBUTTONDOWN, x, y);
 						if(x != -1 && y != -1){
+							gtAction:
 							if(CheckClickButton(closeButton, x, y)){
 								goto gtnew;
 							}
-							if(CheckClickButton(saveButton, x, y)){//Nhan nut Save	
-								NotificationFull("BAN CO MUON LUU LAI FILE DO THI HAY KHONG!");			
-								if(isfirstSave == false){// DANG NEW FILE
-									int x, y;
-									DrawButtonForNoti(continueButton);
-									DrawButtonForNoti(cancelButton);
-									while(true){
-										if(kbhit()){
-											char key = getch();
-											if(key == 27) break;
-										}
-										getmouseclick(WM_LBUTTONDOWN, x, y);
-										if(x != -1 && y != -1){
-											if(CheckClickButton(continueButton, x, y)){
-												reAdd:
-												nameFile = AddFileName();
-												if(!nameFile.empty()){
-													nameFile = "saves/" + nameFile;
-													nameFile += ".txt";
-													ofstream graphFile((char*)nameFile.c_str());
-													graphFile.close();
-													WriteFile((char*)nameFile.c_str(), graph);
-													isfirstSave = true;
-													goto gtnew;
-												}
-												else goto reAdd;
-											}
-											else if(CheckClickButton(cancelButton, x, y)){
-												goto gtnew;
-											}
-										}
+							else if(CheckClickButton(saveButton, x, y)){//Nhan nut Save	
+								NotificationFull("BAN CO MUON LUU LAI KHONG?");
+								DrawButtonForNoti(continueButton);
+								DrawButtonForNoti(cancelButton);
+								while(true){
+									if(kbhit()){
+										char key = getch();
+										if(key == 27) break;
 									}
-								}
-								else{//DANG OPEN FILE
-									int x, y;
-									DrawButtonForNoti(continueButton);
-									DrawButtonForNoti(cancelButton);
-									while(true){
-										if(kbhit()){
-											char key = getch();
-											if(key == 27) break;
-										}
-										getmouseclick(WM_LBUTTONDOWN, x, y);
-										if(x != -1 && y != -1){
-											if(CheckClickButton(continueButton, x, y)){
+									getmouseclick(WM_LBUTTONDOWN, x, y);
+									if(x != -1 && y != -1){
+										if(CheckClickButton(continueButton, x, y)){
+											reAddCt:
+											nameFile = AddFileName();
+											if(!nameFile.empty()){
+												nameFile = "saves/" + nameFile;
+												nameFile += ".txt";
+												ofstream graphFile((char*)nameFile.c_str());
+												graphFile.close();
 												WriteFile((char*)nameFile.c_str(), graph);
+												isfirstSave = true;
 												goto gtnew;
 											}
-											else if(CheckClickButton(cancelButton, x, y)){
-												goto gtnew;
-											}
+											else goto reAddCt;
 										}
+										else if(CheckClickButton(cancelButton, x, y)) goto gtnew;
 									}
 								}
 							}
-							if(CheckClickButton(addVertexButton, x, y)){//Nhan nut AddVerTex
+							else if(CheckClickButton(addVertexButton, x, y)){//Nhan nut AddVerTex
 								addV:
 								if(graph.numberNode < 14){
 									NotificationFull("CLICK CHUOT VAO VUNG TRONG DE THEM DINH HOAC NHAN THOAT!");
@@ -220,8 +224,7 @@ int main(){
 										getmouseclick(WM_LBUTTONDOWN, x, y);
 										if(x != -1 && y != -1){
 											if(CheckClickButton(closeButton, x, y)){
-												NotificationFull("BAN DA THOAT CHUC NANG!  HAY CHON CHUC NANG KHAC");
-												goto gtnew;
+												
 											}
 											else if(CheckClickButton(processingArea, x, y)){
 												if(CheckPos(graph, x, y)){
@@ -244,9 +247,11 @@ int main(){
 												}
 											}
 											else{
-												goto addV;
+												goto gtAction;
+
 											}
 										}
+										// else goto gtnew;
 									}	
 								}
 								else{
@@ -254,13 +259,13 @@ int main(){
 									goto gtnew;
 								}
 							}
-							if(CheckClickButton(addEdgeButton, x, y)){//Nhan nut AddEdge
+							else if(CheckClickButton(addEdgeButton, x, y)){//Nhan nut AddEdge
 								if(graph.numberNode < 2){
 									NotificationFull("SO LUONG DINH CHUA DU. MOI NHAP THEM DINH!");
 								}
 								else{
 									addE:
-									NotificationFull("CLICK VAO DINH DAU HOAC NHAN X DE THOAT!");
+									NotificationFull("CLICK VAO DINH DAU!");
 									while(true){
 										if(kbhit()){
 											char key = getch();
@@ -269,8 +274,7 @@ int main(){
 										getmouseclick(WM_LBUTTONDOWN, x, y);
 										if(x != -1 && y != -1){
 											if(CheckClickButton(closeButton, x, y)){												
-												NotificationFull("BAN DA THOAT CHUC NANG! HAY CHON CHUC NANG KHAC");
-												goto gtnew;
+												goto saveExit;
 											}
 											else if(CheckClickButton(realProcessingArea, x, y)){
 												bool flag = true;	
@@ -335,19 +339,19 @@ int main(){
 												}
 											}
 											else{
-												goto addE;
+												goto gtAction;
 											}
 										}
 									}
 								}																			
 							}
-							if(CheckClickButton(renameButton, x, y)){//Nhan nut Rename
+							else if(CheckClickButton(renameButton, x, y)){//Nhan nut Rename
 								if(graph.numberNode < 1){
 									NotificationFull("DO THI RONG. HAY THEM DINH!");
 								}
 								else{
 									reN:
-									NotificationFull("HAY CLICK VAO DINH CAN DOI TEN HOAC NHAN X DE THOAT!");
+									NotificationFull("HAY CLICK VAO DINH CAN DOI TEN!");
 									while(true){
 										if(kbhit()){
 											char key = getch();
@@ -356,8 +360,7 @@ int main(){
 										getmouseclick(WM_LBUTTONDOWN, x, y);
 										if(x != -1 && y != -1){
 											if(CheckClickButton(closeButton, x, y)){
-												NotificationFull("BAN DA THOAT CHUC NANG!  HAY CHON CHUC NANG KHAC");
-												goto gtnew;
+												goto saveExit;
 											}
 											else if(CheckClickButton(realProcessingArea, x, y)){
 												bool flag = false;
@@ -369,10 +372,10 @@ int main(){
 														circle(graph.node[i]->x, graph.node[i]->y, 25);
 														setcolor(BLUE);
 														setlinestyle(0, 0, 2);
-														nameNode = AddName_Weight("trong so");
+														nameNode = AddName_Weight("ten dinh");
 														Rename(graph.node[i]->x, graph.node[i]->y, nameNode);
 														while(CheckName(graph, nameNode) == false){
-															nameNode = AddName_Weight("trong so");
+															nameNode = AddName_Weight("ten dinh");
 														}
 														Rename(graph.node[i]->x, graph.node[i]->y, nameNode);
 														graph.node[i]->name = nameNode;
@@ -386,20 +389,20 @@ int main(){
 												goto reN;	
 											}
 											else{
-												goto reN;
+												goto gtAction;
 											}
 										}
 									}	
 								}
 							}
 							
-							if(CheckClickButton(moveButton, x, y)){//Nhan nut Move
+							else if(CheckClickButton(moveButton, x, y)){//Nhan nut Move
 								if(graph.numberNode < 1){
 									NotificationFull("DO THI RONG. HAY THEM DINH");
 								}
 								else{
 									move:
-									NotificationFull("CLICK VAO DINH CAN DI CHUYEN HOAC NHAN X DE THOAT!");
+									NotificationFull("CLICK VAO DINH CAN DI CHUYEN!");
 									int x1 = 0, y1 = 0, x2 = 0, y2 = 0, idx = -1;
 									while(true){//Bat phim dau
 										if(kbhit()){
@@ -409,8 +412,7 @@ int main(){
 										getmouseclick(WM_LBUTTONDOWN, x, y);
 										if(x != -1 && y != -1){
 											if(CheckClickButton(closeButton, x, y)){
-												NotificationFull("BAN DA THOAT CHUC NANG!  HAY CHON CHUC NANG KHAC");
-												goto gtnew;
+												goto saveExit;
 											}
 											else if(CheckClickButton(realProcessingArea, x, y)){
 												string nameNode="";
@@ -449,20 +451,20 @@ int main(){
 												}
 											}
 											else{
-												goto move;
+												goto gtAction;
 											}
 										}
 									}
 								}
 							}
 
-							if(CheckClickButton(deleteButton, x, y)){//Nhan nut Delete
+							else if(CheckClickButton(deleteButton, x, y)){//Nhan nut Delete
 								del:
 								if(graph.numberNode < 1){
 									NotificationFull("DO THI RONG. HAY THEM DINH!");
 								}
 								else{
-									NotificationFull("HAY CHON CHUC NANG XOA HOAC NHAN X DE THOAT!");
+									NotificationFull("HAY CHON CHUC NANG!");
 									DrawSubDel();
 									while(true){
 										if(kbhit()){
@@ -472,11 +474,8 @@ int main(){
 										// EffectDel();
 										getmouseclick(WM_LBUTTONDOWN, x, y);
 										if(x != -1 && y != -1){
-											if(CheckClickButton(realProcessingArea, x, y)){
-												NotificationFull("BAN DA THOAT CHUC NANG!  HAY CHON CHUC NANG KHAC");
-												bar(maxx/3 + 12, 61, maxx - 13, 592);
-												DrawGraph(graph);
-												goto gtnew;
+											if(CheckClickButton(closeButton, x, y)){
+												goto saveExit;
 											}
 											else if(CheckClickCircle(delVertex, x, y)){// xoa dinh
 												bar(maxx/3 + 12, 61, maxx - 13, 592);
@@ -492,11 +491,7 @@ int main(){
 													}
 													getmouseclick(WM_LBUTTONDOWN, x, y);
 													if(x != -1 && y != -1){
-														if(CheckClickButton(closeButton, x, y)){
-															NotificationFull("BAN DA THOAT CHUC NANG!  HAY CHON CHUC NANG KHAC");
-															goto gtnew;
-														}
-														else if(CheckClickButton(realProcessingArea, x, y)){
+														if(CheckClickButton(realProcessingArea, x, y)){
 															for(int i=0; i<graph.numberNode; i++){
 																if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
 																	setcolor(RED);
@@ -528,7 +523,6 @@ int main(){
 													NotificationFull("DO THI KHONG CO CANH DE XOA!");
 													bar(maxx/3 + 12, 61, maxx - 13, 592);
 													DrawGraph(graph);
-													goto addV;
 												}
 												else{
 													bar(maxx/3 + 12, 61, maxx - 13, 592);
@@ -543,11 +537,7 @@ int main(){
 														}
 														getmouseclick(WM_LBUTTONDOWN, x, y);
 														if(x != -1 && y != -1){
-															if(CheckClickButton(closeButton, x, y)){
-																NotificationFull("BAN DA THOAT CHUC NANG!  HAY CHON CHUC NANG KHAC");
-																goto gtnew;
-															}
-															else if(CheckClickButton(realProcessingArea, x, y)){
+															if(CheckClickButton(realProcessingArea, x, y)){
 																bool flag = true;
 																for(int i=0; i < graph.numberNode; i++){
 																	if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
@@ -585,7 +575,11 @@ int main(){
 																				goto delEE;
 																			}
 																			else{
-																				DeleteEdge(graph, x1, y1, x2, y2, idx1, idx2);
+																				if(graph.adj[idx1][idx2]) DeleteEdge(graph, x1, y1, x2, y2, idx1, idx2);
+																				else {
+																					bar(maxx/3 + 12, 61, maxx - 13, 592);
+																					DrawGraph(graph);
+																				}
 																				goto del;
 																			}
 																		}	
@@ -599,10 +593,16 @@ int main(){
 													}
 												}
 											}
+											else{
+												bar(maxx/3 + 12, 61, maxx - 13, 592);
+												DrawGraph(graph);
+												goto gtAction;
+											} 
 										}
 									}
 								}
 							}
+							//////////////////////////
 						}	
 					}
 				}
@@ -653,7 +653,32 @@ int main(){
 	}
 	return 0;
 }
-
+void CheckSave(Graph graph, bool isfirstSave, string &nameFile){
+	NotificationFull("BAN CO MUON LUU LAI FILE DO THI HAY KHONG!");			
+	if(isfirstSave == false){// DANG NEW FILE
+		
+	}
+	else{//DANG OPEN FILE
+		int x, y;
+		DrawButtonForNoti(continueButton);
+		DrawButtonForNoti(cancelButton);
+		while(true){
+			if(kbhit()){
+				char key = getch();
+				if(key == 27) break;
+			}
+			getmouseclick(WM_LBUTTONDOWN, x, y);
+			if(x != -1 && y != -1){
+				if(CheckClickButton(continueButton, x, y)){
+					WriteFile((char*)nameFile.c_str(), graph);
+				}
+				// else if(CheckClickButton(cancelButton, x, y)){
+				// 	return true;
+				// }
+			}
+		}
+	}
+}
 void RunningAlgorithm(Graph graph, int x, int y){
 
 }
@@ -715,8 +740,8 @@ void DrawSubDel(){
 	// settextstyle(3, HORIZ_DIR, 2);
 	circle(delVertex.x, delVertex.y, delVertex.r);
 	circle(delEdge.x, delEdge.y, delEdge.r);
-	outtextxy(delVertex.x - 30, delVertex.y - 12, (char*)delVertex.name.c_str());
-	outtextxy(delEdge.x - 22, delEdge.y - 12, (char*)delEdge.name.c_str());
+	outtextxy(delVertex.x - 35, delVertex.y - 14, (char*)delVertex.name.c_str());
+	outtextxy(delEdge.x - 28, delEdge.y - 14, (char*)delEdge.name.c_str());
 }
 //NHAP TRONG SO && NHAP TEN
 string AddName_Weight(string name){
@@ -827,7 +852,7 @@ void CreateButton (){
 	continueButton.name = "Tiep tuc", continueButton.x1 = maxx/3 + 9, continueButton.y1 = 696, continueButton.x2 = 800, continueButton.y2 = maxy - 10;
 	cancelButton.name = "     Huy", cancelButton.x1 = 800, cancelButton.y1 = 696, cancelButton.x2 = maxx-10, cancelButton.y2 = maxy - 10;
 	delVertex.name = "Vertex", delVertex.x = 1025, delVertex.y = 102, delVertex.r = 40;
-	delEdge.name = "  Edge", delEdge.x = 1140, delEdge.y = 102, delEdge.r = 40;
+	delEdge.name = "Edge", delEdge.x = 1140, delEdge.y = 102, delEdge.r = 40;
 }
 void DrawButtonForMenu(Button button){
 	rectangle(button.x1, button.y1, button.x2, button.y2);
