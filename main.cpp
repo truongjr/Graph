@@ -76,7 +76,8 @@ void DrawSubDel();
 void CreateButton();
 void DrawMenuTable();
 void DrawToolBar();
-void DrawWeightMatrix();
+void DrawMatrix();
+void DrawWeightMatrix(Graph &graph);
 void DrawButtonForMenu(Button button);
 void DrawButtonForToolBar(Button button);
 void DrawButtonForNoti(Button button);
@@ -239,6 +240,7 @@ int main(){
 													n->y = y;
 													graph.node[graph.numberNode] = n;
 													graph.numberNode++;
+													DrawWeightMatrix(graph);
 													goto addV;
 
 												}
@@ -335,6 +337,7 @@ int main(){
 													//DrawGraph(node, numberNode, adj, type);
 													graph.adj[idx1][idx2] = (value[0]-'0')*10+(value[1]-'0');
 													setfillstyle(1, WHITE);
+													DrawWeightMatrix(graph);
 													goto addE;
 												}
 											}
@@ -363,8 +366,8 @@ int main(){
 												goto saveExit;
 											}
 											else if(CheckClickButton(realProcessingArea, x, y)){
-												bool flag = false;
 												string nameNode = "";
+												bool flag = true;
 												for(int i=0; i < graph.numberNode; i++){
 													if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
 														setcolor(RED);
@@ -379,14 +382,12 @@ int main(){
 														}
 														Rename(graph.node[i]->x, graph.node[i]->y, nameNode);
 														graph.node[i]->name = nameNode;
-														flag = true;
+														DrawWeightMatrix(graph);
+														flag = false;
 														break;
 													}
 												}
-												if(flag == false){
-													NotificationFull("HAY CLICK VAO DINH CAN DOI TEN!");
-												} 
-												goto reN;	
+												if(flag == true) goto reN;	
 											}
 											else{
 												goto gtAction;
@@ -509,6 +510,7 @@ int main(){
 															}
 															else{
 																DeleteVertex(graph, x, y, idx);
+																DrawWeightMatrix(graph);
 																goto del;
 															}
 														}
@@ -575,7 +577,10 @@ int main(){
 																				goto delEE;
 																			}
 																			else{
-																				if(graph.adj[idx1][idx2]) DeleteEdge(graph, x1, y1, x2, y2, idx1, idx2);
+																				if(graph.adj[idx1][idx2]){
+																					DeleteEdge(graph, x1, y1, x2, y2, idx1, idx2);
+																					DrawWeightMatrix(graph);	
+																				} 
 																				else {
 																					bar(maxx/3 + 12, 61, maxx - 13, 592);
 																					DrawGraph(graph);
@@ -725,7 +730,7 @@ void CreateScreen(){
 	rectangle(maxx / 3 + 9, 601, maxx - 10, maxy - 10);
 	DrawToolBar();
 	DrawMenuTable();
-	DrawWeightMatrix();
+	DrawMatrix();      
 }
 //TAO NODE
 void CreateNode(int x, int y, char name[], int color){
@@ -880,7 +885,7 @@ void DrawToolBar(){
 }
 void DrawMenuTable(){
 	//ve khung menu
-	rectangle(10, 58, maxx / 3 + 2, maxy / 2 - 5);
+	rectangle(10, 58, maxx / 3 + 2, 400 - 5);
 	rectangle(10, 58, maxx / 3 + 2, 95);
 	outtextxy(137, 63, "ALGORITHM");
 	DrawButtonForMenu(dfsButton);
@@ -894,17 +899,34 @@ void DrawMenuTable(){
 	DrawButtonForMenu(bridgeEdgeButton);
 	DrawButtonForMenu(topoSortButton);
 }
-void DrawWeightMatrix(){
+void DrawMatrix(){
+	bar(10, 400, maxx/3 + 2, maxy - 10);
 	outtextxy(100, 410, "MA TRAN TRONG SO");
 	setlinestyle(0, 0, 1);
 	for(int j = 0; j < 14; j++){
 		for(int i = 0; i < 14; i++){
-			rectangle(10 + i*28, maxy/2+40 + j*25, 10 + i*28 + 28, maxy/2 + 40 + 25 + j*25);
+			rectangle(10 + i * 28, 440 + j * 25, 10 + i * 28 + 28, 440 + 25 + j * 25);
 		}
 	}
 	setlinestyle(0, 0, 2);
-	rectangle(10, maxy / 2, maxx / 3 + 2, maxy / 2 + 40);
-	rectangle(10, maxy / 2, maxx / 3 + 2, maxy - 10);
+	rectangle(10, 400, maxx / 3 + 2, 440);
+	rectangle(10, 400, maxx / 3 + 2, maxy - 10);
+}
+void DrawWeightMatrix(Graph &graph){
+	DrawMatrix();
+	settextstyle(3, HORIZ_DIR, 1);
+	for(int i = 0; i < graph.numberNode; i++){
+		if(graph.numberNode > i){
+			setcolor(RED);
+			outtextxy(10 + 5 - 1, maxy/2 + 40 + (i+1)*25 + 1, (char*)graph.node[i]->name.c_str());
+			outtextxy(10 + (i+1)*28 + 3, maxy/2 + 40 + 1, (char*)graph.node[i]->name.c_str());
+		}
+		for(int j = 0; j < graph.numberNode; j++){
+			setcolor(BLUE);
+			if(graph.adj[i][j] != 0) outtextxy(10 + (j+1)*28 + 5, maxy/2 + 40 + (i+1)*25 + 1, (char*)to_string(graph.adj[i][j]).c_str());
+			else outtextxy(10 + (j+1)*28 + 5 - 1, maxy/2 + 40 + (i+1)*25 + 1, " ");
+		}
+	}
 }
 /////////////////////////////////////////////////Tao Dinh///////////////////////////////////////
 //Kiem tra vi tri click chuot co o ben trong Node hay khong
@@ -1467,18 +1489,20 @@ void ReadFile(char *fileName, Graph &graph) {
 //         ans = ans * 10 + (s[i] - '0');
 //     return ans;
 // }
-// int CountComponents(int adj[MAXN][MAXN], int n, int i) {
+// int CountComponents(Graph g, int start) {
 //     int temp[MAXN][MAXN];
-//     memset(temp, 0, sizeof(temp));
-//     for (int i = 0; i < n; ++i) 
-//         for (int j = 0; j < n; ++j)
-//             if (adj[i][j]) 
+//     for (int i = 0; i < MAXN; ++i)
+//         for (int j = 0; j < MAXN; ++j)
+//             temp[i][j] = 0;
+//     for (int i = 0; i < g.numberNode; ++i) 
+//         for (int j = 0; j < g.numberNode; ++j)
+//             if (g.adj[i][j]) 
 //                 temp[i][j] = temp[j][i] = 1;       
 //     bool vis[MAXN];
-//     for (int i = 0; i < n; ++i) vis[i] = false;
-//     if (i != -1) vis[i] = true;
+//     for (int i = 0; i < g.numberNode; ++i) vis[i] = false;
+//     if (start != -1) vis[start] = true;
 //     int count = 0;
-//     for (int i = 0; i < n; ++i) {
+//     for (int i = 0; i < g.numberNode; ++i) {
 //         if (vis[i] == false) {
 //             count++;
 //             Queue q;
@@ -1487,7 +1511,7 @@ void ReadFile(char *fileName, Graph &graph) {
 //             while(!q.empty()) {
 //                 int u;
 //                 q.pop(u);
-//                 for (int i = 0; i < n; ++i) {
+//                 for (int i = 0; i < g.numberNode; ++i) {
 //                     if (temp[u][i] && vis[i] == false) {
 //                         q.push(i);
 //                         vis[i] = true;
@@ -1498,11 +1522,10 @@ void ReadFile(char *fileName, Graph &graph) {
 //     }
 //     return count;
 // }
-
 // /////////////////////// Dinh that ////////////////////////////
-// bool dfsCheck(int u, int v, int adj[MAXN][MAXN], int n) {
-//     bool *vis = new bool[n];
-//     for (int i = 0; i < n; ++i) vis[i] = false;
+// bool dfsCheck(int u, int v, Graph g) {
+//     bool vis[MAXN];
+//     for (int i = 0; i < g.numberNode; ++i) vis[i] = false;
 //     Stack stack;
 //     stack.push(u);
 //     vis[u] = true;
@@ -1512,25 +1535,25 @@ void ReadFile(char *fileName, Graph &graph) {
 //         stack.pop(start);
 //         if (start == v) return 1;
 //         ++numCheckedVertex;
-//         for (int i = 0; i < n; ++i) 
-//             if (!vis[i] && adj[start][i]) {
+//         for (int i = 0; i < g.numberNode; ++i) 
+//             if (!vis[i] && g.adj[start][i]) {
 //                 vis[i] = true;
 //                 stack.push(i);
 //             }
 //     }
-//     return (numCheckedVertex == n);
+//     return (numCheckedVertex == g.numberNode);
 // }
-// bool IsConnected(int u, int v, int adj[MAXN][MAXN], int n) {
+// bool IsConnected(int u, int v, Graph g) {
 //     bool vis[MAXN];
-//     for (int i = 0; i < n; ++i) vis[i] = false;
+//     for (int i = 0; i < g.numberNode; ++i) vis[i] = false;
 //     Queue q;
 //     q.push(u);
 //     vis[u] = true;
 //     while(!q.empty()) {
 //         int t;
 //         q.pop(t);
-//         for (int i = 0; i < n; ++i) {
-//             if (adj[t][i] && !vis[i]) {
+//         for (int i = 0; i < g.numberNode; ++i) {
+//             if (g.adj[t][i] && !vis[i]) {
 //                 q.push(i);
 //                 vis[i] = true;
 //                 /// neu nut i = v thi co lien thong //////////
@@ -1541,28 +1564,28 @@ void ReadFile(char *fileName, Graph &graph) {
 //     }
 //     return false;
 // }
-// void KnotPoint(int u, int v, int adj[MAXN][MAXN], int n) {
-// 	if (adj[u][v] || !dfsCheck(u, v, adj, n)) {
+// void KnotPoint(int u, int v, Graph g) {
+// 	if (g.adj[u][v] || !dfsCheck(u, v, g)) {
 // 		cout << "Khong co dinh that (Ton tai duong di truc tiep / Khong co duong di)\n";
 // 		return;
 // 	}
 //     int temp[MAXN][MAXN];
-//     int *res = new int[n];
+//     int res[MAXN];
 //     int index = 0;
-//     for (int i = 0; i < n; ++i) 
-//         for (int j = 0; j < n; ++j)
-//             temp[i][j] = adj[i][j];
-//     for (int i = 0; i < n; ++i) {
+//     for (int i = 0; i < g.numberNode; ++i) 
+//         for (int j = 0; j < g.numberNode; ++j)
+//             temp[i][j] = g.adj[i][j];
+//     for (int i = 0; i < g.numberNode; ++i) {
 //         ///////////////////// loai bo dinh /////////////////////
-//         for (int j = 0; j < n; ++j) 
-//             adj[j][i] = adj[i][j] = 0;
+//         for (int j = 0; j < g.numberNode; ++j) 
+//             g.adj[j][i] = g.adj[i][j] = 0;
 //         // kiem tra co duong di tu u den v hay ko//////////////
-//         if (!IsConnected(u, v, adj, n)) 
+//         if (!IsConnected(u, v, g)) 
 //             if (i != u && i != v) 
 //                 res[index++] = i;
 //         // khoi phuc lai trang thai truoc do///////////////////
-//         for (int j = 0; j < n; ++j) 
-//             adj[j][i] = temp[j][i], adj[i][j] = temp[i][j];
+//         for (int j = 0; j < g.numberNode; ++j) 
+//             g.adj[j][i] = temp[j][i], g.adj[i][j] = temp[i][j];
 //     }
 //     if (index == 0) {
 //     	cout << "Khong co dinh that giua " << u << " va " << v << "\n"; 
@@ -1575,16 +1598,15 @@ void ReadFile(char *fileName, Graph &graph) {
 // ///////////////////////////////////////////////////////////////
 
 // /////////////////////Chu trinh Euler///////////////////////////
-// bool IsEulerCircuit(int adj[MAXN][MAXN], int n) {
-//     if (n == 0) return false;
-//     int numberComponents = CountComponents(adj, n, -1);
+// bool IsEulerCircuit(Graph g) {
+//     int numberComponents = CountComponents(g, -1);
 //     if (numberComponents != 1) return false;
-//     for (int i = 0; i < n; ++i) {
+//     for (int i = 0; i < g.numberNode; ++i) {
 //         int degPlus = 0, degNeg = 0;
-//         for (int j = 0; j < n; ++j) { 
-//             if (adj[i][j])
+//         for (int j = 0; j < g.numberNode; ++j) { 
+//             if (g.adj[i][j])
 //                 degPlus++;
-//             if (adj[j][i]) 
+//             if (g.adj[j][i]) 
 //                 degNeg++;
 //         }
 //         if (degPlus != degNeg) 
@@ -1592,26 +1614,27 @@ void ReadFile(char *fileName, Graph &graph) {
 //     }
 //     return true;
 // }
-// void EulerCycle(int adj[MAXN][MAXN], int n) {
-//     if (!IsEulerCircuit(adj, n)) {
+// void EulerCycle(Graph g) {
+//     if (!IsEulerCircuit(g)) {
 //         cout << "Khong ton tai chu trinh Euler";
 //         return;
 //     }
 //     int temp[MAXN][MAXN];
 //     int len = 0;
-//     for (int i = 0; i < n; ++i) 
-//         for (int j = 0; j < n; ++j) {
-//             temp[i][j] = adj[i][j];
-//             if (adj[i][j]) len++;
+//     for (int i = 0; i < g.numberNode; ++i) 
+//         for (int j = 0; j < g.numberNode; ++j) {
+//             temp[i][j] = g.adj[i][j];
+//             if (g.adj[i][j]) len++;
 //         }
-//     int *path = new int[len];
+//     const int lenPath = len;
+//     int path[lenPath];
 //     Stack stack;
 //     stack.push(0); 
 //     int currVertex = 0, index = 0;
 //     while(!stack.empty()) {
 //         int t = -1;
 //         /* tim node dau tien ma currVertex noi toi */
-//         for (int i = 0; i < n; ++i) 
+//         for (int i = 0; i < g.numberNode; ++i) 
 //             if (temp[currVertex][i]) {
 //                 t = i;
 //                 break;
@@ -1633,90 +1656,84 @@ void ReadFile(char *fileName, Graph &graph) {
 //     for (int i = 0; i < len; ++i)
 //         cout << path[i] << " -> ";
 //     cout << 0 << "\n";
-//     delete[] path;
 // }
 // ///////////////////////////////////////////////////////////////
 
 // /////////////////// Chu trinh Hamilton /////////////////////////////////
 // /* Ham kiem tra xem dinh 'v' co the them vao vi tri 'pos' 
 // trong chu trinh hamilton duoc hay khong */
-// bool IsSafe(int v, int adj[MAXN][MAXN], int *path, int pos, int *count) {
+// bool IsSafe(int v, Graph g, int path[], int count[], int pos) {
 //     /* Kiem tra dinh hien tai co phai la dinh lien ke 
 //         cua dinh truoc do hay khong */ 
-//     if (!adj[path[pos - 1]][v]) return false;
+//     if (!g.adj[path[pos - 1]][v]) return false;
 //     /* Kiem tra dinh da co truoc do hay chua*/
 //     if (count[v] > 1) return false;
 //     return true;
 // }
-// bool RecursiveHam(int adj[MAXN][MAXN], int n, int *path, int *count, int pos) {
+// bool RecursiveHam(Graph g, int path[], int count[], int pos) {
 //     /* Kiem tra neu toan bo cac dinh da duoc tham*/
-//     if (pos == n) {
+//     if (pos == g.numberNode) {
 //         /* Va kiem tra xem co canh noi tu dinh cuoi den
 //             dinh dau trong 'path' hay khong*/
-//         if (adj[path[pos - 1]][path[0]])
+//         if (g.adj[path[pos - 1]][path[0]])
 //             return true;
 //         else
 //             return false;
 //     }
 //     /* Khong tham dinh 0 vi ta mac dinh 0 la diem bat dau cua chu trinh*/
-//     for (int v = 1; v < n; ++v) {
-//         if (IsSafe(v, adj, path, pos, count)) {
+//     for (int v = 1; v < g.numberNode; ++v) {
+//         if (IsSafe(v, g, path, count, pos)) {
 //             path[pos] = v;
-//             count[pos]++;
-//             if (RecursiveHam(adj, n, path, count, pos + 1))
+//             if (RecursiveHam(g, path, count, pos + 1))
 //                 return true;
 //             path[pos] = -1;
-//             count[pos]--;
 //         }
 //     }
 //     return false;
 // }
-// void HamCycle(int adj[MAXN][MAXN], int n) {
-//     int *path = new int[n];
-//     int *count = new int[n];
-//     for (int i = 0; i < n; ++i) {
+// void HamCycle(Graph g) {
+//     int path[MAXN];
+//     int count[MAXN];
+//     for (int i = 0; i < g.numberNode; ++i) {
 //         path[i] = -1;
 //         count[i] = 0;
 //     }
 //     path[0] = 0;
 //     count[0] = 1;
-//     if (RecursiveHam(adj, n, path, count, 1) == false) {
+//     if (RecursiveHam(g, path, count, 1) == false) {
 //         cout << "Khong ton tai chu trinh Hamilton";
 //         return;
 //     } 
 //     cout << "Ton tai chu trinh Hamilton:\n";
-//     for (int i = 0; i < n; ++i)
+//     for (int i = 0; i < g.numberNode; ++i)
 //         cout << path[i] << " -> ";
 //     cout << path[0] << "\n"; 
-//     delete[] path;
-//     delete[] count;
 // }
 // ////////////////////////////////////////////////////////////////////////
 
 // ///////////////////////////////Canh cau/////////////////////////////////
-// void BridgeEdge(int adj[MAXN][MAXN], int n) {
-//     int numComponents = CountComponents(adj, n, -1);
-//     int count = 0, numEdges = 0;
-//     for (int i = 0; i < n; ++i) 
-//         for (int j = 0; j < n; ++j)
-//             if (adj[i][j])
-//                 numEdges++;
-//     int **edges = new int*[numEdges];
-//     for (int i = 0; i < numEdges; ++i)
-//         edges[i] = new int[2];
-//     for (int i = 0; i < n; ++i) {
-//         for (int j = 0; j < n; ++j) {
-//             if (adj[i][j]) {
-//                 int value = adj[i][j];
+// void BridgeEdge(Graph g) {
+//     int numComponents = CountComponents(g, -1);
+//     int count = 0, edges = 0;
+//     for (int i = 0; i < g.numberNode; ++i) 
+//         for (int j = 0; j < g.numberNode; ++j)
+//             if (g.adj[i][j])
+//                 edges++;
+//     const int numEdges = edges;
+//     int bridgeEdges[numEdges][2];
+//     for (int i = 0; i < g.numberNode; ++i) {
+//         for (int j = 0; j < g.numberNode; ++j) {
+//             if (g.adj[i][j]) {
+//                 int value = g.adj[i][j];
 //                 // Loai bo canh
-//                 adj[i][j] = 0;
+//                 g.adj[i][j] = 0;
 //                 // Dem so thanh phan lien thong sau khi da cat canh
-//                 int numComAfterRemove = CountComponents(adj, n, -1);
+//                 int numComAfterRemove = CountComponents(g, -1);
 //                 // Khoi phuc lai ban dau
-//                 adj[i][j] = value;
+//                 g.adj[i][j] = value;
 //                 if (numComAfterRemove > numComponents) {
-//                     edges[count][0] = i;
-//                     edges[count][1] = j;
+//                     bridgeEdges[count][0] = i;
+//                     bridgeEdges[count][1] = j;
 //                     count++;
 //                 }
 //             }
@@ -1727,32 +1744,28 @@ void ReadFile(char *fileName, Graph &graph) {
 //     } else {
 //         cout << "Co " << count << " canh cau:\n";
 //         for (int i = 0; i < count; ++i) 
-//             cout << "(" << edges[i][0] << ", " << edges[i][1] << ")\n";
+//             cout << "(" << bridgeEdges[i][0] << ", " << bridgeEdges[i][1] << ")\n";
 //     }
 // }
 // ////////////////////////////////////////////////////////////////////////
 
 // ///////////////////////////////Dinh Tru/////////////////////////////////
-// void ArticulationPoint(int adj[MAXN][MAXN], int n) {
-//     int numberComponents = CountComponents(adj, n, -1);
+// void ArticulationPoint(Graph g) {
+//     int numberComponents = CountComponents(g, -1);
 //     int count = 0;
-//     int *vertex = new int[n];
-//     int **temp = new int*[n];
-//     for (int i = 0; i < n; ++i)
-//         temp[i] = new int[n];
-//     for (int i = 0; i < n; ++i) 
-//         for (int j = 0; j < n; ++j)
-//             temp[i][j] = adj[i][j];
-//     for (int i = 0; i < n; ++i) {
+//     int vertex[MAXN];
+//     int temp[MAXN][MAXN];
+//     for (int i = 0; i < g.numberNode; ++i) 
+//         for (int j = 0; j < g.numberNode; ++j)
+//             temp[i][j] = g.adj[i][j];
+//     for (int i = 0; i < g.numberNode; ++i) {
 //         // Xoa dinh
-//         for (int j = 0; j < n; ++j)
-//             adj[i][j] = adj[j][i] = 0;
-//         cout << "\n";
-//         int numComAfterRemove = CountComponents(adj, n, i);
-//         cout << numComAfterRemove << "\n";
+//         for (int j = 0; j < g.numberNode; ++j)
+//             g.adj[i][j] = g.adj[j][i] = 0;
+//         int numComAfterRemove = CountComponents(g, i);
 //         // Khoi phuc
-//         for (int j = 0; j < n; ++j)
-//             adj[i][j] = temp[i][j], adj[j][i] = temp[j][i];
+//         for (int j = 0; j < g.numberNode; ++j)
+//             g.adj[i][j] = temp[i][j], g.adj[j][i] = temp[j][i];
 //         if (numComAfterRemove > numberComponents)
 //             vertex[count++] = i;
 //     }
@@ -1763,84 +1776,79 @@ void ReadFile(char *fileName, Graph &graph) {
 //         for (int i = 0; i < count; ++i)
 //             cout << i << "\n"; 
 //     }
-//     for (int i = 0; i < n; ++i)
-//         delete[] temp[i];
-//     delete[] temp;
-//     delete[] vertex;
 // }
 // ////////////////////////////////////////////////////////////////////////
 
 // ////////////////////////////Topo Sort///////////////////////////////////
-// void RecursiveTopoSort(int adj[MAXN][MAXN], int n, int *res, bool *vis, int *inDegree, int &index) {
-//     for (int i = 0; i < n; ++i) {
+// void RecursiveTopoSort(Graph g, int res[], bool vis[], int inDegree[], int &index) {
+//     for (int i = 0; i < g.numberNode; ++i) {
 //         if (inDegree[i] == 0 && !vis[i]) {
-//             for (int j = 0; j < n; ++j)
-//                 if (adj[i][j])
+//             for (int j = 0; j < g.numberNode; ++j)
+//                 if (g.adj[i][j])
 //                     inDegree[j]--;
 //             res[index] = i;
 //             vis[i] = true;
 //             index++;
-//             RecursiveTopoSort(adj, n, res, vis, inDegree, index);
-//             for (int j = 0; j < n; ++j)
-//                 if (adj[i][j])
+//             RecursiveTopoSort(g, res, vis, inDegree, index);
+//             for (int j = 0; j < g.numberNode; ++j)
+//                 if (g.adj[i][j])
 //                     inDegree[j]++;
 //             vis[i] = false;
 //             index--;
 //         }
 //     }
-//     if (index == n) {
+//     if (index == g.numberNode) {
 //         cout << "[";
-//         for (int i = 0; i < n - 1; ++i)
+//         for (int i = 0; i < g.numberNode - 1; ++i)
 //             cout << res[i] << ", ";
-//         cout << res[n - 1] << "]\n";
+//         cout << res[g.numberNode - 1] << "]\n";
 //     }
 // }
-// bool IsDAG(int adj[MAXN][MAXN], int n, int *inDegree) {
+// bool IsDAG(Graph g, int inDegree[]) {
 //     Queue queue;
-//     int *tempInDeg = new int[n];
-//     for (int i = 0; i < n; ++i)
+//     const int numberNode = g.numberNode;
+//     int tempInDeg[numberNode];
+//     for (int i = 0; i < g.numberNode; ++i)
 //         tempInDeg[i] = inDegree[i];
-//     for (int i = 0; i < n; ++i)
+//     for (int i = 0; i < g.numberNode; ++i)
 //         if (!inDegree[i])
 //             queue.push(i);
 //     while(!queue.empty()) {
 //         int u;
 //         queue.pop(u);
-//         for (int i = 0; i < n; ++i) 
-//             if (adj[u][i]) {
+//         for (int i = 0; i < g.numberNode; ++i) 
+//             if (g.adj[u][i]) {
 //                 inDegree[i]--;
 //                 if (!inDegree[i])
 //                     queue.push(i);
 //             }
 //     }
 //     bool isDag = true;
-//     for (int i = 0; i < n; ++i) 
+//     for (int i = 0; i < g.numberNode; ++i) 
 //         if (inDegree[i]) {
 //             isDag = false;
 //             break;
 //         }
-//     for (int i = 0; i < n; ++i)
+//     for (int i = 0; i < g.numberNode; ++i)
 //         inDegree[i] = tempInDeg[i];
 //     return isDag;
 // }
-// void TopoSort(int adj[MAXN][MAXN], int n) {
-//     bool *vis = new bool[n];
-//     int *inDegree = new int[n];
-//     for (int i = 0; i < n; ++i)
+// void TopoSort(Graph g) {
+//     const int numberNode = g.numberNode;
+//     bool vis[numberNode];
+//     int inDegree[numberNode];
+//     for (int i = 0; i < g.numberNode; ++i)
 //         vis[i] = false, inDegree[i] = 0;
-//     for (int i = 0; i < n; ++i)
-//         for (int j = 0; j < n; ++j)
-//             if (adj[i][j])
+//     for (int i = 0; i < g.numberNode; ++i)
+//         for (int j = 0; j < g.numberNode; ++j)
+//             if (g.adj[i][j])
 //                 inDegree[j]++;
-//     if (!IsDAG(adj, n, inDegree)) {
+//     if (!IsDAG(g, inDegree)) {
 //         cout << "Do thi ton tai chu trinh";
 //     } else {
 //         cout << "Tat ca cac thu tu sap xep Topo duoc tim thay:\n";
-//         int *res = new int[n];
+//         int res[numberNode];
 //         int index = 0;
-//         RecursiveTopoSort(adj, n, res, vis, inDegree, index);
-//         delete[] res;
+//         RecursiveTopoSort(g, res, vis, inDegree, index);
 //     }
-//     delete[] inDegree;
-//     delete[] vis;
 // }
