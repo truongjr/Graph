@@ -387,7 +387,7 @@ int main(){
 														break;
 													}
 												}
-												if(flag == true) goto reN;	
+												goto reN;	
 											}
 											else{
 												goto gtAction;
@@ -927,6 +927,7 @@ void DrawWeightMatrix(Graph &graph){
 			else outtextxy(10 + (j+1)*28 + 5 - 1, maxy/2 + 40 + (i+1)*25 + 1, " ");
 		}
 	}
+	settextstyle(3, HORIZ_DIR, 3);
 }
 /////////////////////////////////////////////////Tao Dinh///////////////////////////////////////
 //Kiem tra vi tri click chuot co o ben trong Node hay khong
@@ -1454,7 +1455,7 @@ void ReadFile(char *fileName, Graph &graph) {
 // int minDistance(int distance[], bool tick[]){
 // 	int min = INT_MAX, minIndex = -1;
 // 	for(int i=0; i<V; i++) {
-// 		if(min >= distance[i] && tick[i] == false){
+// 		if(min > distance[i] && tick[i] == false){
 // 			min = distance[i];
 // 			minIndex = i;
 // 		}
