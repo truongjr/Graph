@@ -6,7 +6,9 @@
 #include <cmath>
 #include <fstream>
 #include "stack.h"
-#include "queue.h"
+// #include "queue.h"
+#include<queue>
+#include<stack>
 using namespace std;
 #define BLACK 0
 #define BLUE 1 
@@ -65,6 +67,15 @@ struct Graph{
 	~Graph(){}
 };
 typedef struct Graph Graph;
+struct nodeTmp{
+	int parentNode, childNode;
+	nodeTmp(){
+		parentNode = 0;
+		childNode = 0;
+	}
+	~nodeTmp(){}
+};
+typedef struct nodeTmp nodeTmp;
 Button newButton, openButton, saveButton, addVertexButton, addEdgeButton, moveButton, renameButton, deleteButton; 
 Button dfsButton, bfsButton, shortestPathButton, ComponentButton, hamiltonButton, eulerButton, dinhTruButton, dinhThatButton, bridgeEdgeButton, topoSortButton;
 Button helpArea, processingArea, realProcessingArea, closeButton, scannerArea, continueButton, cancelButton;
@@ -108,12 +119,16 @@ void DrawGraph(Graph &graph);
 void DeleteEdge(Graph &graph, int x1, int y1, int x2, int y2, int index1, int index2);
 void DeleteVertex(Graph &graph, int x, int y, int index);
 void Move(Graph &graph, int x1, int y1, int x2, int y2, int index);
-void DFS (Graph &graph, int f);
+// void DFS (Graph &graph, int f);
 string ToStringLen2(int n);
 string ToString(int n);
 int ToInt(string s);
 void WriteFile(char *fileName, Graph &graph);
 void ReadFile(char *fileName, Graph &graph);
+void DFS (Graph graph, int f);
+void BFS (Graph graph, int start);
+void Component (Graph graph);
+
 int main(){
 
 	// createScreenWelcome();
@@ -611,53 +626,61 @@ int main(){
 						}	
 					}
 				}
-				else if(CheckClickButton(openButton, x, y)){//Nhan nut Open
-					NotificationFull("HAY CLICK VAO THUAT TOAN CAN DEMO");
-					while(true){
-						if(kbhit()){
-							char key = getch();
-							if(key == 27) break;
-						}
-						getmouseclick(WM_LBUTTONDOWN, x, y);
-						if(x != -1 && y != -1){
-							if(CheckClickButton(dfsButton, x, y)){
 
-							}
-							else if(CheckClickButton(bfsButton, x, y)){
+				else if(CheckClickButton(openButton, x, y)){//Nhan nut Open
+					Graph g;
+					ReadFile("saves/test.txt", g);
+					DrawGraph(g);
+
+					NotificationFull("HAY CLICK VAO THUAT TOAN CAN DEMO");
+					DFS(g, 0);
+					// DFS(graph, 0);
+					// while(true){
+					// 	if(kbhit()){
+					// 		char key = getch();
+					// 		if(key == 27) break;
+					// 	}
+					// 	getmouseclick(WM_LBUTTONDOWN, x, y);
+					// 	if(x != -1 && y != -1){
+					// 		if(CheckClickButton(dfsButton, x, y)){
+
+					// 		}
+					// 		else if(CheckClickButton(bfsButton, x, y)){
 								
-							}
-							else if(CheckClickButton(shortestPathButton, x, y)){
+					// 		}
+					// 		else if(CheckClickButton(shortestPathButton, x, y)){
 								
-							}
-							else if(CheckClickButton(ComponentButton, x, y)){
+					// 		}
+					// 		else if(CheckClickButton(ComponentButton, x, y)){
 								
-							}
-							else if(CheckClickButton(hamiltonButton, x, y)){
+					// 		}
+					// 		else if(CheckClickButton(hamiltonButton, x, y)){
 								
-							}
-							else if(CheckClickButton(eulerButton, x, y)){
+					// 		}
+					// 		else if(CheckClickButton(eulerButton, x, y)){
 								
-							}
-							else if(CheckClickButton(dinhTruButton, x, y)){
+					// 		}
+					// 		else if(CheckClickButton(dinhTruButton, x, y)){
 								
-							}
-							else if(CheckClickButton(dinhThatButton, x, y)){
+					// 		}
+					// 		else if(CheckClickButton(dinhThatButton, x, y)){
 								
-							}
-							else if(CheckClickButton(bridgeEdgeButton, x, y)){
+					// 		}
+					// 		else if(CheckClickButton(bridgeEdgeButton, x, y)){
 								
-							}
-							else if(CheckClickButton(topoSortButton, x, y)){
+					// 		}
+					// 		else if(CheckClickButton(topoSortButton, x, y)){
 								
-							}
-						}
-					}
+					// 		}
+					// 	}
+					// }
 				}
 			}
 		}
 	}
 	return 0;
 }
+
 void CheckSave(Graph graph, bool isfirstSave, string &nameFile){
 	NotificationFull("BAN CO MUON LUU LAI FILE DO THI HAY KHONG!");			
 	if(isfirstSave == false){// DANG NEW FILE
@@ -684,6 +707,7 @@ void CheckSave(Graph graph, bool isfirstSave, string &nameFile){
 		}
 	}
 }
+
 void RunningAlgorithm(Graph graph, int x, int y){
 
 }
@@ -997,6 +1021,7 @@ bool CheckName(Graph &graph, string nameNode){
 }
 ////////////////////////////////////////////////Thong bao///////////////////////////////////////
 void NotificationFull(string Noti){
+	setfillstyle(1, WHITE);
 	settextstyle(3, HORIZ_DIR, 2);
 	bar(helpArea.x1 + 1, helpArea.y1 + 1, helpArea.x2 - 1, helpArea.y2 - 1);
 	setcolor(RED);
@@ -1011,6 +1036,8 @@ void DrawTriangle(int x1, int y1, int x2, int y2, int color) {
 	setcolor(color);
 	double s60 = sin(60 * M_PI / 180);
 	double c60 = cos(60 * M_PI / 180);
+	x1 = 2 * x1 - x2;
+	y1 = 2 * y1 - y2;
 	double x3 =	c60 * (x1 - x2) - s60 * (y1 - y2) + x2; 
   	double y3 = s60 * (x1 - x2) + c60 * (y1 - y2) + y2;
   	double x4 = c60 * (x1 - x2) + s60 * (y1 - y2) + x2;
@@ -1018,152 +1045,98 @@ void DrawTriangle(int x1, int y1, int x2, int y2, int color) {
   	int polypoints[] = {x2, y2, (int)x3, (int)y3, (int)x4, (int)y4, x2, y2};
   	setfillstyle(1, color);
   	fillpoly(4, polypoints);
-  	setfillstyle(1, WHITE);
 }
-void FlipCurved(Node *node1, Node *node2, char *tt, int color) {//Dao nguoc vong cung hien tai
+void FlipCurved(Node *node1, Node *node2, char *tt, int color) {
 	setcolor(color);
 	setlinestyle(0, 0, 2);
 	int x1 = node1->x, y1 = node1->y, x2 = node2->x, y2 = node2->y;
-	string name1 = node1->name, name2 = node2->name;
-	double s90 = sin(90 * M_PI / 180.0);    
-  	double c90 = cos(90 * M_PI / 180.0);
-  	// quay doan thang mot goc 90 do
-  	double midx = (x1 + x2) * 1.0 / 2, midy = (y1 + y2) * 1.0 / 2;
-  	double xI =	c90 * (x2 - midx) - s90 * (y2 - midy) + midx; 
-  	double yI = s90 * (x2 - midx) + c90 * (y2 - midy) + midy;
-  	// tinh toa do cua cac giao diem cua duong tron tam I voi duong tron node 
-  	double r1 = sqrt(pow(xI - x1, 2) + pow(yI - y1, 2));
-  	double d = r1;
-  	double r2 = 25;
-  	double a = (r1 * r1 - r2 * r2 + d * d) / (2 * d);
-  	double h = sqrt(r1 * r1 - a * a);
-  	double tempx1 = xI + a * (x1 - xI) / d;
-  	double tempy1 = yI + a * (y1 - yI) / d;
-  	double tempx2 = xI + a * (x2 - xI) / d;
-  	double tempy2 = yI + a * (y2 - yI) / d;
-  	double x3 = tempx1 - h * (y1 - yI) / d;
-  	double y3 = tempy1 + h * (x1 - xI) / d;
-  	double x4 = tempx2 + h * (y2 - yI) / d;
-	double y4 = tempy2 - h * (x2 - xI) / d;
+  	// quay doan thang mot goc 90 do nguoc chieu kim dong ho
+  	float midx = (x1 + x2) * 1.0 / 2, midy = (y1 + y2) * 1.0 / 2;
+  	float xO = (y2 - midy) + midx; 
+  	float yO = -(x2 - midx) + midy;
+  	// tinh toa do cua cac giao diem cua duong tron tam O voi duong tron
+  	float r1 = sqrt(pow(xO - x1, 2) + pow(yO - y1, 2));
+  	float d = r1;
+  	float r2 = 25;
+  	float a = (r1 * r1 - r2 * r2 + d * d) / (2 * d);
+  	float h = sqrt(r1 * r1 - a * a);
+  	float tempx1 = xO + a * (x1 - xO) / d;
+  	float tempy1 = yO + a * (y1 - yO) / d;
+  	float tempx2 = xO + a * (x2 - xO) / d;
+  	float tempy2 = yO + a * (y2 - yO) / d;
+  	float x3 = tempx1 + h * (y1 - yO) / d;
+  	float y3 = tempy1 - h * (x1 - xO) / d;
+  	float x4 = tempx2 - h * (y2 - yO) / d;
+	float y4 = tempy2 + h * (x2 - xO) / d;
 	// tim goc quet
-	double param1 = (x3 - xI) * 1.0 / r1;
-	double param2 = (x4 - xI) * 1.0 / r1;
-	double angle1 = acos(param1) * 180.0 / M_PI;
-	double angle2 = acos(param2) * 180.0 / M_PI;
-	double startAngle = 0.0, endAngle = 0.0;
-	if (x3 >= xI && y3 <= yI && x4 >= xI && y4 <= yI)
-		startAngle = -360 + angle2, endAngle = -360 + angle1;
-	else if (x3 >= xI && y3 <= yI && x4 >= xI && y4 > yI) 
-		startAngle = -angle2, endAngle = -360 + angle1;
-	else if (x3 >= xI && y3 > yI && x4 >= xI && y4 > yI)
-		startAngle = -angle2, endAngle = -angle1;
-	else if (x3 >= xI && y3 > yI && x4 < xI && y4 > yI)
-		startAngle = -angle2, endAngle = -angle1;
-	else if (x3 < xI && y3 > yI && x4 < xI && y4 > yI) 
-		startAngle = -angle2, endAngle = -angle1;
-	else if (x3 < xI && y3 > yI && x4 < xI && y4 <= yI) 
-		startAngle = -360 + angle2, endAngle = -angle1;
-	else if (x3 < xI && y3 <= yI && x4 < xI && y4 <= yI)
-		startAngle = -360 + angle2, endAngle = -360 + angle1;
-	else if (x3 < xI && y3 <= yI && x4 >= xI && y4 <= yI)
-		startAngle = -360 + angle2, endAngle = -360 + angle1;
-//	cout << cnt << "\n";
-	double s45 = sin(45 * M_PI / 180.0);
-	double c45 = cos(45 * M_PI / 180.0);
-	// quay diem (x1,y1) mot goc 45, vi la tam giac vuong can 
-	double xT = c45 * (x1 - xI) - s45 * (y1 - yI) + xI;
-	double yT = s45 * (x1 - xI) + c45 * (y1 - yI) + yI;
-	double param = 5 * 1.0 / r1;
-	double angle3 = asin(param) * 180.0 / M_PI;
-	angle3 *= 2;
-	double cAngle3 = cos(angle3 * M_PI / 180.0);
-	double sAngle3 = sin(angle3 * M_PI / 180.0);
-	double x5 = cAngle3 * (x4 - xI) + sAngle3 * (y4 - yI) + xI;
-	double y5 = -sAngle3 * (x4 - xI) + cAngle3 * (y4 - yI) + yI;
-	DrawTriangle(x5, y5, x4, y4, color);
-	arc(xI, yI, startAngle, endAngle, r1);
-	CreateNode(x1, y1, (char*)name1.c_str(), WHITE);
-	setfillstyle(1, WHITE);
-	fillellipse(x1, y1, 25, 25);
-	CreateNode(x1, y1, (char*)name1.c_str(), BLUE);
-	CreateNode(x2, y2, (char*)name2.c_str(), WHITE);
-	setfillstyle(1, WHITE);
-	fillellipse(x2, y2, 25, 25);
-	CreateNode(x2, y2, (char*)name2.c_str(), BLUE);
-	outtextxy(xT - 5, yT - 5, tt);
+	float angle1 = acos(float(x1 - xO) / r1) * 180.0 / M_PI;
+	float angle2 = acos(1 - float(pow(r2, 2)) / (2 * pow(r1, 2))) * 180.0 / M_PI;
+	if (y1 >= yO) angle1 = 360 - angle1;
+	float startAngle = angle1 + angle2;
+	float x5 = float(32 * x4 - 7 * x2) / 25;
+	float y5 = float(32 * y4 - 7 * y2) / 25;
+	float len45 = sqrt(pow(x5 - x4, 2) + pow(y5 - y4, 2));
+	float len35 = sqrt(pow(x3 - x5, 2) + pow(y3 - y5, 2));
+	float sweep = acos((2 * pow(r1, 2) - pow(len35, 2)) / (2 * pow(r1, 2))) * 180.0 / M_PI;
+	sweep += asin(len45 / (2 * r1));
+	float endAngle = startAngle + sweep; 
+	DrawTriangle(round(x5), round(y5), round(x4), round(y4), color);
+	arc(round(xO), round(yO), round(startAngle), round(endAngle), round(r1));
+	float sin45 = sin(45 * M_PI / 180);
+	float cos45 = cos(45 * M_PI / 180);
+	float xT = sin45 * (x1 - xO) + cos45 * (y1 - yO) + xO;
+	float yT = -sin45 * (x1 - xO) + cos45 * (y1 - yO) + yO;
+	outtextxy(round(xT) - 12, round(yT) - 12, tt);
 }
 void CreateCurved(Node *node1, Node *node2, char *tt, int color) {
 	setcolor(color);
 	setlinestyle(0, 0, 2);
 	int x1 = node1->x, y1 = node1->y, x2 = node2->x, y2 = node2->y;
-	string name1 = node1->name, name2 = node2->name;
-	double s90 = sin(90 * M_PI / 180.0);    
-  	double c90 = cos(90 * M_PI / 180.0);
-  	double midx = (x1 + x2) * 1.0 / 2, midy = (y1 + y2) * 1.0 / 2;
-  	double xI =	c90 * (x1 - midx) - s90 * (y1 - midy) + midx; 
-  	double yI = s90 * (x1 - midx) + c90 * (y1 - midy) + midy; 
-  	double r1 = sqrt(pow(xI - x1, 2) + pow(yI - y1, 2));
-  	double d = r1;
-  	double r2 = 25;
-  	double a = (r1 * r1 - r2 * r2 + d * d) / (2 * d);
-  	double h = sqrt(r1 * r1 - a * a);
-  	double tempx1 = xI + a * (x1 - xI) / d;
-  	double tempy1 = yI + a * (y1 - yI) / d;
-  	double tempx2 = xI + a * (x2 - xI) / d;
-  	double tempy2 = yI + a * (y2 - yI) / d;
-  	double x3 = tempx1 + h * (y1 - yI) / d;
-  	double y3 = tempy1 - h * (x1 - xI) / d;
-  	double x4 = tempx2 - h * (y2 - yI) / d;
-	double y4 = tempy2 + h * (x2 - xI) / d;
-	double param1 = (x3 - xI) * 1.0 / r1;
-	double param2 = (x4 - xI) * 1.0 / r1;
-	double angle1 = acos(param1) * 180.0 / M_PI;
-	double angle2 = acos(param2) * 180.0 / M_PI;
-//	cout << angle1 << " " << angle2 << "\n";
-	double startAngle = 0.0, endAngle = 0.0;
-	if (x3 >= xI && y3 <= yI && x4 >= xI && y4 <= yI)
-		startAngle = angle1, endAngle = angle2;
-	else if (x3 >= xI && y3 > yI && x4 >= xI && y4 <= yI) 
-		startAngle = 360 - angle1, endAngle = 360 + angle2;
-	else if (x3 >= xI && y3 > yI && x4 >= xI && y4 > yI)
-		startAngle = 360 - angle1, endAngle = 360 - angle2;
-	else if (x3 < xI && y3 > yI && x4 >= xI && y4 > yI)
-		startAngle = 360 - angle1, endAngle = 360 - angle2;
-	else if (x3 < xI && y3 > yI && x4 < xI && y4 > yI) 
-		startAngle = 360 - angle1, endAngle = 360 - angle2;
-	else if (x3 < xI && y3 <= yI && x4 < xI && y4 > yI) 
-		startAngle = angle1, endAngle = 360 - angle2;
-	else if (x3 < xI && y3 <= yI && x4 < xI && y4 <= yI)
-		startAngle = angle1, endAngle = angle2;
-	else if (x3 >= xI && y3 <= yI && x4 < xI && y4 <= yI)
-		startAngle = angle1, endAngle = angle2;
-	double s45 = sin(45 * M_PI / 180.0);
-	double c45 = cos(45 * M_PI / 180.0); 
-	double xT = c45 * (x2 - xI) - s45 * (y2 - yI) + xI;
-	double yT = s45 * (x2 - xI) + c45 * (y2 - yI) + yI;
+  	// quay doan thang mot goc 90 do nguoc chieu kim dong ho
+  	float midx = (x1 + x2) * 1.0 / 2, midy = (y1 + y2) * 1.0 / 2;
+  	float xO = -(y2 - midy) + midx; 
+  	float yO = (x2 - midx) + midy;
+  	// tinh toa do cua cac giao diem cua duong tron tam O voi duong tron
+  	float r1 = sqrt(pow(xO - x1, 2) + pow(yO - y1, 2));
+  	float d = r1;
+  	float r2 = 25;
+  	float a = (r1 * r1 - r2 * r2 + d * d) / (2 * d);
+  	float h = sqrt(r1 * r1 - a * a);
+  	float tempx1 = xO + a * (x1 - xO) / d;
+  	float tempy1 = yO + a * (y1 - yO) / d;
+  	float tempx2 = xO + a * (x2 - xO) / d;
+  	float tempy2 = yO + a * (y2 - yO) / d;
+  	float x3 = tempx1 - h * (y1 - yO) / d;
+  	float y3 = tempy1 + h * (x1 - xO) / d;
+  	float x4 = tempx2 + h * (y2 - yO) / d;
+	float y4 = tempy2 - h * (x2 - xO) / d;
+	// tim goc quet
+	float angle1 = acos(float(x1 - xO) / r1) * 180.0 / M_PI;
+	float angle2 = acos(1 - float(pow(r2, 2)) / (2 * pow(r1, 2))) * 180.0 / M_PI;
+	if (y1 >= yO) angle1 = -angle1;
+	float startAngle = angle1 - angle2;
+	float x5 = float(32 * x4 - 7 * x2) / 25;
+	float y5 = float(32 * y4 - 7 * y2) / 25;
+	float len45 = sqrt(pow(x5 - x4, 2) + pow(y5 - y4, 2));
+	float len35 = sqrt(pow(x3 - x5, 2) + pow(y3 - y5, 2));
+	float sweep = acos((2 * pow(r1, 2) - pow(len35, 2)) / (2 * pow(r1, 2))) * 180.0 / M_PI;
+	sweep += asin(len45 / (2 * r1));
+	float endAngle = startAngle - sweep;
+	float temp = startAngle;
+	startAngle = endAngle;
+	endAngle = temp;
+	//swap(startAngle, endAngle); 
+	float sin45 = sin(45 * M_PI / 180);
+	float cos45 = cos(45 * M_PI / 180);
+	float xT = sin45 * (x1 - xO) - cos45 * (y1 - yO) + xO;
+	float yT = sin45 * (x1 - xO) + cos45 * (y1 - yO) + yO;
 	if (!(xT > 440 && xT < 1150 && yT > 90 && yT < 560)) {
 		FlipCurved(node1, node2, tt, color);
 		return;
 	}
-	double param = 5 * 1.0 / r1;
-	double angle3 = asin(param) * 180.0 / M_PI;
-	angle3 *= 2;
-	double cAngle3 = cos(angle3 * M_PI / 180.0);
-	double sAngle3 = sin(angle3 * M_PI / 180.0);
-	double x5 = cAngle3 * (x4 - xI) - sAngle3 * (y4 - yI) + xI;
-	double y5 = sAngle3 * (x4 - xI) + cAngle3 * (y4 - yI) + yI;
-	//line(xI, yI, x5, y5);
-	DrawTriangle(x5, y5, x4, y4, color);
-	arc(xI, yI, startAngle, endAngle, r1);
-	CreateNode(x1, y1, (char*)name1.c_str(), WHITE);
-	setfillstyle(1, WHITE);
-	fillellipse(x1, y1, 25, 25);
-	CreateNode(x1, y1, (char*)name1.c_str(), BLUE);
-	CreateNode(x2, y2, (char*)name2.c_str(), WHITE);
-	setfillstyle(1, WHITE);
-	fillellipse(x2, y2, 25, 25);
-	CreateNode(x2, y2, (char*)name2.c_str(), BLUE);
-	outtextxy(xT - 5, yT - 5, tt);
+	DrawTriangle(round(x5), round(y5), round(x4), round(y4), color);
+	arc(round(xO), round(yO), round(startAngle), round(endAngle), round(r1));
+	outtextxy(round(xT) - 12, round(yT) - 12, tt);
 }
 void CreateLine(Node *node1, Node *node2, char *tt, int color) {
 	// tim diem dau tien
@@ -1171,15 +1144,15 @@ void CreateLine(Node *node1, Node *node2, char *tt, int color) {
 	setlinestyle(0, 0, 2);
 	int x1 = node1->x, y1 = node1->y, x2 = node2->x, y2 = node2->y;
 	string name1 = node1->name, name2 = node2->name;
-	double xx2 = 0, yy2 = 0, xx1 = x1, yy1 = y1;
+	float xx2 = 0, yy2 = 0, xx1 = x1, yy1 = y1;
 	xx1 -= x2, yy1 -= y2;
-	double a = yy2 - yy1;
-	double b = xx1 - xx2;
-	double c = a * xx1 + b * yy1;
-	double x0 = -a * c * 1.0 / (a * a + b * b), y0 = -b * c / (a * a + b * b);
-	double d = 25 * 25 - c * c * 1.0 / (a * a + b * b);
-	double mult = sqrt(d / (a * a + b * b));
-	double ax, ay;
+	float a = yy2 - yy1;
+	float b = xx1 - xx2;
+	float c = a * xx1 + b * yy1;
+	float x0 = -a * c * 1.0 / (a * a + b * b), y0 = -b * c / (a * a + b * b);
+	float d = 25 * 25 - c * c * 1.0 / (a * a + b * b);
+	float mult = sqrt(d / (a * a + b * b));
+	float ax, ay;
 	ax = x0 + b * mult;
 	ay = y0 - a * mult;
 	ax += x2, ay += y2; // diem cuoi de ve mui ten
@@ -1192,23 +1165,23 @@ void CreateLine(Node *node1, Node *node2, char *tt, int color) {
 	x0 = -a * c * 1.0 / (a * a + b * b), y0 = -b * c / (a * a + b * b);
 	d = 25 * 25 - c * c * 1.0 / (a * a + b * b);
 	mult = sqrt(d / (a * a + b * b)); 
-	double bx, by;
+	float bx, by;
 	bx = x0 - b * mult;
 	by = y0 + a * mult;
 	bx += x1, by += y1;
 	// tim diem de ve mui ten
-	double vectorx = x1 - x2, vectory = y1 - y2;
-	double factor = 10 / sqrt(pow(vectorx, 2) + pow(vectory, 2));
+	float vectorx = x1 - x2, vectory = y1 - y2;
+	float factor = 10 / sqrt(pow(vectorx, 2) + pow(vectory, 2));
 	vectorx *= factor;
 	vectory *= factor;
-	double x3 = ax + vectorx, y3 = ay + vectory;
+	float x3 = ax + vectorx, y3 = ay + vectory;
 	// tim trung diem
-	double xT = (x1 + x2) * 1.0 / 2;
-	double yT = (y1 + y2) * 1.0 / 2;
+	float xT = (x1 + x2) * 1.0 / 2;
+	float yT = (y1 + y2) * 1.0 / 2;
 	// ve duong thang
 	line(ax, ay, bx, by);
 	DrawTriangle(x3, y3, ax, ay, color);
-	outtextxy(xT - 5, yT - 5, tt);
+	outtextxy(xT - 13, yT - 13, tt);
 }
 void DrawGraph(Graph &graph) {
 	setlinestyle(0, 0, 2);
@@ -1354,7 +1327,7 @@ void ReadFile(char *fileName, Graph &graph) {
 		for (int j = 0; j < graph.numberNode; ++j) {
 			myFile >> graph.adj[i][j];
 			if (graph.adj[i][j]) 
-				if (i > j) 
+				if (i < j) 
 					graph.type[i][j] = 1;
 				else 
 					if (graph.adj[j][i])
@@ -1370,88 +1343,110 @@ void ReadFile(char *fileName, Graph &graph) {
 	myFile.close();
 }
 // ///////////////////////////////////////////thuat toan/////////////////////////////////////////////////
-// void DFS (Graph graph, int n){
-// 	int tmp = 0;
-// 	bool tick[graph.numberNode];
-// 	for(int i = 0; i < graph.numberNode; i++) tick[i] = false;
-// 	Stack st;
-// 	st.push(0);
-// 	while(st.empty() == false){
-// 		st.pop(tmp);
-// 		if(tick[tmp] == false){
-// 			tick[tmp] = true;
-// 			cout<<tmp<<' ';
-// 			setcolor(tmp);
-// 			setlinestyle(0, 0, 3);
-// 			circle(node[tmp]->x, node[tmp]->y, 25);
-// 			setcolor(BLUE);
-// 			Sleep(1000);
-// 		}
-// 		for(int j = graph.numberNode - 1; j >= 0; j--){
-// 			if(adj[tmp][j] != 0 && tick[j] == false){
-// 				st.push(j);
-// 			}
-// 		}
-// 	}
-// }
-// void BFS (Graph graph, int start){
-// 	bool tick[graph.numberNode];
-// 	int tmp = 0;
-// 	for(int i=0; i<graph.numberNode; i++) tick[i] = false;
-// 	Queue q;
-// 	q.push(0);
-// 	while(q.empty() == false){
-// 		q.pop(tmp);
-// 		if(tick[tmp] == false){
-// 			tick[tmp] = true;
-// 			cout<<tmp<<' ';
-// 			setcolor(tmp);
-// 			setlinestyle(0, 0, 3);
-// 			circle(node[tmp]->x, node[tmp]->y, 25);
-// 			setcolor(BLUE);
-// 			Sleep(1000);
-// 		}
-// 		for(int i = 0; i < graph.numberNode; i++){
-// 			if(adj[tmp][i] != 0 && tick[i] == false){
-// 				q.push(i);
-// 			}
-// 		}	
-// 	}
-// }	
-// void Component (Graph graph){
-// 	int T[graph.numberNode];
-// 	int count = 0;
-// 	for(int i=0; i<graph.numberNode; i++) T[i] = 0;
-// 	for(int i=0; i < graph.numberNode; i++){
-// 		bool tick[graph.numberNode];
-// 		int tmp = 0;
-// 		for(int j=0; j<graph.numberNode; j++) tick[j] = false;
-// 		Stack st;
-// 		bool flag = true;
-// 		st.push(i);
-// 		if(T[i] == 0){
-// 			count++;
-// 			cout<<'\n'<<count<<": ";
-// 			flag = false;	
-// 		} 
-// 		while(st.empty() == false){
-// 			st.pop(tmp);
-// 			if(tick[tmp] == false){
-// 				tick[tmp] = true;
-// 				T[tmp]++;
-// 				if(flag == false)
-// 				cout<<tmp + 1<<' ';
-// 			}
-// 			for(int k=graph.numberNode - 1; k >= 0; k--){
-// 				if(graph.adj[tmp][k] != 0 && tick[k] == false){
-// 					st.push(k);
-// 				}
-// 			}	
-// 		}
-// 	}	
-// 	cout<<"So thanh phan lien thong la: "<<count;
-// }	
-// /////////////////////////////////////////////////////////////////Dijkstra/////////////////////////////////////////////////////////////////////////////////
+void DFS (Graph graph, int f){
+	nodeTmp tmp;
+	bool tick[graph.numberNode];
+	// int tmp = 0;
+	for(int i=0; i<graph.numberNode; i++) tick[i] = false;
+	tmp.childNode = 0;
+	tmp.parentNode = 0;
+	stack<nodeTmp> st;
+	st.push(tmp);
+	while(st.empty() == false){
+		int parent = st.top().childNode;
+		int child = st.top().parentNode;
+		st.pop();
+		if(tick[parent] == false){
+			tick[parent] = true;
+			cout<<child<<' ';
+			setcolor(parent + 2);
+			setlinestyle(0, 0, 3);
+			circle(graph.node[parent]->x, graph.node[parent]->y, 25);
+			setcolor(BLUE);
+			if(parent != child){
+				string value = (to_string(graph.adj[child][parent]).size() == 1 ? "0" + to_string(graph.adj[child][parent]) : to_string(graph.adj[child][parent]));
+				CreateLine(graph.node[child], graph.node[parent], (char*)value.c_str(), parent + 2);
+			}
+			Sleep(1000);
+		}
+		for(int i = graph.numberNode - 1; i >= 0; i--){
+			if(graph.adj[parent][i] != 0 && tick[i] == false){
+				tmp.parentNode = parent;
+				tmp.childNode = i;
+				st.push(tmp);
+			}
+		}	
+	}
+}
+void BFS (Graph graph, int start){
+	nodeTmp tmp;
+	bool tick[graph.numberNode];
+	// int tmp = 0;
+	for(int i=0; i<graph.numberNode; i++) tick[i] = false;
+	tmp.childNode = 0;
+	tmp.parentNode = 0;
+	queue<nodeTmp> q;
+	q.push(tmp);
+	while(q.empty() == false){
+		int parent = q.front().childNode;
+		int child = q.front().parentNode;
+		q.pop();
+		if(tick[parent] == false){
+			tick[parent] = true;
+			cout<<child<<' ';
+			setcolor(parent + 2);
+			setlinestyle(0, 0, 3);
+			circle(graph.node[parent]->x, graph.node[parent]->y, 25);
+			setcolor(BLUE);
+			if(parent != child){
+				string value = (to_string(graph.adj[child][parent]).size() == 1 ? "0" + to_string(graph.adj[child][parent]) : to_string(graph.adj[child][parent]));
+				CreateLine(graph.node[child], graph.node[parent], (char*)value.c_str(), parent + 2);
+			}
+			Sleep(1000);
+		}
+		for(int i = 0; i < graph.numberNode; i++){
+			if(graph.adj[parent][i] != 0 && tick[i] == false){
+				tmp.parentNode = parent;
+				tmp.childNode = i;
+				q.push(tmp);
+			}
+		}	
+	}
+}	
+void Component (Graph graph){
+	int T[graph.numberNode];
+	int count = 0;
+	for(int i=0; i<graph.numberNode; i++) T[i] = 0;
+	for(int i=0; i < graph.numberNode; i++){
+		bool tick[graph.numberNode];
+		int tmp = 0;
+		for(int j=0; j<graph.numberNode; j++) tick[j] = false;
+		Stack st;
+		bool flag = true;
+		st.push(i);
+		if(T[i] == 0){
+			count++;
+			cout<<'\n'<<count<<": ";
+			flag = false;	
+		} 
+		while(st.empty() == false){
+			st.pop(tmp);
+			if(tick[tmp] == false){
+				tick[tmp] = true;
+				T[tmp]++;
+				if(flag == false)
+				cout<<tmp + 1<<' ';
+			}
+			for(int k=graph.numberNode - 1; k >= 0; k--){
+				if(graph.adj[tmp][k] != 0 && tick[k] == false){
+					st.push(k);
+				}
+			}	
+		}
+	}	
+	cout<<"So thanh phan lien thong la: "<<count;
+}	
+/////////////////////////////////////////////////////////////////Dijkstra/////////////////////////////////////////////////////////////////////////////////
 // int minDistance(int distance[], bool tick[]){
 // 	int min = INT_MAX, minIndex = -1;
 // 	for(int i=0; i<V; i++) {
