@@ -1,5 +1,9 @@
+struct node{
+	int parentNode, childNode;
+};
+typedef struct node node;
 struct qNode{
-	int data;
+	node data;
 	qNode *next;
 };
 struct Queue{
@@ -12,9 +16,9 @@ struct Queue{
 	bool empty(){
 		return (front==NULL);
 	}
-	void push(int value){
+	void push(node value){
 		qNode *p= new qNode;
-		p->data=value;
+		p->data = value;
 		p->next=NULL;
 		if (front==NULL){
 			front = p;
@@ -23,11 +27,11 @@ struct Queue{
 		}
 		rear = p;
 	}
-	int pop(){
+	int pop(int &tmp){
 		if (empty()) return -1;
 		//delete p=front
 		qNode *p = front;
-		tmp = front->data;
+		tmp = front->data.childNode;
 		front = front->next;
 		delete p;
 		return 1;
