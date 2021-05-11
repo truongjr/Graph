@@ -1171,7 +1171,7 @@ void CreateLine(Node *node1, Node *node2, char *tt, int color) {
 	bx += x1, by += y1;
 	// tim diem de ve mui ten
 	float vectorx = x1 - x2, vectory = y1 - y2;
-	float factor = 10 / sqrt(pow(vectorx, 2) + pow(vectory, 2));
+	float factor = 7 / sqrt(pow(vectorx, 2) + pow(vectory, 2));
 	vectorx *= factor;
 	vectory *= factor;
 	float x3 = ax + vectorx, y3 = ay + vectory;
