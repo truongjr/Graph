@@ -336,8 +336,18 @@ int main(){
 														}
 													}
 													value = AddName_Weight("trong so");
-													DrawEdge(graph, idx1, idx2, value, BLUE);
-													graph.adj[idx1][idx2] = (value[0]-'0')*10+(value[1]-'0');
+													if(graph.adj[idx1][idx2] == 0 && graph.adj[idx2][idx1] != 0) {
+														CreateCurved(graph.node[idx1], graph.node[idx2], (char*)value.c_str(), BLUE);
+														graph.type[idx1][idx2] = 2;
+													}
+													else if(graph.adj[idx1][idx2] == 0 && graph.adj[idx2][idx1] == 0){
+														CreateLine(graph.node[idx1], graph.node[idx2], (char*)value.c_str(), BLUE);
+														graph.type[idx1][idx2] = 1;
+													}
+													else if(graph.adj[idx1][idx2] != 0){
+														CreateLine(graph.node[idx1], graph.node[idx2], (char*)value.c_str(), BLUE);
+														graph.type[idx1][idx2] = 1;
+													}													graph.adj[idx1][idx2] = (value[0]-'0')*10+(value[1]-'0');
 													setfillstyle(1, WHITE);
 													DrawWeightMatrix(graph);
 													goto addE;
@@ -1329,17 +1339,11 @@ void ReadFile(char *fileName, Graph &graph) {
 	myFile.close();
 }
 void DrawEdge(Graph graph, int idx1, int idx2, string value, int color){
-	if(graph.adj[idx1][idx2] == 0 && graph.adj[idx2][idx1] != 0) {
+	if(graph.type[idx1][idx2] == 1){
+		CreateLine(graph.node[idx1], graph.node[idx2], (char*)value.c_str(), color);
+	}
+	else if(graph.type[idx1][idx2] == 2){
 		CreateCurved(graph.node[idx1], graph.node[idx2], (char*)value.c_str(), color);
-		graph.type[idx1][idx2] = 2;
-	}
-	else if(graph.adj[idx1][idx2] == 0 && graph.adj[idx2][idx1] == 0){
-		CreateLine(graph.node[idx1], graph.node[idx2], (char*)value.c_str(), color);
-		graph.type[idx1][idx2] = 1;
-	}
-	else if(graph.adj[idx1][idx2] != 0){
-		CreateLine(graph.node[idx1], graph.node[idx2], (char*)value.c_str(), color);
-		graph.type[idx1][idx2] = 1;
 	}
 }
 // ///////////////////////////////////////////thuat toan/////////////////////////////////////////////////
@@ -1436,13 +1440,13 @@ void Component (Graph graph){
 				T[tmp]++;
 				if(flag == false){
 					cout<<tmp + 1<<' ';
-					setcolor(count + 8);
+					setcolor(count + 1);
 					setlinestyle(0, 0, 3);
 					circle(graph.node[tmp]->x, graph.node[tmp]->y, 25);
 					for(int i = 0; i < graph.numberNode; i++){
 						if(graph.adj[tmp][i]){
 							string value = (to_string(graph.adj[tmp][i]).size() == 1 ? "0" + to_string(graph.adj[tmp][i]) : to_string(graph.adj[tmp][i]));
-							DrawEdge(graph, tmp, i, value, count + 8);
+							DrawEdge(graph, tmp, i, value, count + 1);
 						}
 					}
 				}
