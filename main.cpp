@@ -6,9 +6,7 @@
 #include <cmath>
 #include <fstream>
 #include "stack.h"
-// #include "queue.h"
-#include<queue>
-#include<stack>
+#include "queue.h"
 using namespace std;
 #define BLACK 0
 #define BLUE 1 
@@ -128,7 +126,7 @@ void ReadFile(char *fileName, Graph &graph);
 void DFS (Graph graph, int f);
 void BFS (Graph graph, int start);
 void Component (Graph graph);
-void DrawEdge(Graph graph, int idx1, int idx2, string value, int color);
+void DrawEdge(Graph &graph, int idx1, int color);
 int main(){
 
 	// createScreenWelcome();
@@ -626,11 +624,12 @@ int main(){
 
 				else if(CheckClickButton(openButton, x, y)){//Nhan nut Open
 					Graph g;
-					ReadFile("saves/testcomponent.txt", g);
+					ReadFile("saves/test1.txt", g);
 					DrawGraph(g);
+					DrawWeightMatrix(g);
 					NotificationFull("HAY CLICK VAO THUAT TOAN CAN DEMO");
-					Component(g);
-					// BFS(g, 0);
+					// Component(g);
+					BFS(g, 0);
 					// while(true){
 					// 	if(kbhit()){
 					// 		char key = getch();
@@ -920,6 +919,7 @@ void DrawMenuTable(){
 	DrawButtonForMenu(topoSortButton);
 }
 void DrawMatrix(){
+	setfillstyle(1, WHITE);
 	bar(10, 400, maxx/3 + 2, maxy - 10);
 	outtextxy(100, 410, "MA TRAN TRONG SO");
 	setlinestyle(0, 0, 1);
@@ -1338,84 +1338,114 @@ void ReadFile(char *fileName, Graph &graph) {
 	} 
 	myFile.close();
 }
-void DrawEdge(Graph graph, int idx1, int idx2, string value, int color){
+void DrawEdge(Graph &graph, int idx1, int idx2, int color){
 	if(graph.type[idx1][idx2] == 1){
+		string value = (to_string(graph.adj[idx1][idx2]).size() == 1 ? "0" + to_string(graph.adj[idx1][idx2]) : to_string(graph.adj[idx1][idx2]));
 		CreateLine(graph.node[idx1], graph.node[idx2], (char*)value.c_str(), color);
 	}
 	else if(graph.type[idx1][idx2] == 2){
+		string value = (to_string(graph.adj[idx1][idx2]).size() == 1 ? "0" + to_string(graph.adj[idx1][idx2]) : to_string(graph.adj[idx1][idx2]));
 		CreateCurved(graph.node[idx1], graph.node[idx2], (char*)value.c_str(), color);
 	}
 }
 // ///////////////////////////////////////////thuat toan/////////////////////////////////////////////////
-void DFS (Graph graph, int f){
-	nodeTmp tmp;
-	bool tick[graph.numberNode];
-	// int tmp = 0;
-	for(int i=0; i<graph.numberNode; i++) tick[i] = false;
-	tmp.childNode = 0;
-	tmp.parentNode = 0;
-	stack<nodeTmp> st;
-	st.push(tmp);
-	while(st.empty() == false){
-		int parent = st.top().childNode;
-		int child = st.top().parentNode;
-		st.pop();
-		if(tick[parent] == false){
-			tick[parent] = true;
-			cout<<child<<' ';
-			setcolor(RED);
-			setlinestyle(0, 0, 3);
-			circle(graph.node[parent]->x, graph.node[parent]->y, 25);
-			if(parent != child){
-				string value = (to_string(graph.adj[child][parent]).size() == 1 ? "0" + to_string(graph.adj[child][parent]) : to_string(graph.adj[child][parent]));
-				CreateLine(graph.node[child], graph.node[parent], (char*)value.c_str(), RED);
+void DFS (Graph graph, int start){
+	bool *vis = new bool[graph.numberNode]; // danh dau da tham hay chua
+	int *p = new int[graph.numberNode]; 	// danh dau dinh cha
+	for (int i = 0; i < graph.numberNode; ++i)
+		vis[i] = false, p[i] = -1;
+	Stack st;
+	st.push(start);
+	NotificationFull("DEMO THUAT TOAN DFS!");
+	while(!st.empty()) {
+		int u;
+		st.pop(u);
+		if (!vis[u]) {
+			if (p[u] != -1) {
+				string value = ToStringLen2(graph.adj[ p[u] ][u]);
+				Sleep(1000);
+				if (graph.type[ p[u] ][u] == 1) {
+					CreateLine(graph.node[ p[u] ], graph.node[u], (char*)value.c_str(), WHITE);
+					CreateLine(graph.node[ p[u] ], graph.node[u], (char*)value.c_str(), RED);
+				}
+				else if (graph.type[ p[u] ][u] == 2) {
+					CreateCurved(graph.node[ p[u] ], graph.node[u], (char*)value.c_str(), WHITE);
+					CreateCurved(graph.node[ p[u] ], graph.node[u], (char*)value.c_str(), RED);
+				}
+				Sleep(1000);
+				setlinestyle(0, 0, 3);
+				setcolor(GREEN);
+				circle(graph.node[u]->x, graph.node[u]->y, 25);
+				setcolor(WHITE);
+			} 
+			else {
+				Sleep(1000);
+				setlinestyle(0, 0, 3);
+				setcolor(GREEN);
+				circle(graph.node[u]->x, graph.node[u]->y, 25);
+				setcolor(WHITE);
 			}
-			setcolor(BLUE);
-			Sleep(1000);
+			vis[u] = true;
+		} 
+		for (int v = graph.numberNode - 1; v >= 0; --v) {
+			if (graph.adj[u][v] && !vis[v]) {
+				st.push(v);
+				p[v] = u;
+			}
 		}
-		for(int i = graph.numberNode - 1; i >= 0; i--){
-			if(graph.adj[parent][i] != 0 && tick[i] == false){
-				tmp.parentNode = parent;
-				tmp.childNode = i;
-				st.push(tmp);
-			}
-		}	
 	}
+	NotificationFull("DA HOAN THANH!");
+	delete[] vis;
+	delete[] p;
 }
 void BFS (Graph graph, int start){
-	nodeTmp tmp;
-	bool tick[graph.numberNode];
-	// int tmp = 0;
-	for(int i=0; i<graph.numberNode; i++) tick[i] = false;
-	tmp.childNode = 0;
-	tmp.parentNode = 0;
-	queue<nodeTmp> q;
-	q.push(tmp);
-	while(q.empty() == false){
-		int parent = q.front().childNode;
-		int child = q.front().parentNode;
-		q.pop();
-		if(tick[parent] == false){
-			tick[parent] = true;
-			cout<<child<<' ';
-			setcolor(RED);
-			setlinestyle(0, 0, 3);
-			circle(graph.node[parent]->x, graph.node[parent]->y, 25);
-			if(parent != child){
-				string value = (to_string(graph.adj[child][parent]).size() == 1 ? "0" + to_string(graph.adj[child][parent]) : to_string(graph.adj[child][parent]));
-				CreateLine(graph.node[child], graph.node[parent], (char*)value.c_str(), RED);
+	bool *vis = new bool[graph.numberNode]; // danh dau da tham hay chua
+	int *parent = new int[graph.numberNode]; 	// danh dau dinh cha
+	for (int i = 0; i < graph.numberNode; ++i)
+		vis[i] = false, parent[i] = -1;
+	Queue q;
+	q.push(start);
+	NotificationFull("DEMO THUAT TOAN DFS!");
+	while(!q.empty()) {
+		int u;
+		q.pop(u);	
+		if (vis[u] == false) {
+			vis[u] = true;
+			if (parent[u] != -1) {
+				string value = ToStringLen2(graph.adj[ parent[u] ][u]);
+				Sleep(1000);
+				if (graph.type[ parent[u] ][u] == 1) {
+					CreateLine(graph.node[ parent[u] ], graph.node[u], (char*)value.c_str(), WHITE);
+					CreateLine(graph.node[ parent[u] ], graph.node[u], (char*)value.c_str(), RED);
+				}				
+				else if (graph.type[ parent[u] ][u] == 2) {
+					CreateCurved(graph.node[ parent[u] ], graph.node[u], (char*)value.c_str(), WHITE);
+					CreateCurved(graph.node[ parent[u] ], graph.node[u], (char*)value.c_str(), RED);
+				}
+				Sleep(1000);
+				setlinestyle(0, 0, 3);
+				setcolor(GREEN);
+				circle(graph.node[u]->x, graph.node[u]->y, 25);
+				setcolor(WHITE);
+			} 
+			else {
+				Sleep(1000);
+				setlinestyle(0, 0, 3);
+				setcolor(GREEN);
+				circle(graph.node[u]->x, graph.node[u]->y, 25);
+				setcolor(WHITE);
 			}
-			setcolor(BLUE);
-			Sleep(1000);
+		} 
+		for (int v = 0; v < graph.numberNode; v++) {
+			if (graph.adj[u][v] != 0 && vis[v] == false) {
+				q.push(v);
+				parent[v] = u;
+			}
 		}
-		for(int i = 0; i < graph.numberNode; i++){
-			if(graph.adj[parent][i] != 0 && tick[i] == false){
-				tmp.parentNode = parent;
-				tmp.childNode = i;
-				q.push(tmp);
-			}
-		}	
 	}
+	NotificationFull("DA HOAN THANH!");
+	delete[] vis;
+	delete[] parent;
 }	
 void Component (Graph graph){
 	int T[graph.numberNode];
@@ -1446,7 +1476,7 @@ void Component (Graph graph){
 					for(int i = 0; i < graph.numberNode; i++){
 						if(graph.adj[tmp][i]){
 							string value = (to_string(graph.adj[tmp][i]).size() == 1 ? "0" + to_string(graph.adj[tmp][i]) : to_string(graph.adj[tmp][i]));
-							DrawEdge(graph, tmp, i, value, count + 1);
+							DrawEdge(graph, tmp, i, count + 1);
 						}
 					}
 				}
