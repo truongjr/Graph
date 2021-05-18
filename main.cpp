@@ -76,7 +76,7 @@ struct nodeTmp{
 typedef struct nodeTmp nodeTmp;
 Button newButton, openButton, saveButton, addVertexButton, addEdgeButton, moveButton, renameButton, deleteButton; 
 Button dfsButton, bfsButton, shortestPathButton, ComponentButton, hamiltonButton, eulerButton, dinhTruButton, dinhThatButton, bridgeEdgeButton, topoSortButton;
-Button helpArea, processingArea, realProcessingArea, closeButton, scannerArea, continueButton, cancelButton;
+Button helpArea, processingArea, realProcessingArea, closeButton, scannerArea, continueButton, cancelButton, toolbarArea, algorithmArea;
 ButtonCircle delVertex, delEdge;
 void createScreenWelcome(string s);
 void CreateScreen();
@@ -126,7 +126,31 @@ void ReadFile(char *fileName, Graph &graph);
 void DFS (Graph graph, int f);
 void BFS (Graph graph, int start);
 void Component (Graph graph);
+int minDistance(int distance[], bool tick[], int V);
+void Dijkstra(Graph graph, int start, int end);
+bool dfsCheck(Graph g, int u, int v);
+bool IsConnected(Graph g, int u, int v);
+void KnotPoint(Graph g, int u, int v);
+void BridgeEdge(Graph g);
+void ArticulationPoint(Graph g);
+int CountComponents(Graph g, int start);
 void DrawEdge(Graph &graph, int idx1, int color);
+bool IsEulerCircuit(Graph g);
+void EulerCycle(Graph g);
+void HamCycle(Graph g);
+bool RecursiveHam(Graph g, int path[], int count[], int pos);
+bool IsSafe(int v, Graph g, int path[], int count[], int pos);
+bool isAllSapce(string s);
+string editString(string s);
+bool ReadListNoNumber(char *fileName, string res[], int size);
+bool ReadListWithNumber(char *fileName, string res[], int &size);
+int FindIdByName(string list[], int size, string str);
+void IndexList(string list[], int n, string stringList[], int size, int res[]);
+void PrintResult(Graph graph, int iDa[], int daDKSize, int iMuon[], int muonDKSize, string dsMon[], string dsDaDangKy[], string dsMuonDangKy[]);
+void TopologicalSort(Graph graph);
+void RunningTopologicalSort(Graph graph);
+void RunningAlgorithm(Graph graph, int x, int y);
+int ChooseVertex(Graph graph, int &x, int &y);
 int main(){
 
 	// createScreenWelcome();
@@ -262,8 +286,9 @@ int main(){
 												}
 											}
 											else{
-												goto gtAction;
-
+												if(CheckClickButton(toolbarArea, x, y)) goto gtAction;
+												else if(CheckClickButton(algorithmArea, x, y)) RunningAlgorithm(graph, x, y);
+												else goto gtnew;
 											}
 										}
 										// else goto gtnew;
@@ -352,7 +377,9 @@ int main(){
 												}
 											}
 											else{
-												goto gtAction;
+												if(CheckClickButton(toolbarArea, x, y)) goto gtAction;
+												else if(CheckClickButton(algorithmArea, x, y)) RunningAlgorithm(graph, x, y);
+												else goto gtnew;
 											}
 										}
 									}
@@ -400,7 +427,9 @@ int main(){
 												goto reN;	
 											}
 											else{
-												goto gtAction;
+												if(CheckClickButton(toolbarArea, x, y)) goto gtAction;
+												else if(CheckClickButton(algorithmArea, x, y)) RunningAlgorithm(graph, x, y);
+												else goto gtnew;
 											}
 										}
 									}	
@@ -462,7 +491,9 @@ int main(){
 												}
 											}
 											else{
-												goto gtAction;
+												if(CheckClickButton(toolbarArea, x, y)) goto gtAction;
+												else if(CheckClickButton(algorithmArea, x, y)) RunningAlgorithm(graph, x, y);
+												else goto gtnew;
 											}
 										}
 									}
@@ -611,7 +642,9 @@ int main(){
 											else{
 												bar(maxx/3 + 12, 61, maxx - 13, 592);
 												DrawGraph(graph);
-												goto gtAction;
+												if(CheckClickButton(toolbarArea, x, y)) goto gtAction;
+												else if(CheckClickButton(algorithmArea, x, y)) RunningAlgorithm(graph, x, y);
+												else goto gtnew;
 											} 
 										}
 									}
@@ -623,59 +656,130 @@ int main(){
 				}
 
 				else if(CheckClickButton(openButton, x, y)){//Nhan nut Open
-					Graph g;
-					ReadFile("saves/test1.txt", g);
-					DrawGraph(g);
-					DrawWeightMatrix(g);
+					// Graph graph;
+					ReadFile("saves/topoDAG.txt", graph);
+					DrawGraph(graph);
+					DrawWeightMatrix(graph);
+					int x=0, y=0;
+					while(true){
+						if(kbhit()){
+							char key = getch();
+							if(key == 27) break;
+						}
+						getmouseclick(WM_LBUTTONDOWN, x, y);
+					}
 					NotificationFull("HAY CLICK VAO THUAT TOAN CAN DEMO");
-					// Component(g);
-					BFS(g, 0);
-					// while(true){
-					// 	if(kbhit()){
-					// 		char key = getch();
-					// 		if(key == 27) break;
-					// 	}
-					// 	getmouseclick(WM_LBUTTONDOWN, x, y);
-					// 	if(x != -1 && y != -1){
-					// 		if(CheckClickButton(dfsButton, x, y)){
-
-					// 		}
-					// 		else if(CheckClickButton(bfsButton, x, y)){
-								
-					// 		}
-					// 		else if(CheckClickButton(shortestPathButton, x, y)){
-								
-					// 		}
-					// 		else if(CheckClickButton(ComponentButton, x, y)){
-								
-					// 		}
-					// 		else if(CheckClickButton(hamiltonButton, x, y)){
-								
-					// 		}
-					// 		else if(CheckClickButton(eulerButton, x, y)){
-								
-					// 		}
-					// 		else if(CheckClickButton(dinhTruButton, x, y)){
-								
-					// 		}
-					// 		else if(CheckClickButton(dinhThatButton, x, y)){
-								
-					// 		}
-					// 		else if(CheckClickButton(bridgeEdgeButton, x, y)){
-								
-					// 		}
-					// 		else if(CheckClickButton(topoSortButton, x, y)){
-								
-					// 		}
-					// 	}
-					// }
+					vl:
+					RunningAlgorithm(graph, x, y);
+					goto vl; 
 				}
 			}
 		}
 	}
 	return 0;
 }
-
+int ChooseVertex(Graph graph, int &x, int &y){
+	int start = 0;
+	bool flag = true;
+	reClick:
+	while(true){
+		if(kbhit()){
+			char key = getch();
+			if(key == 27) break;
+		}
+		getmouseclick(WM_LBUTTONDOWN, x, y);
+		if(x != -1 && y != -1){
+			if(CheckClickButton(realProcessingArea, x, y)){
+				for(int i=0; i<graph.numberNode; i++){
+					if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
+						setcolor(RED);
+						setlinestyle(0, 0 , 3);
+						circle(graph.node[i]->x, graph.node[i]->y, 25);
+						setcolor(BLUE);
+						setlinestyle(0, 0, 2);
+						start = i;
+						flag = false;
+						break;
+					}
+				}
+				if(flag == true) goto reClick;
+				else break;
+			}
+			else goto reClick;
+		}
+	}
+	return start;
+}
+void RunningAlgorithm(Graph graph, int x, int y){
+	bool flag = true;
+	if(CheckClickButton(dfsButton, x, y)){
+		DrawGraph(graph);
+		flag = false;
+		NotificationFull("HAY CLICK VAO DINH BAT DAU!");
+		int start = ChooseVertex(graph, x, y);
+		NotificationFull("BAT DAU THUAT TOAN!");
+		DFS(graph, start);
+		NotificationFull("KET THUC THUAT TOAN!");
+	}
+	else if(CheckClickButton(bfsButton, x, y)){
+		DrawGraph(graph);
+		flag = false;
+		NotificationFull("HAY CLICK VAO DINH BAT DAU!");
+		int start = ChooseVertex(graph, x, y);
+		NotificationFull("BAT DAU THUAT TOAN!");
+		BFS(graph, start);
+		NotificationFull("KET THUC THUAT TOAN!");
+	}
+	else if(CheckClickButton(shortestPathButton, x, y)){
+		DrawGraph(graph);
+		flag = false;
+		NotificationFull("HAY CLICK VAO DINH BAT DAU!");
+		int start = ChooseVertex(graph, x, y);
+		NotificationFull("HAY CLICK VAO DINH KET THUC!");
+		int end = ChooseVertex(graph, x, y);
+		NotificationFull("BAT DAU THUAT TOAN!");
+		Dijkstra(graph, start, end);
+	}
+	else if(CheckClickButton(ComponentButton, x, y)){
+		DrawGraph(graph);
+		flag = false;
+		Component(graph);
+	}
+	else if(CheckClickButton(hamiltonButton, x, y)){
+		DrawGraph(graph);
+		flag = false;
+		HamCycle(graph);
+	}
+	else if(CheckClickButton(eulerButton, x, y)){
+		DrawGraph(graph);
+		flag = false;
+		EulerCycle(graph);	
+	}
+	else if(CheckClickButton(dinhTruButton, x, y)){
+		DrawGraph(graph);
+		flag = false;
+		ArticulationPoint(graph);	
+	}
+	else if(CheckClickButton(dinhThatButton, x, y)){
+		DrawGraph(graph);
+		flag = false;
+		NotificationFull("HAY CLICK VAO DINH BAT DAU!");
+		int start = ChooseVertex(graph, x, y);
+		NotificationFull("HAY CLICK VAO DINH KET THUC!");
+		int end = ChooseVertex(graph, x, y);
+		KnotPoint(graph, start, end);	
+	}
+	else if(CheckClickButton(bridgeEdgeButton, x, y)){
+		DrawGraph(graph);
+		flag = false;
+		BridgeEdge(graph);	
+	}
+	else if(CheckClickButton(topoSortButton, x, y)){
+		DrawGraph(graph);
+		flag = false;
+		RunningTopologicalSort(graph);	
+	}
+}
 void CheckSave(Graph graph, bool isfirstSave, string &nameFile){
 	NotificationFull("BAN CO MUON LUU LAI FILE DO THI HAY KHONG!");			
 	if(isfirstSave == false){// DANG NEW FILE
@@ -703,9 +807,6 @@ void CheckSave(Graph graph, bool isfirstSave, string &nameFile){
 	}
 }
 
-void RunningAlgorithm(Graph graph, int x, int y){
-
-}
 //TAO MAN HINH CHAO MUNG
 void createScreenWelcome(string s){
 	initwindow(1209, 813);
@@ -850,6 +951,7 @@ string AddFileName(){
 	}
 }
 void CreateButton (){
+	toolbarArea.name = "", toolbarArea.x1 = 10, toolbarArea.y1 = 10, toolbarArea.x2 = 1140, toolbarArea.y2 = 52;
 	newButton.name = "      New", newButton.x1 = 10, newButton.y1 = 10, newButton.x2 = 155, newButton.y2 = 52;
 	openButton.name = "     Open", openButton.x1 = 155, openButton.y1 = 10, openButton.x2 = 300, openButton.y2 = 52;
 	saveButton.name = "     Save", saveButton.x1 = 300, saveButton.y1 = 10, saveButton.x2 = 445, saveButton.y2 = 52;
@@ -858,6 +960,7 @@ void CreateButton (){
 	moveButton.name = "     Move", moveButton.x1 = 735, moveButton.y1 = 10, moveButton.x2 = 880, moveButton.y2 = 52;
 	renameButton.name = "   Rename", renameButton.x1 = 880, renameButton.y1 = 10, renameButton.x2 = 1025, renameButton.y2 = 52;
 	deleteButton.name = "  Delete", deleteButton.x1 = 1025, deleteButton.y1 = 10, deleteButton.x2 = 1140, deleteButton.y2 = 52;
+	algorithmArea.name = "", algorithmArea.x1 = 10, algorithmArea.y1 = 52, algorithmArea.x2 = maxx / 3 + 2, algorithmArea.y2 = 395;                 
 	dfsButton.name = "    DFS", dfsButton.x1 = 14, dfsButton.y1 = 99, dfsButton.x2 = 139, dfsButton.y2 = 168;
 	bfsButton.name = "    BFS", bfsButton.x1 = 143, bfsButton.y1 = 99, bfsButton.x2 = 268, bfsButton.y2 = 168;
 	shortestPathButton.name = "    X=>Y", shortestPathButton.x1 = 272, shortestPathButton.y1 = 99, shortestPathButton.x2 = 397, shortestPathButton.y2 = 168;
@@ -904,7 +1007,7 @@ void DrawToolBar(){
 }
 void DrawMenuTable(){
 	//ve khung menu
-	rectangle(10, 58, maxx / 3 + 2, 400 - 5);
+	rectangle(10, 58, maxx / 3 + 2, 395);
 	rectangle(10, 58, maxx / 3 + 2, 95);
 	outtextxy(137, 63, "ALGORITHM");
 	DrawButtonForMenu(dfsButton);
@@ -1409,37 +1512,35 @@ void BFS (Graph graph, int start){
 	while(!q.empty()) {
 		int u;
 		q.pop(u);	
-		if (vis[u] == false) {
-			vis[u] = true;
-			if (parent[u] != -1) {
-				string value = ToStringLen2(graph.adj[ parent[u] ][u]);
-				Sleep(1000);
-				if (graph.type[ parent[u] ][u] == 1) {
-					CreateLine(graph.node[ parent[u] ], graph.node[u], (char*)value.c_str(), WHITE);
-					CreateLine(graph.node[ parent[u] ], graph.node[u], (char*)value.c_str(), RED);
-				}				
-				else if (graph.type[ parent[u] ][u] == 2) {
-					CreateCurved(graph.node[ parent[u] ], graph.node[u], (char*)value.c_str(), WHITE);
-					CreateCurved(graph.node[ parent[u] ], graph.node[u], (char*)value.c_str(), RED);
-				}
-				Sleep(1000);
-				setlinestyle(0, 0, 3);
-				setcolor(GREEN);
-				circle(graph.node[u]->x, graph.node[u]->y, 25);
-				setcolor(WHITE);
-			} 
-			else {
-				Sleep(1000);
-				setlinestyle(0, 0, 3);
-				setcolor(GREEN);
-				circle(graph.node[u]->x, graph.node[u]->y, 25);
-				setcolor(WHITE);
+		if (parent[u] != -1) {
+			string value = ToStringLen2(graph.adj[ parent[u] ][u]);
+			Sleep(1000);
+			if (graph.type[ parent[u] ][u] == 1) {
+				CreateLine(graph.node[ parent[u] ], graph.node[u], (char*)value.c_str(), WHITE);
+				CreateLine(graph.node[ parent[u] ], graph.node[u], (char*)value.c_str(), RED);
+			}				
+			else if (graph.type[ parent[u] ][u] == 2) {
+				CreateCurved(graph.node[ parent[u] ], graph.node[u], (char*)value.c_str(), WHITE);
+				CreateCurved(graph.node[ parent[u] ], graph.node[u], (char*)value.c_str(), RED);
 			}
+			Sleep(1000);
+			setlinestyle(0, 0, 3);
+			setcolor(GREEN);
+			circle(graph.node[u]->x, graph.node[u]->y, 25);
+			setcolor(WHITE);
 		} 
+		else {
+			Sleep(1000);
+			setlinestyle(0, 0, 3);
+			setcolor(GREEN);
+			circle(graph.node[u]->x, graph.node[u]->y, 25);
+			setcolor(WHITE);
+		}
 		for (int v = 0; v < graph.numberNode; v++) {
 			if (graph.adj[u][v] != 0 && vis[v] == false) {
 				q.push(v);
 				parent[v] = u;
+				vis[v] = true;
 			}
 		}
 	}
@@ -1475,7 +1576,7 @@ void Component (Graph graph){
 					circle(graph.node[tmp]->x, graph.node[tmp]->y, 25);
 					for(int i = 0; i < graph.numberNode; i++){
 						if(graph.adj[tmp][i]){
-							string value = (to_string(graph.adj[tmp][i]).size() == 1 ? "0" + to_string(graph.adj[tmp][i]) : to_string(graph.adj[tmp][i]));
+							string value = ToStringLen2(graph.adj[tmp][i]);//(to_string(graph.adj[tmp][i]).size() == 1 ? "0" + to_string(graph.adj[tmp][i]) : to_string(graph.adj[tmp][i]));
 							DrawEdge(graph, tmp, i, count + 1);
 						}
 					}
@@ -1488,407 +1589,716 @@ void Component (Graph graph){
 			}	
 		}
 	}	
+	string noti = "Do thi co " + to_string(count) + " thanh phan lien thong!";
 	cout<<"So thanh phan lien thong la: "<<count;
+	NotificationFull(noti);
 }	
 /////////////////////////////////////////////////////////////////Dijkstra/////////////////////////////////////////////////////////////////////////////////
-// int minDistance(int distance[], bool tick[]){
-// 	int min = INT_MAX, minIndex = -1;
-// 	for(int i=0; i<V; i++) {
-// 		if(min > distance[i] && tick[i] == false){
-// 			min = distance[i];
-// 			minIndex = i;
-// 		}
-// 	}
-// 	return minIndex;
-// }	
-// void Dijkstra(Graph graph, int f){
-// 	bool tick[graph.numberNode];
-// 	int distance[graph.numberNode];
-// 	for(int i=0; i<graph.numberNode; i++){
-// 		tick[i] = false;
-// 		distance[i] = INT_MAX;
-// 	}
-// 	dist[f] = 0;
-// 	for(int count = 0; count < graph.numberNode - 1; count++){
-// 		int u = minDistance(distance, tick);
-// 		tick[u] = true;
-// 		for(int v = 0; v < graph.numberNode; v++){
-// 			if(tick[v] == false && graph.adj[u][v] && distance[u] != INT_MAX && distance[u] + graph.adj[u][v] < distance[v]){
-// 				distance[v] = distance[u] + graph.adj[u][v];
-// 			}
-// 		}
-// 	}
-// 	for(int i=0; i < graph.numberNode; i++){
-// 		cout<<i+1<<' '<<distance[i]<<'\n';
-// 	}
-// }
-// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////			
-// int StringToInt(string s) {
-//     int n = s.length(), ans = 0;
-//     for (int i = 0; i < n; ++i) 
-//         ans = ans * 10 + (s[i] - '0');
-//     return ans;
-// }
-// int CountComponents(Graph g, int start) {
-//     int temp[MAXN][MAXN];
-//     for (int i = 0; i < MAXN; ++i)
-//         for (int j = 0; j < MAXN; ++j)
-//             temp[i][j] = 0;
-//     for (int i = 0; i < g.numberNode; ++i) 
-//         for (int j = 0; j < g.numberNode; ++j)
-//             if (g.adj[i][j]) 
-//                 temp[i][j] = temp[j][i] = 1;       
-//     bool vis[MAXN];
-//     for (int i = 0; i < g.numberNode; ++i) vis[i] = false;
-//     if (start != -1) vis[start] = true;
-//     int count = 0;
-//     for (int i = 0; i < g.numberNode; ++i) {
-//         if (vis[i] == false) {
-//             count++;
-//             Queue q;
-//             q.push(i);
-//             vis[i] = true;
-//             while(!q.empty()) {
-//                 int u;
-//                 q.pop(u);
-//                 for (int i = 0; i < g.numberNode; ++i) {
-//                     if (temp[u][i] && vis[i] == false) {
-//                         q.push(i);
-//                         vis[i] = true;
-//                     }
-//                 }
-//             }
-//         }
-//     }
-//     return count;
-// }
-// /////////////////////// Dinh that ////////////////////////////
-// bool dfsCheck(int u, int v, Graph g) {
-//     bool vis[MAXN];
-//     for (int i = 0; i < g.numberNode; ++i) vis[i] = false;
-//     Stack stack;
-//     stack.push(u);
-//     vis[u] = true;
-//     int numCheckedVertex = 0;
-//     while(!stack.empty()) {
-//         int start;
-//         stack.pop(start);
-//         if (start == v) return 1;
-//         ++numCheckedVertex;
-//         for (int i = 0; i < g.numberNode; ++i) 
-//             if (!vis[i] && g.adj[start][i]) {
-//                 vis[i] = true;
-//                 stack.push(i);
-//             }
-//     }
-//     return (numCheckedVertex == g.numberNode);
-// }
-// bool IsConnected(int u, int v, Graph g) {
-//     bool vis[MAXN];
-//     for (int i = 0; i < g.numberNode; ++i) vis[i] = false;
-//     Queue q;
-//     q.push(u);
-//     vis[u] = true;
-//     while(!q.empty()) {
-//         int t;
-//         q.pop(t);
-//         for (int i = 0; i < g.numberNode; ++i) {
-//             if (g.adj[t][i] && !vis[i]) {
-//                 q.push(i);
-//                 vis[i] = true;
-//                 /// neu nut i = v thi co lien thong //////////
-//                 if (i == v)
-//                     return true;
-//             }
-//         }
-//     }
-//     return false;
-// }
-// void KnotPoint(int u, int v, Graph g) {
-// 	if (g.adj[u][v] || !dfsCheck(u, v, g)) {
-// 		cout << "Khong co dinh that (Ton tai duong di truc tiep / Khong co duong di)\n";
-// 		return;
-// 	}
-//     int temp[MAXN][MAXN];
-//     int res[MAXN];
-//     int index = 0;
-//     for (int i = 0; i < g.numberNode; ++i) 
-//         for (int j = 0; j < g.numberNode; ++j)
-//             temp[i][j] = g.adj[i][j];
-//     for (int i = 0; i < g.numberNode; ++i) {
-//         ///////////////////// loai bo dinh /////////////////////
-//         for (int j = 0; j < g.numberNode; ++j) 
-//             g.adj[j][i] = g.adj[i][j] = 0;
-//         // kiem tra co duong di tu u den v hay ko//////////////
-//         if (!IsConnected(u, v, g)) 
-//             if (i != u && i != v) 
-//                 res[index++] = i;
-//         // khoi phuc lai trang thai truoc do///////////////////
-//         for (int j = 0; j < g.numberNode; ++j) 
-//             g.adj[j][i] = temp[j][i], g.adj[i][j] = temp[i][j];
-//     }
-//     if (index == 0) {
-//     	cout << "Khong co dinh that giua " << u << " va " << v << "\n"; 
-// 	} else {
-// 		cout << "Co " << index << " dinh that giua " << u << " va " << v << ":\n";
-// 		for (int i = 0; i < index; ++i)
-// 			cout << res[i] << "\n";
-// 	}
-// }
-// ///////////////////////////////////////////////////////////////
+int minDistance(int distance[], bool tick[], int V){
+	int min = INT_MAX, minIndex = -1;
+	for(int i=0; i<V; i++) {
+		if(min >= distance[i] && tick[i] == false){
+			min = distance[i];
+			minIndex = i;
+		}
+	}
+	return minIndex;
+}	
+void Dijkstra(Graph graph, int start, int end){
+	string noti = "Duong di ngan nhat tu " + to_string(start) + " den " + to_string(end) + " la: ";
+	bool tick[graph.numberNode];
+	int distance[graph.numberNode];
+	int parent[graph.numberNode];
+	for(int i=0; i<graph.numberNode; i++){
+		tick[i] = false;
+		distance[i] = INT_MAX;
+		parent[i] = -1;
+	}
+	distance[start] = 0;
+	parent[start] = start;
+	for(int count = 0; count < graph.numberNode - 1; count++){
+		int u = minDistance(distance, tick, graph.numberNode);
+		tick[u] = true;
+		for(int v = 0; v < graph.numberNode; v++){
+			if(tick[v] == false && graph.adj[u][v] && distance[u] != INT_MAX && distance[u] + graph.adj[u][v] < distance[v]){
+				distance[v] = distance[u] + graph.adj[u][v];
+				parent[v] = u;
+			}
+		}
+	}
+	if(parent[end] != -1 && distance[end] != INT_MAX){
+		int listAns[graph.numberNode];
+		int sizeListAns=0;
+		Stack ans;
+		ans.push(end);
+
+		while(end != start){
+			ans.push(parent[end]);
+			end = parent[end];
+		}
+		while(ans.empty() == false){
+			int t = -1;
+			ans.pop(t);
+			listAns[sizeListAns] = t;
+			sizeListAns++;
+		}
+		for(int i=0; i<sizeListAns; i++){
+			noti += graph.node[listAns[i]]->name + " -> "; 
+		} 
+		noti.erase(noti.end() - 4, noti.end());
+		if(sizeListAns > 0){
+			for(int i=0; i<sizeListAns; i++){
+				if(i>0){	
+					Sleep(1000);
+					string value = ToStringLen2(graph.adj[listAns[i-1]][listAns[i]]);
+					if (graph.type[listAns[i-1]][listAns[i]] == 1) {
+						CreateLine(graph.node[listAns[i-1]], graph.node[listAns[i]], (char*)value.c_str(), WHITE);
+						CreateLine(graph.node[listAns[i-1]], graph.node[listAns[i]], (char*)value.c_str(), RED);
+					}				
+					else if (graph.type[listAns[i-1]][listAns[i]] == 2) {
+						CreateCurved(graph.node[listAns[i-1]], graph.node[listAns[i]], (char*)value.c_str(), WHITE);
+						CreateCurved(graph.node[listAns[i-1]], graph.node[listAns[i]], (char*)value.c_str(), RED);
+					}
+				}
+				setlinestyle(0, 0, 3);
+				setcolor(GREEN);
+				circle(graph.node[listAns[i]]->x, graph.node[listAns[i]]->y, 25);
+				setcolor(WHITE);
+			}
+		}
+	}
+	NotificationFull(noti);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////			
+int StringToInt(string s) {
+    int n = s.length(), ans = 0;
+    for (int i = 0; i < n; ++i) 
+        ans = ans * 10 + (s[i] - '0');
+    return ans;
+}
+int CountComponents(Graph g, int start) {
+    int temp[MAXN][MAXN];
+    for (int i = 0; i < MAXN; ++i)
+        for (int j = 0; j < MAXN; ++j)
+            temp[i][j] = 0;
+    for (int i = 0; i < g.numberNode; ++i) 
+        for (int j = 0; j < g.numberNode; ++j)
+            if (g.adj[i][j]) 
+                temp[i][j] = temp[j][i] = 1;       
+    bool vis[MAXN];
+    for (int i = 0; i < g.numberNode; ++i) vis[i] = false;
+    if (start != -1) vis[start] = true;
+    int count = 0;
+    for (int i = 0; i < g.numberNode; ++i) {
+        if (vis[i] == false) {
+            count++;
+            Queue q;
+            q.push(i);
+            vis[i] = true;
+            while(!q.empty()) {
+                int u;
+                q.pop(u);
+                for (int i = 0; i < g.numberNode; ++i) {
+                    if (temp[u][i] && vis[i] == false) {
+                        q.push(i);
+                        vis[i] = true;
+                    }
+                }
+            }
+        }
+    }
+    return count;
+}
+/////////////////////// Dinh that ////////////////////////////
+bool dfsCheck(Graph g, int u, int v) {
+    bool vis[MAXN];
+    for (int i = 0; i < g.numberNode; ++i) vis[i] = false;
+    Stack stack;
+    stack.push(u);
+    vis[u] = true;
+    int numCheckedVertex = 0;
+    while(!stack.empty()) {
+        int start;
+        stack.pop(start);
+        if (start == v) return 1;
+        ++numCheckedVertex;
+        for (int i = 0; i < g.numberNode; ++i) 
+            if (!vis[i] && g.adj[start][i]) {
+                vis[i] = true;
+                stack.push(i);
+            }
+    }
+    return (numCheckedVertex == g.numberNode);
+}
+bool IsConnected(Graph g, int u, int v) {
+    bool vis[MAXN];
+    for (int i = 0; i < g.numberNode; ++i) vis[i] = false;
+    Queue q;
+    q.push(u);
+    vis[u] = true;
+    while(!q.empty()) {
+        int t;
+        q.pop(t);
+        for (int i = 0; i < g.numberNode; ++i) {
+            if (g.adj[t][i] && !vis[i]) {
+                q.push(i);
+                vis[i] = true;
+                /// neu nut i = v thi co lien thong //////////
+                if (i == v)
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+void KnotPoint(Graph graph, int u, int v) {
+	if (graph.adj[u][v] || !dfsCheck(graph, u, v)) {
+		NotificationFull("Khong co dinh that (Ton tai duong di truc tiep / Khong co duong di)!");
+		cout << "Khong co dinh that (Ton tai duong di truc tiep / Khong co duong di)\n";
+		return;
+	}
+    int temp[MAXN][MAXN];
+    int res[MAXN];
+    int index = 0;
+    for (int i = 0; i < graph.numberNode; ++i) 
+        for (int j = 0; j < graph.numberNode; ++j)
+            temp[i][j] = graph.adj[i][j];
+    for (int i = 0; i < graph.numberNode; ++i) {
+        ///////////////////// loai bo dinh /////////////////////
+        for (int j = 0; j < graph.numberNode; ++j) 
+            graph.adj[j][i] = graph.adj[i][j] = 0;
+        // kiem tra co duong di tu u den v hay ko//////////////
+        if (!IsConnected(graph, u, v)) 
+            if (i != u && i != v) 
+                res[index++] = i;
+        // khoi phuc lai trang thai truoc do///////////////////
+        for (int j = 0; j < graph.numberNode; ++j) 
+            graph.adj[j][i] = temp[j][i], graph.adj[i][j] = temp[i][j];
+    }
+    if (index == 0) {
+		string noti = "Khong co dinh that giua " + to_string(u) + " va " + to_string(v) + "!";
+		NotificationFull(noti);
+    	cout << "Khong co dinh that giua " << u << " va " << v << "\n"; 
+	} else {
+		cout << "Co " << index << " dinh that giua " << u << " va " << v << ":\n";
+		string noti = "Co " + to_string(index) + " dinh that giua " + to_string(u) + " va " + to_string(v) + ": ";
+		NotificationFull(noti);
+		for (int i = 0; i < index; ++i){
+			cout << res[i] << "\n";
+			noti += graph.node[res[i]]->name + ", ";
+			setlinestyle(0, 0, 3);
+			setcolor(GREEN);
+			circle(graph.node[res[i]]->x, graph.node[res[i]]->y, 25);
+			setcolor(WHITE);
+			Sleep(1000);
+		}
+		noti.erase(noti.end() - 2, noti.end());
+		NotificationFull(noti);
+	}
+}
+///////////////////////////////////////////////////////////////
 
 // /////////////////////Chu trinh Euler///////////////////////////
-// bool IsEulerCircuit(Graph g) {
-//     int numberComponents = CountComponents(g, -1);
-//     if (numberComponents != 1) return false;
-//     for (int i = 0; i < g.numberNode; ++i) {
-//         int degPlus = 0, degNeg = 0;
-//         for (int j = 0; j < g.numberNode; ++j) { 
-//             if (g.adj[i][j])
-//                 degPlus++;
-//             if (g.adj[j][i]) 
-//                 degNeg++;
-//         }
-//         if (degPlus != degNeg) 
-//             return false;
-//     }
-//     return true;
-// }
-// void EulerCycle(Graph g) {
-//     if (!IsEulerCircuit(g)) {
-//         cout << "Khong ton tai chu trinh Euler";
-//         return;
-//     }
-//     int temp[MAXN][MAXN];
-//     int len = 0;
-//     for (int i = 0; i < g.numberNode; ++i) 
-//         for (int j = 0; j < g.numberNode; ++j) {
-//             temp[i][j] = g.adj[i][j];
-//             if (g.adj[i][j]) len++;
-//         }
-//     const int lenPath = len;
-//     int path[lenPath];
-//     Stack stack;
-//     stack.push(0); 
-//     int currVertex = 0, index = 0;
-//     while(!stack.empty()) {
-//         int t = -1;
-//         /* tim node dau tien ma currVertex noi toi */
-//         for (int i = 0; i < g.numberNode; ++i) 
-//             if (temp[currVertex][i]) {
-//                 t = i;
-//                 break;
-//             }
-//         if (t != -1) {
-//             stack.push(currVertex);
-//             int nextVertex = t;
-//             temp[currVertex][nextVertex] = 0;
-//             currVertex = nextVertex;
-//         } else {
-//             path[index++] = currVertex;
-//             len++;
-//             int u;
-//             stack.pop(u);
-//             currVertex = u;
-//         }
-//     }
-//     cout << "Ton tai chu trinh Euler:\n";
-//     for (int i = 0; i < len; ++i)
-//         cout << path[i] << " -> ";
-//     cout << 0 << "\n";
-// }
+bool IsEulerCircuit(Graph g) {
+    int numberComponents = CountComponents(g, -1);
+    if (numberComponents != 1) return false;
+    const int size = g.numberNode;
+    int inWards[size], outWards[size];
+    for (int i = 0; i < size; ++i)
+        inWards[i] = outWards[i] = 0;
+    int sum = 0;
+    for (int u = 0; u < size; ++u) {
+        sum = 0;
+        for (int v = 0; v < size; ++v) {
+            if (g.adj[u][v]) {
+                inWards[v]++;
+                sum++;
+            }
+        }
+        outWards[u] = sum;
+    }
+    for (int i = 0; i < size; ++i)
+        if (inWards[i] != outWards[i])
+            return false;
+    return true;
+}
+void EulerCycle(Graph graph) {
+    if (!IsEulerCircuit(graph)) {
+		NotificationFull("Khong ton tai chu trinh Euler");
+        cout << "Khong ton tai chu trinh Euler";
+        return;
+    }
+    const int sizeGraph = graph.numberNode;
+    Stack stack;
+    int countEdge = 0;
+    for (int u = 0; u < graph.numberNode; ++u) 
+        for (int v = 0; v < graph.numberNode; ++v) 
+            if (graph.adj[u][v])
+                countEdge++;
+    const int sizePath = countEdge;
+    int temp[sizeGraph][sizeGraph];
+    for (int u = 0; u < sizeGraph; ++u) 
+        for (int v = 0; v < sizeGraph; ++v)
+            temp[u][v] = graph.adj[u][v];
+    int path[sizePath + 1];
+    stack.push(0);
+    int index = 0;
+    while(!stack.empty()) {
+        int s;
+        stack.pop(s);
+        stack.push(s);
+        bool isEmpty = true;
+        int t;
+        for (t = 0; t < graph.numberNode; ++t) {
+            if (temp[s][t]) {
+                isEmpty = false;
+                break;
+            }
+        }
+        if (isEmpty == false) {
+            stack.push(t);
+            temp[s][t] = 0;
+        } else {
+            stack.pop(s);
+            path[index++] = s;
+        }
+    }
+	NotificationFull("Ton tai chu trinh Euler: ");
+	string noti = "Ton tai chu trinh Euler: ";
+    cout << "Ton tai chu trinh Euler:\n";
+    for (int i = index - 1; i >= 0; --i){
+		if(i < index - 1){	
+			Sleep(1000);
+			string value = ToStringLen2(graph.adj[path[i+1]][path[i]]);
+			if (graph.type[path[i+1]][path[i]] == 1) {
+				CreateLine(graph.node[path[i+1]], graph.node[path[i]], (char*)value.c_str(), WHITE);
+				CreateLine(graph.node[path[i+1]], graph.node[path[i]], (char*)value.c_str(), RED);
+			}				
+			else if (graph.type[path[i+1]][path[i]] == 2) {
+				CreateCurved(graph.node[path[i+1]], graph.node[path[i]], (char*)value.c_str(), WHITE);
+				CreateCurved(graph.node[path[i+1]], graph.node[path[i]], (char*)value.c_str(), RED);
+			}
+		}
+		setlinestyle(0, 0, 3);
+		setcolor(BLACK);
+		circle(graph.node[path[i]]->x, graph.node[path[i]]->y, 25);
+		setcolor(WHITE);
+        cout << path[i] << " ";
+		noti += graph.node[path[i]]->name + " -> ";
+	}
+	noti.erase(noti.end() - 4, noti.end());
+	NotificationFull(noti);
+}
 // ///////////////////////////////////////////////////////////////
 
 // /////////////////// Chu trinh Hamilton /////////////////////////////////
-// /* Ham kiem tra xem dinh 'v' co the them vao vi tri 'pos' 
-// trong chu trinh hamilton duoc hay khong */
-// bool IsSafe(int v, Graph g, int path[], int count[], int pos) {
-//     /* Kiem tra dinh hien tai co phai la dinh lien ke 
-//         cua dinh truoc do hay khong */ 
-//     if (!g.adj[path[pos - 1]][v]) return false;
-//     /* Kiem tra dinh da co truoc do hay chua*/
-//     if (count[v] > 1) return false;
-//     return true;
-// }
-// bool RecursiveHam(Graph g, int path[], int count[], int pos) {
-//     /* Kiem tra neu toan bo cac dinh da duoc tham*/
-//     if (pos == g.numberNode) {
-//         /* Va kiem tra xem co canh noi tu dinh cuoi den
-//             dinh dau trong 'path' hay khong*/
-//         if (g.adj[path[pos - 1]][path[0]])
-//             return true;
-//         else
-//             return false;
-//     }
-//     /* Khong tham dinh 0 vi ta mac dinh 0 la diem bat dau cua chu trinh*/
-//     for (int v = 1; v < g.numberNode; ++v) {
-//         if (IsSafe(v, g, path, count, pos)) {
-//             path[pos] = v;
-//             if (RecursiveHam(g, path, count, pos + 1))
-//                 return true;
-//             path[pos] = -1;
-//         }
-//     }
-//     return false;
-// }
-// void HamCycle(Graph g) {
-//     int path[MAXN];
-//     int count[MAXN];
-//     for (int i = 0; i < g.numberNode; ++i) {
-//         path[i] = -1;
-//         count[i] = 0;
-//     }
-//     path[0] = 0;
-//     count[0] = 1;
-//     if (RecursiveHam(g, path, count, 1) == false) {
-//         cout << "Khong ton tai chu trinh Hamilton";
-//         return;
-//     } 
-//     cout << "Ton tai chu trinh Hamilton:\n";
-//     for (int i = 0; i < g.numberNode; ++i)
-//         cout << path[i] << " -> ";
-//     cout << path[0] << "\n"; 
-// }
+/* Ham kiem tra xem dinh 'v' co the them vao vi tri 'pos' 
+trong chu trinh hamilton duoc hay khong */
+bool IsSafe(int v, Graph g, int path[], int count[], int pos) {
+    /* Kiem tra dinh hien tai co phai la dinh lien ke 
+        cua dinh truoc do hay khong */ 
+    if (!g.adj[path[pos - 1]][v]) return false;
+    /* Kiem tra dinh da co truoc do hay chua*/
+    if (count[v] > 1) return false;
+    return true;
+}
+bool RecursiveHam(Graph g, int path[], int count[], int pos) {
+    /* Kiem tra neu toan bo cac dinh da duoc tham*/
+    if (pos == g.numberNode) {
+        /* Va kiem tra xem co canh noi tu dinh cuoi den
+            dinh dau trong 'path' hay khong*/
+        if (g.adj[path[pos - 1]][path[0]])
+            return true;
+        else
+            return false;
+    }
+    /* Khong tham dinh 0 vi ta mac dinh 0 la diem bat dau cua chu trinh*/
+    for (int v = 1; v < g.numberNode; ++v) {
+        if (IsSafe(v, g, path, count, pos)) {
+            path[pos] = v;
+            if (RecursiveHam(g, path, count, pos + 1))
+                return true;
+            path[pos] = -1;
+        }
+    }
+    return false;
+}
+void HamCycle(Graph graph) { 
+    int path[MAXN];
+    int count[MAXN];
+    for (int i = 0; i < graph.numberNode; ++i) {
+        path[i] = -1;
+        count[i] = 0;
+    }
+    path[0] = 0;
+    count[0] = 1;
+    if (RecursiveHam(graph, path, count, 1) == false) {
+        cout << "Khong ton tai chu trinh Hamilton";
+		NotificationFull("Khong ton tai chu trinh Hamilton");
+        return;
+    } 
+    cout << "Ton tai chu trinh Hamilton:\n";
+	NotificationFull("Ton tai chu trinh Hamilton: ");
+	string noti = "Ton tai chu trinh Hamilton: ";
+	path[graph.numberNode] = 0;
+    for (int i = 0; i <= graph.numberNode; ++i){
+		if(i > 0){	
+			Sleep(1000);
+			string value = ToStringLen2(graph.adj[path[i-1]][path[i]]);
+			if (graph.type[path[i-1]][path[i]] == 1) {
+				CreateLine(graph.node[path[i-1]], graph.node[path[i]], (char*)value.c_str(), WHITE);
+				CreateLine(graph.node[path[i-1]], graph.node[path[i]], (char*)value.c_str(), RED);
+			}				
+			else if (graph.type[path[i-1]][path[i]] == 2) {
+				CreateCurved(graph.node[path[i-1]], graph.node[path[i]], (char*)value.c_str(), WHITE);
+				CreateCurved(graph.node[path[i-1]], graph.node[path[i]], (char*)value.c_str(), RED);
+			}
+		}
+		setlinestyle(0, 0, 3);
+		setcolor(BLACK);
+		circle(graph.node[path[i]]->x, graph.node[path[i]]->y, 25);
+		setcolor(WHITE);
+		noti += graph.node[path[i]]->name + " -> ";
+	}
+	noti.erase(noti.end() - 4, noti.end());
+	NotificationFull(noti);
+}
 // ////////////////////////////////////////////////////////////////////////
 
-// ///////////////////////////////Canh cau/////////////////////////////////
-// void BridgeEdge(Graph g) {
-//     int numComponents = CountComponents(g, -1);
-//     int count = 0, edges = 0;
-//     for (int i = 0; i < g.numberNode; ++i) 
-//         for (int j = 0; j < g.numberNode; ++j)
-//             if (g.adj[i][j])
-//                 edges++;
-//     const int numEdges = edges;
-//     int bridgeEdges[numEdges][2];
-//     for (int i = 0; i < g.numberNode; ++i) {
-//         for (int j = 0; j < g.numberNode; ++j) {
-//             if (g.adj[i][j]) {
-//                 int value = g.adj[i][j];
-//                 // Loai bo canh
-//                 g.adj[i][j] = 0;
-//                 // Dem so thanh phan lien thong sau khi da cat canh
-//                 int numComAfterRemove = CountComponents(g, -1);
-//                 // Khoi phuc lai ban dau
-//                 g.adj[i][j] = value;
-//                 if (numComAfterRemove > numComponents) {
-//                     bridgeEdges[count][0] = i;
-//                     bridgeEdges[count][1] = j;
-//                     count++;
-//                 }
-//             }
-//         }
-//     }
-//     if (count == 0) {
-//         cout << "Khong ton tai canh cau";
-//     } else {
-//         cout << "Co " << count << " canh cau:\n";
-//         for (int i = 0; i < count; ++i) 
-//             cout << "(" << bridgeEdges[i][0] << ", " << bridgeEdges[i][1] << ")\n";
-//     }
-// }
-// ////////////////////////////////////////////////////////////////////////
+///////////////////////////////Canh cau/////////////////////////////////
+void BridgeEdge(Graph graph) {
+    int numComponents = CountComponents(graph, -1);
+    int count = 0, edges = 0;
+    for (int i = 0; i < graph.numberNode; ++i) 
+        for (int j = 0; j < graph.numberNode; ++j)
+            if (graph.adj[i][j])
+                edges++;
+    const int numEdges = edges;
+    int bridgeEdges[numEdges][2];
+    for (int i = 0; i < graph.numberNode; ++i) {
+        for (int j = 0; j < graph.numberNode; ++j) {
+            if (graph.adj[i][j]) {
+                int value = graph.adj[i][j];
+                // Loai bo canh
+                graph.adj[i][j] = 0;
+                // Dem so thanh phan lien thong sau khi da cat canh
+                int numComAfterRemove = CountComponents(graph, -1);
+                // Khoi phuc lai ban dau
+                graph.adj[i][j] = value;
+                if (numComAfterRemove > numComponents) {
+                    bridgeEdges[count][0] = i;
+                    bridgeEdges[count][1] = j;
+                    count++;
+                }
+            }
+        }
+    }
+    if (count == 0) {
+		NotificationFull("Khong ton tai canh cau");
+        cout << "Khong ton tai canh cau";
+    } else {
+		string noti = "Co " + to_string(count) + " canh cau!";
+		NotificationFull(noti);
+        cout << "Co " << count << " canh cau:\n";
+        for (int i = 0; i < count; ++i) {
+        	cout << "(" << bridgeEdges[i][0] << ", " << bridgeEdges[i][1] << ")\n";
+			Sleep(1000);
+			string value = ToStringLen2(graph.adj[bridgeEdges[i][0]][bridgeEdges[i][1]]);
+			if (graph.type[bridgeEdges[i][0]][bridgeEdges[i][1]] == 1) {
+				CreateLine(graph.node[bridgeEdges[i][0]], graph.node[bridgeEdges[i][1]], (char*)value.c_str(), WHITE);
+				CreateLine(graph.node[bridgeEdges[i][0]], graph.node[bridgeEdges[i][1]], (char*)value.c_str(), RED);
+			}				
+			else if (graph.type[bridgeEdges[i][0]][bridgeEdges[i][1]] == 2) {
+				CreateCurved(graph.node[bridgeEdges[i][0]], graph.node[bridgeEdges[i][1]], (char*)value.c_str(), WHITE);
+				CreateCurved(graph.node[bridgeEdges[i][0]], graph.node[bridgeEdges[i][1]], (char*)value.c_str(), RED);
+			}
+		}
+    }
+}
+////////////////////////////////////////////////////////////////////////
 
-// ///////////////////////////////Dinh Tru/////////////////////////////////
-// void ArticulationPoint(Graph g) {
-//     int numberComponents = CountComponents(g, -1);
-//     int count = 0;
-//     int vertex[MAXN];
-//     int temp[MAXN][MAXN];
-//     for (int i = 0; i < g.numberNode; ++i) 
-//         for (int j = 0; j < g.numberNode; ++j)
-//             temp[i][j] = g.adj[i][j];
-//     for (int i = 0; i < g.numberNode; ++i) {
-//         // Xoa dinh
-//         for (int j = 0; j < g.numberNode; ++j)
-//             g.adj[i][j] = g.adj[j][i] = 0;
-//         int numComAfterRemove = CountComponents(g, i);
-//         // Khoi phuc
-//         for (int j = 0; j < g.numberNode; ++j)
-//             g.adj[i][j] = temp[i][j], g.adj[j][i] = temp[j][i];
-//         if (numComAfterRemove > numberComponents)
-//             vertex[count++] = i;
-//     }
-//     if (count == 0) {
-//         cout << "Do thi khong co dinh tru";
-//     } else {
-//         cout << "Do thi co " << count << " dinh tru:\n";
-//         for (int i = 0; i < count; ++i)
-//             cout << i << "\n"; 
-//     }
-// }
-// ////////////////////////////////////////////////////////////////////////
+///////////////////////////////Dinh Tru/////////////////////////////////
+void ArticulationPoint(Graph graph) {
+    int numberComponents = CountComponents(graph, -1);
+    int count = 0;
+    int vertex[MAXN];
+    int temp[MAXN][MAXN];
+    for (int i = 0; i < graph.numberNode; ++i) 
+        for (int j = 0; j < graph.numberNode; ++j)
+            temp[i][j] = graph.adj[i][j];
+    for (int i = 0; i < graph.numberNode; ++i) {
+        // Xoa dinh
+        for (int j = 0; j < graph.numberNode; ++j)
+            graph.adj[i][j] = graph.adj[j][i] = 0;
+        int numComAfterRemove = CountComponents(graph, i);
+        // Khoi phuc
+        for (int j = 0; j < graph.numberNode; ++j)
+            graph.adj[i][j] = temp[i][j],graph.adj[j][i] = temp[j][i];
+        if (numComAfterRemove > numberComponents)
+            vertex[count++] = i;
+    }
+    if (count == 0) {
+		NotificationFull("Do thi khong co dinh tru");
+        cout << "Do thi khong co dinh tru";
+    } 
+	else {
+		string noti = "Do thi co " + to_string(count) + " dinh tru: ";
+		NotificationFull(noti);
+        cout << "Do thi co " << count << " dinh tru:\n";
+        for (int i = 0; i < count; ++i){
+			Sleep(1000);
+			setlinestyle(0, 0, 3);
+			setcolor(RED);
+			circle(graph.node[vertex[i]]->x, graph.node[vertex[i]]->y, 25);
+			setcolor(WHITE);
+            cout << graph.node[vertex[i]]->name << "\n"; 
+			noti += graph.node[vertex[i]]->name + ", ";
+		}
+		noti.erase(noti.end() - 2, noti.end());
+		NotificationFull(noti);
+    }
+}
+////////////////////////////////////////////////////////////////////////
 
 // ////////////////////////////Topo Sort///////////////////////////////////
-// void RecursiveTopoSort(Graph g, int res[], bool vis[], int inDegree[], int &index) {
-//     for (int i = 0; i < g.numberNode; ++i) {
-//         if (inDegree[i] == 0 && !vis[i]) {
-//             for (int j = 0; j < g.numberNode; ++j)
-//                 if (g.adj[i][j])
-//                     inDegree[j]--;
-//             res[index] = i;
-//             vis[i] = true;
-//             index++;
-//             RecursiveTopoSort(g, res, vis, inDegree, index);
-//             for (int j = 0; j < g.numberNode; ++j)
-//                 if (g.adj[i][j])
-//                     inDegree[j]++;
-//             vis[i] = false;
-//             index--;
-//         }
-//     }
-//     if (index == g.numberNode) {
-//         cout << "[";
-//         for (int i = 0; i < g.numberNode - 1; ++i)
-//             cout << res[i] << ", ";
-//         cout << res[g.numberNode - 1] << "]\n";
-//     }
-// }
-// bool IsDAG(Graph g, int inDegree[]) {
-//     Queue queue;
-//     const int numberNode = g.numberNode;
-//     int tempInDeg[numberNode];
-//     for (int i = 0; i < g.numberNode; ++i)
-//         tempInDeg[i] = inDegree[i];
-//     for (int i = 0; i < g.numberNode; ++i)
-//         if (!inDegree[i])
-//             queue.push(i);
-//     while(!queue.empty()) {
-//         int u;
-//         queue.pop(u);
-//         for (int i = 0; i < g.numberNode; ++i) 
-//             if (g.adj[u][i]) {
-//                 inDegree[i]--;
-//                 if (!inDegree[i])
-//                     queue.push(i);
-//             }
-//     }
-//     bool isDag = true;
-//     for (int i = 0; i < g.numberNode; ++i) 
-//         if (inDegree[i]) {
-//             isDag = false;
-//             break;
-//         }
-//     for (int i = 0; i < g.numberNode; ++i)
-//         inDegree[i] = tempInDeg[i];
-//     return isDag;
-// }
-// void TopoSort(Graph g) {
-//     const int numberNode = g.numberNode;
-//     bool vis[numberNode];
-//     int inDegree[numberNode];
-//     for (int i = 0; i < g.numberNode; ++i)
-//         vis[i] = false, inDegree[i] = 0;
-//     for (int i = 0; i < g.numberNode; ++i)
-//         for (int j = 0; j < g.numberNode; ++j)
-//             if (g.adj[i][j])
-//                 inDegree[j]++;
-//     if (!IsDAG(g, inDegree)) {
-//         cout << "Do thi ton tai chu trinh";
-//     } else {
-//         cout << "Tat ca cac thu tu sap xep Topo duoc tim thay:\n";
-//         int res[numberNode];
-//         int index = 0;
-//         RecursiveTopoSort(g, res, vis, inDegree, index);
-//     }
-// }
+bool isAllSapce(string s) {
+	for (int i = 0; i < (int)s.length(); ++i)
+		if (s[i] != ' ' && s[i] != '\t')
+			return false;
+	return true; 
+}
+string editString(string s) {
+	int n = s.length();
+	int i = 0, j = -1;
+	bool spaceFound = false;
+	while(++j < n && s[j] == ' ');
+	while(j < n) {
+		if (s[j] == ' ') {
+			s[i++] = s[j++];
+			spaceFound = false;
+		} else if(s[j++] == ' ') {
+			if (!spaceFound) {
+				s[i++] = ' ';
+				spaceFound = true;
+			}
+		}
+	}
+	if (i <= 1) 
+		s.erase(s.begin() + i, s.end());
+	else
+		s.erase(s.begin() + i - 1, s.end());
+}
+bool ReadListNoNumber(char *fileName, string res[], int size) {
+	ifstream myFile;
+	myFile.open(fileName);
+	if (!myFile.is_open()) {
+		myFile.close();
+		return false;
+	}
+	string temp;
+	int count = 0;
+	while(getline(myFile, temp) && count < size) 
+		res[count++] = temp;
+	myFile.close();
+	if (count != size) return false;
+	return true;
+}
+bool ReadListWithNumber(char *fileName, string res[], int &size) {
+	ifstream myFile;
+	myFile.open(fileName);
+	if (!myFile.is_open()) {
+		myFile.close();
+		return false;
+	}
+	int n;
+	myFile >> n;
+	myFile.ignore();
+	size = n;
+	string temp;
+	int count = 0;
+	while(getline(myFile, temp) && count < n) { 
+		res[count++] = temp;
+	}
+	myFile.close();
+	if (count != n) return false;
+	return true;
+}
+int FindIdByName(string list[], int size, string str) {
+	for (int i = 0; i < size; ++i)
+		if (list[i] == str)
+			return i;
+	return -1;
+}
+void IndexList(string list[], int n, string stringList[], int size, int res[]) {
+	for (int i = 0; i < size; ++i) 
+		res[i] = FindIdByName(list, n, stringList[i]);
+}
+void PrintResult(Graph graph, int iDa[], int daDKSize, int iMuon[], int muonDKSize, string dsMon[], string dsDaDangKy[], string dsMuonDangKy[]) {
+	// Topological sort
+	const int graphSize = graph.numberNode;
+	int inDegree[graphSize];
+	int res[graphSize];
+	int group[graphSize];
+	for (int i = 0; i < graph.numberNode; ++i)
+		inDegree[i] = group[i] = 0;
+	int count = 0;
+	for (int u = 0; u < graph.numberNode; ++u) 
+		for (int v = 0; v < graph.numberNode; ++v) 
+			if (graph.adj[u][v])
+				inDegree[v]++;
+	
+	int index1 = 0, index2 = 0;
+	int size1 = 0, size2 = 0;
+	Queue queue;
+	for (int i = 0; i < graph.numberNode; ++i)
+		if (!inDegree[i])
+			queue.push(i), group[i] = count, size1++;
+	while(!queue.empty()) {
+		int u;
+		queue.pop(u);
+		res[index2++] = u;
+		group[u] = count;
+		for (int v = 0; v < graph.numberNode; ++v) 
+			if (graph.adj[u][v]) {
+				inDegree[v]--;
+				if (inDegree[v] == 0)
+					queue.push(v), size2++;
+			}
+		if (index2 - index1 == size1) {
+			index1 = index2;
+			size1 = size2;
+			size2 = 0;
+			count++;
+		}
+	}
+	bool vis[graphSize];
+	for (int i = 0; i < graphSize; ++i)
+		vis[i] = false;
+	for (int i = 0; i < daDKSize; ++i)
+		if (iDa[i] != -1)
+			vis[iDa[i]] = true;
+	bool ok = false;
+	int v;
+	for (int i = 0; i < muonDKSize; ++i) {
+		v = iMuon[i];
+		if (v == -1) {
+			cout << "MON " << dsMuonDangKy[i] << " KHONG NAM TRONG DANH SACH MON HOC\n"; 
+		}
+		if (group[v] == 0) { 
+			if (vis[v])
+				cout << "MON " << dsMon[v] << " KHONG THE DANG KY LAI VI DA HOC XONG\n";
+			else
+				cout << "MON " << dsMon[v] << " KHONG THE DANG KY DUOC VI LA MON CO SO\n";
+		} else {
+			ok = false;
+			for (int u = 0; u < graphSize; ++u) {
+				if (group[v] > group[u] && graph.adj[u][v] && vis[u]) {
+					cout << dsMon[v] << " CO THE DANG KY DUOC\n";
+					ok = true;
+					break;
+				}
+			}
+			if (!ok) {
+				for (int u = 0; u < graphSize; ++u) {
+					if (group[v] > group[u] && graph.adj[u][v] && !vis[u]) {
+						cout << dsMon[v] << " KHONG THE DANG KY DUOC VI MON " << dsMon[u] << " CHUA DUOC DANG KY\n";
+						break;
+					}
+				}
+			}
+		}
+	} 
+}
+void TopologicalSort(Graph graph) {
+	char DanhSachMon[] = "DanhSachMon.txt";
+	char DaDangKy[] = "DaDangKy.txt";
+	char MuonDangKy[] = "MuonDangKy.txt";
+	const int graphSize = graph.numberNode;
+	string dsMon[graphSize];
+	if (!ReadListNoNumber(DanhSachMon, dsMon, graph.numberNode)) {
+		cout << "FAILED TO OPEN FILE, PLEASE RETRY";
+		return;
+	}
+	int size1=0;
+	string dsDaDangKy[graphSize];
+	if (!ReadListWithNumber(DaDangKy, dsDaDangKy, size1)) {
+		cout << "FAILED TO OPEN FILE, PLEASE RETRY";
+		return;
+	}
+	int size2=0;
+	string dsMuonDangKy[graphSize];
+	if (!ReadListWithNumber(MuonDangKy, dsMuonDangKy, size2)) {
+		cout << "FAILED TO OPEN FILE, PLEASE RETRY";
+		return;
+	}
+	const int daDKSize = size1;
+	const int muonDKSize = size2;
+	int iDa[daDKSize];
+	int iMuon[muonDKSize];
+	IndexList(dsMon, graphSize, dsDaDangKy, daDKSize, iDa);
+	IndexList(dsMon, graphSize, dsMuonDangKy, muonDKSize, iMuon);
+	PrintResult(graph, iDa, daDKSize, iMuon, muonDKSize, dsMon, dsDaDangKy, dsMuonDangKy);
+}
+void RunningTopologicalSort(Graph graph) {
+	NotificationFull("Bat dau thuat toan!");
+	const int graphSize = graph.numberNode;
+	int inDegree[graphSize];
+	int res[graphSize];
+	int index = 0;
+	for (int i = 0; i < graph.numberNode; ++i)
+		inDegree[i] = 0;
+	for (int u = 0; u < graph.numberNode; ++u) 
+		for (int v = 0; v < graph.numberNode; ++v) 
+			if (graph.adj[u][v])
+				inDegree[v]++;
+	Queue queue;
+	setlinestyle(0, 0, 2);
+	for (int i = 0; i < graph.numberNode; ++i)
+		if (!inDegree[i]) {
+			setcolor(RED);
+			circle(graph.node[i]->x, graph.node[i]->y, 25);
+			setcolor(WHITE);
+			queue.push(i);
+		}
+	Sleep(1000);
+	for (int i = 0; i < graph.numberNode; ++i)
+		if (!inDegree[i]) {
+			setcolor(YELLOW);
+			circle(graph.node[i]->x, graph.node[i]->y, 25);
+			setcolor(WHITE);
+		}
+	while(!queue.empty()) {
+		int u;
+		queue.pop(u);
+		res[index++] = u;
+		Sleep(1000);
+		setcolor(RED);
+		circle(graph.node[u]->x, graph.node[u]->y, 25);
+		setcolor(WHITE);
+		for (int v = 0; v < graph.numberNode; ++v) {
+			if (graph.adj[u][v]) {
+				inDegree[v]--;
+				Sleep(1000);
+				DrawEdge(graph, u, v, BLACK);
+				if (inDegree[v] == 0) {
+					queue.push(v);
+					Sleep(1000);
+					setcolor(YELLOW);
+					circle(graph.node[v]->x, graph.node[v]->y, 25);
+					setcolor(WHITE);
+				}
+			}
+		}
+		Sleep(1000);
+		setcolor(BLACK);
+		circle(graph.node[u]->x, graph.node[u]->y, 25);
+		setcolor(WHITE);
+	}
+	string noti = "Thu tu topo: ";
+	cout << "Thu tu topo:\n";
+	for (int i = 0; i < graphSize; ++i){
+		cout << res[i] << " ";
+		noti += to_string(res[i]) + " "; 
+	}
+	NotificationFull(noti);
+}
