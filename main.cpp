@@ -1,5 +1,6 @@
 #include <winbgim.h>
 #include <iostream>
+#include <dirent.h>
 #include <string>
 #include <windows.h>
 #include <algorithm>
@@ -41,6 +42,9 @@ typedef struct Node Node;
 struct Button{
 	string name;
 	int x1, y1, x2, y2;
+	bool isHover(int x, int y) {
+		return (x > x1 && x < x2 && y > y1 && y < y2);
+	}
 };
 typedef struct Button Button;
 struct ButtonCircle{
@@ -78,6 +82,168 @@ Button newButton, openButton, saveButton, addVertexButton, addEdgeButton, moveBu
 Button dfsButton, bfsButton, shortestPathButton, ComponentButton, hamiltonButton, eulerButton, dinhTruButton, dinhThatButton, bridgeEdgeButton, topoSortButton;
 Button helpArea, processingArea, realProcessingArea, closeButton, scannerArea, continueButton, cancelButton, toolbarArea, algorithmArea;
 ButtonCircle delVertex, delEdge;
+#define KEY_UP 72
+#define KEY_DOWN 80
+const int maxLine = 1000;
+const int margin = 5;
+const int marginLine = 0;
+struct WordWrap {
+	string result[maxLine];
+	int size = 0;
+	int linePerPage;
+	int toRight;
+	int start;
+	WordWrap(int toRight) {
+		this->toRight = toRight;
+		
+	}
+ 	void StoreString(string res, Button helpArea) {
+		settextstyle(3, HORIZ_DIR, 2);
+		int len = res.length();
+		int x1 = helpArea.x1, x2 = helpArea.x2;
+		int y2 = helpArea.y2, y1 = helpArea.y1;
+		int fontHeight = textheight((char*)res.c_str());
+		string temp = "";
+		int j, tj;
+		char *msg;
+		int low = 0;
+		for (int i = 0; i <= len; ++i) {	
+			if (i < len) {
+				temp += res[i];
+				msg = (char*)temp.c_str();
+				if (x1 + margin + textwidth(msg) > x2 - margin - toRight) {
+					j = i;
+					tj = i;	
+					if (res[i] != ' ') { 
+						while(res[i] != ' ' && i >= low) 
+							i--;
+						i++;
+						if (i == low) { // náº¿u trá»Ÿ vá» trÆ°á»›c thÃ¬ cháº¯c cháº¯n chá»‰ cÃ³ má»™t tá»«
+							while(x1 + margin + textwidth(msg) > x2 - margin - toRight) {
+								temp.resize(temp.length() - 1);
+								msg = (char*)temp.c_str();	
+								j--;
+							}
+							i = j;
+							low = j + 1;
+						} else { // náº¿u ko trá»Ÿ vá» trÆ°á»›c Ä‘Æ°á»£c thÃ¬ cháº¯c cháº¯n cÃ³ nhiá»u hÆ¡n 1 tá»«
+							while(res[j] != ' ' && j < len) 
+								j++;
+							while(tj > i - 1) {
+								temp.resize(temp.length() - 1);
+								tj--;
+							}
+							low = i;
+							i--;
+						}
+					} else { // kÃ½ tá»± thÃªm vÃ o lÃ  khoáº£ng tráº¯ng
+						while(res[i] == ' ' && i >= low) {
+							temp.resize(temp.length() - 1);
+							i--;
+						}
+						msg = (char*)temp.c_str();
+						while(res[j] == ' ' && j < len) {
+							j++;
+						}
+						if (x1 + margin + textwidth(msg) > x2 - margin - toRight) {
+							while(x1 + margin + textwidth(msg) > x2 - margin - toRight) {
+								temp.resize(temp.length() - 1);
+								msg = (char*)temp.c_str();
+								i--;
+							}
+							low = i + 1;
+						} else {
+							low = j;
+							i = j - 1;
+						}
+					}
+					result[size] = temp;
+					temp = "";
+					size++;
+				}
+			} 
+			if (i == len) {
+				msg = (char*)temp.c_str();
+				if (x1 + margin + textwidth(msg) > x2 - margin - toRight) {
+					int lenTemp = temp.length();
+					string tt = "";
+					for (int i = 0; i <= lenTemp; ++i) {
+						if (i < lenTemp) {
+							tt += temp[i];
+							msg = (char*)tt.c_str();
+							if (x1 + margin + textwidth(msg) > x2 - margin - toRight) {
+								if (x1 + margin + textwidth(msg) > x2 - margin - toRight) {
+									tt.resize(tt.length() - 1);
+									msg = (char*)tt.c_str();
+									i--;
+								}
+								result[size] = temp;
+								tt = "";
+								size++;
+							}
+						} else {
+							result[size] = temp;
+							tt = "";
+							size++;
+						}
+					}
+				} else {
+					result[size] = temp;
+					temp = "";
+					size++;
+				}	
+			}
+		}
+		start = -1;	
+		linePerPage = (y2 - margin - (y1 + margin)) / (fontHeight + marginLine);
+	}
+	void PrintPage(bool down, Button helpArea) {
+		bool isLessThan = true;
+		if (size >= linePerPage) {
+			if (down) {
+				if (start + linePerPage > size - 1) {
+					return;
+				} else {
+					start++;
+				}
+			} else {
+				if (start - 1 < 0) {
+					return;
+				} else {
+					start--;
+				}
+			}
+			isLessThan = false;
+		}
+		if (isLessThan) start++;
+		setcolor(BLUE);	
+		int x1 = helpArea.x1, y1 = helpArea.y1, x2 = helpArea.x2, y2 = helpArea.y2;
+		int fontHeight = textheight((char*)result[0].c_str());
+		setfillstyle(1, WHITE);
+		bar(x1 + 1, y1 + 1, x2 - toRight, y2 - margin);
+		int xTxtTop, yTxtTop;
+		for (int i = start; i < min(start + linePerPage, start + size); ++i) {
+			xTxtTop = x1 + margin;
+			yTxtTop = y1 + margin + (fontHeight + marginLine) * (i - start);
+			setbkcolor(WHITE);
+			outtextxy(xTxtTop, yTxtTop, (char*)result[i].c_str());
+		}
+	}
+	int GetIndex(int x, int y, Button helpArea) {
+		int x1 = helpArea.x1, y1 = helpArea.y1, x2 = helpArea.x2;	
+		int fontHeight = textheight((char*)result[0].c_str());	
+		int xTxtTop, yTxtTop, xTxtBot, yTxtBot;	
+		for (int i = start; i < min(start + linePerPage, start + size); ++i) {
+			xTxtTop = x1;
+			yTxtTop = y1 + margin + (fontHeight + marginLine) * (i - start);
+			xTxtBot = x2 - toRight;
+			yTxtBot = yTxtTop + fontHeight;
+			if (x > xTxtTop && x < xTxtBot && y > yTxtTop && y < yTxtBot)
+				return i;
+		}
+		return -1;
+	}		
+};
 void createScreenWelcome(string s);
 void CreateScreen();
 void CreateNode(int x, int y, char name[], int color);
@@ -140,28 +306,29 @@ void EulerCycle(Graph g);
 void HamCycle(Graph g);
 bool RecursiveHam(Graph g, int path[], int count[], int pos);
 bool IsSafe(int v, Graph g, int path[], int count[], int pos);
-bool isAllSapce(string s);
-string editString(string s);
-bool ReadListNoNumber(char *fileName, string res[], int size);
-bool ReadListWithNumber(char *fileName, string res[], int &size);
-int FindIdByName(string list[], int size, string str);
-void IndexList(string list[], int n, string stringList[], int size, int res[]);
-void PrintResult(Graph graph, int iDa[], int daDKSize, int iMuon[], int muonDKSize, string dsMon[], string dsDaDangKy[], string dsMuonDangKy[]);
 void TopologicalSort(Graph graph);
+void OutputTopoSort(Graph graph, int iDaDK[], int sizeDaDK, int iMuonDK[], int sizeMuonDK, string mon[], int sizeMon, string daDK[], string muonDK[]);
 bool isDAG(Graph graph);
+void IndexArray(string a[], int size1, string b[], int res[], int size2);
+int FindIdByName(string res[], int size, string s);
+int ReadFileTopo(char fileName[], string res[], int &size, int graphSize, bool checkData = false);
+string RemoveSpace(string s);
 void RunningTopologicalSort(Graph graph);
 void RunningAlgorithm(Graph graph, int x, int y);
 int ChooseVertex(Graph graph, int &x, int &y);
 bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag);
-void OpenScreen();
+string OpenScreen();
 bool OpenSave(Graph &graph, string nameFile);
 bool NewSave(Graph &graph, string &nameFile, bool &isFirstSave);
+void DrawButton(Button btn, bool fill);
+void DeleteButton(Button btn);
+string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameArea, Button fileNameButton, Button OpenButton, bool &isOpened);
 int main(){
 
 	// createScreenWelcome();
 	CreateScreen();
 	CreateButton();
-	// OpenScreen();
+//	OpenScreen();
 	restart:
 	Graph graph;
 	int x, y;
@@ -215,63 +382,16 @@ int main(){
 					NotificationFull("Chon chuc nang");
 					string fileName = "";
 					if(RunningToolbar(graph, fileName, x, y, false) == false) return 0;
-					// bool isfirstSave = false;
-					// NotificationFull("HAY CHON CHUC NANG!");
-					// gtnew:
-					// while(true){
-					// 	if(kbhit()){
-					// 		char key = getch();
-					// 		if(key == 27) break;
-					// 	}
-					// 	// EffectToolbar();
-					// 	getmouseclick(WM_LBUTTONDOWN, x, y);
-					// 	if(x != -1 && y != -1){
-					// 		gtAction:
-					// 		if(CheckClickButton(closeButton, x, y)){
-					// 			goto gtnew;
-					// 		}
-					// 		else if(CheckClickButton(saveButton, x, y)){//Nhan nut Save	
-					// 			NotificationFull("BAN CO MUON LUU LAI KHONG?");
-					// 			DrawButtonForNoti(continueButton);
-					// 			DrawButtonForNoti(cancelButton);
-					// 			while(true){
-					// 				if(kbhit()){
-					// 					char key = getch();
-					// 					if(key == 27) break;
-					// 				}
-					// 				getmouseclick(WM_LBUTTONDOWN, x, y);
-					// 				if(x != -1 && y != -1){
-					// 					if(CheckClickButton(continueButton, x, y)){
-					// 						reAddCt:
-					// 						nameFile = AddFileName();
-					// 						if(!nameFile.empty()){
-					// 							nameFile = "saves/" + nameFile;
-					// 							nameFile += ".txt";
-					// 							ofstream graphFile((char*)nameFile.c_str());
-					// 							graphFile.close();
-					// 							WriteFile((char*)nameFile.c_str(), graph);
-					// 							isfirstSave = true;
-					// 							goto gtnew;
-					// 						}
-					// 						else goto reAddCt;
-					// 					}
-					// 					else if(CheckClickButton(cancelButton, x, y)) goto gtnew;
-					// 				}
-					// 			}
-					// 		}
-					// 		RunningToolbar(graph, x, y);
-					// 		//////////////////////////
-					// 	}	
-					// }
 				}
 
-				else if(CheckClickButton(openButton, x, y)){//Nhan nut Open
-					string nameFile = "saves/topoDAG.txt";
-					ReadFile("saves/topoDAG.txt", graph);
-					DrawGraph(graph);
-					DrawWeightMatrix(graph);
-					NotificationFull("HAY CHON CHUC NANG!");
-					if(RunningToolbar(graph, nameFile, x, y, true) == false) return 0;
+				else if(CheckClickButton(openButton, x, y)){//Nhan nut Open  
+					NotificationFull(OpenScreen());
+					// string nameFile = OpenScreen();
+					// ReadFile((char*)nameFile.c_str(), graph);
+					// DrawGraph(graph);
+					// DrawWeightMatrix(graph);
+					// NotificationFull("HAY CHON CHUC NANG!");
+					// if(RunningToolbar(graph, nameFile, x, y, true) == false) return 0;
 				}
 			}
 		}
@@ -733,13 +853,20 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 		}
 	}
 }
-void OpenScreen(){
-	// processingArea.name = "", processingArea.x1 = maxx/3 + 9, processingArea.y1 = 58, processingArea.x2 = maxx - 10, processingArea.y2 = 595; 
-	Button fileNameButton, propertyButton, exitButton, OpenButton;
+string OpenScreen(){
+	int x = -1, y = -1;
+	Button fileNameButton, propertyButton, exitButton, OpenButton, showFileNameArea, upButton, downButton;
+	showFileNameArea.name = "", showFileNameArea.x1 = 510, showFileNameArea.y1 = 148, showFileNameArea.x2 = 1090, showFileNameArea.y2 = 445;
 	fileNameButton.name = "", fileNameButton.x1 = 516, fileNameButton.y1 = 499, fileNameButton.x2 = 883, fileNameButton.y2 = 537;
 	propertyButton. name = "Only file text(.txt)", propertyButton.x1 = 890, propertyButton.y1 = 452, propertyButton.x2 = 1083, propertyButton.y2 = 490;
-	exitButton.name = "  Cancle", exitButton.x1 = 995, exitButton.y1 = 499, exitButton.x2 = 1083, exitButton.y2 = 537;
+	exitButton.name = "  Cancel", exitButton.x1 = 995, exitButton.y1 = 499, exitButton.x2 = 1083, exitButton.y2 = 537;
 	OpenButton.name = "    Open", OpenButton.x1 = 890, OpenButton.y1 = 499, OpenButton.x2 = 988, OpenButton.y2 = 537;
+	upButton.name = "/\\", upButton.x1 = showFileNameArea.x2, upButton.y1 = showFileNameArea.y1, upButton.x2 = showFileNameArea.x2, upButton.y2 = showFileNameArea.y1 + 40;
+	downButton.name = "\\/", downButton.x1 = showFileNameArea.x2, downButton.y1 = showFileNameArea.y2 - 40, downButton.x2 = showFileNameArea.x2, downButton.y2 = showFileNameArea.y2 + 2;
+	setcolor(BLACK);
+	// rectangle(showFileNameArea.x2 + 1, showFileNameArea.y1, showFileNameArea.x2 + 30, showFileNameArea.y2 + 2);
+	// outtextxy(upButton.x1 + 8, upButton.y1 + 4, (char*)upButton.name.c_str());
+	// outtextxy(downButton.x1 + 8, downButton.y1 + 4, (char*)downButton.name.c_str());
 	rectangle(maxx/3 + 9 + 100, 58 + 50, maxx - 110, 595 - 50);
 	rectangle(maxx/3 + 9 + 100, 58 + 50, maxx - 110, 108 + 40);
 	setfillstyle(1, LIGHTBLUE);
@@ -772,6 +899,250 @@ void OpenScreen(){
 	outtextxy(propertyButton.x1 + 5, propertyButton.y1 + 5, (char*)propertyButton.name.c_str());
 	outtextxy(OpenButton.x1 + 5, OpenButton.y1 + 5, (char*)OpenButton.name.c_str());
 	outtextxy(exitButton.x1 + 5, exitButton.y1 + 5, (char*)exitButton.name.c_str());
+	///////////////////////////////////////////////////////////////////////////////////////////////////////
+	dirent *entry;
+	WordWrap word1(20);
+	char path[] = "saves";
+	DIR *dir = opendir(path);
+	if(dir == NULL) return "";
+	else{
+		while((entry = readdir(dir)) != NULL){
+			string temp(entry->d_name);
+			if(temp == "." || temp =="..") continue;
+			else{
+				word1.StoreString(temp, showFileNameArea);
+			}
+		}
+		closedir(dir);
+	}
+	// ShowFileName(word1, showFileNameArea);
+	bool isTrue = false, isOpened = false;
+	string ans = "";
+	char key;
+	int n = 0; 
+	WordWrap word(20);
+	if(isTrue == false){
+		word = word1;
+	}
+	while(ShowFileName(word, key, ans, showFileNameArea, fileNameButton, OpenButton, isOpened) == "false") {
+		if((key >= 'A' && key <= 'Z') || (key >= 'a' && key <='z') || (key >= '0' && key <= '9')){
+			ans += key;
+		}
+		if(key == 8 && ans.size() > 0){
+			ans.pop_back();
+		}
+		WordWrap wordTemp(20);
+		for(int i = 0; i < word1.size; i++){
+			if(word1.result[i].substr(0, ans.size()) == ans) {
+				wordTemp.StoreString(word1.result[i], showFileNameArea);
+			}
+		}
+		if(wordTemp.size > 0) word = wordTemp;
+		else word = word1;
+		outtextxy(fileNameButton.x1 + 5, fileNameButton.y1 + 5, "                                            ");
+		outtextxy(fileNameButton.x1 + 5, fileNameButton.y1 + 5, (char*)ans.c_str());
+		// goto label;
+	}
+	// else if(ShowFileName(word, key, ans, showFileNameArea, fileNameButton, OpenButton, isOpened) == "test1.txt"){
+		string r = ShowFileName(word, key, ans, showFileNameArea, fileNameButton, OpenButton, isOpened);
+		cout<<r;
+		// NotificationFull("jsfnsjkfn");
+}
+void DrawButton(Button btn, bool fill = false) {
+	if (fill) {
+		setfillstyle(1, RED);
+		bar(btn.x1 + 1, btn.y1 + 1, btn.x2, btn.y2);
+	} else {
+		setcolor(RED);
+		rectangle(btn.x1, btn.y1, btn.x2, btn.y2);
+	}
+}
+void DeleteButton(Button btn) {
+	setfillstyle(1, WHITE);
+	bar(btn.x1 + 1, btn.y1 + 1, btn.x2, btn.y2);
+}
+string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameArea, Button fileNameButton, Button OpenButton, bool &isOpened){
+	Button upButton;
+	upButton.x1 = showFileNameArea.x2 - 20;
+	upButton.y1 = showFileNameArea.y1;
+	upButton.x2 = showFileNameArea.x2;
+	upButton.y2 = showFileNameArea.y1 + 20;
+	DrawButton(upButton);
+	Button downButton;
+	downButton.x1 = showFileNameArea.x2 - 20;
+	downButton.y1 = showFileNameArea.y2 - 20;
+	downButton.x2 = showFileNameArea.x2;
+	downButton.y2 = showFileNameArea.y2;
+	DrawButton(downButton);
+	rectangle(upButton.x1, upButton.y1, downButton.x2, downButton.y2);
+	word.PrintPage(true, showFileNameArea);
+	Button scrollbar;
+	scrollbar.x1 = upButton.x1;
+	scrollbar.y1 = upButton.y2;
+	scrollbar.x2 = upButton.x2;
+	int x, y;
+	int tempIndex = -1;
+	int index;
+	int nextx, nexty, dist, tempy = 0;
+	int scrollbarArea = downButton.y1 - upButton.y2;
+	int thumbHeight = round(word.linePerPage * scrollbarArea * 1.0 / word.size);
+	int jump = round((scrollbarArea - thumbHeight) * 1.0 / (word.size - word.linePerPage)); // chỉnh chỗ này, bỏ -1
+	scrollbar.y2 = scrollbar.y1 + thumbHeight;
+	bool isHover = false;
+	bool draw = true;
+	int u0 = scrollbar.y2;
+	bool isChoose = false;
+	string res = "";
+	int chooseIndex = -1;
+	if (word.size > word.linePerPage)
+		DrawButton(scrollbar, true);
+	else draw = false;
+	while(true) {
+		if (kbhit()) {
+			key = getch();
+			if(key && key == 224){
+				char ex = getch();
+				if(ex == KEY_UP){
+					goto upbutton;
+				}
+				if(ex == KEY_DOWN){
+					goto downbutton;
+				}
+			}
+			else{
+				if(isOpened == true){
+					if((key >= 'A' && key <= 'Z') || (key >= 'a' && key <='z') || (key >= '0' && key <= '9') || key == 8){
+						return "false";
+					}
+				}
+			}
+		}
+		if (ismouseclick(WM_LBUTTONDOWN)) {
+			getmouseclick(WM_LBUTTONDOWN, x, y);
+			if (scrollbar.isHover(x, y) && draw) {
+				isHover = true;
+				dist = y - scrollbar.y1;
+			}
+			if (upButton.isHover(x, y) && word.size > word.linePerPage) { // thêm hiệu ứng bấm nút thì thanh cuộn tự nhảy lên
+				upbutton:
+				int curry = (scrollbar.y2 - u0) / jump;
+				DeleteButton(scrollbar);
+				if (curry == 0) {
+					tempy = u0;
+				} else {
+					curry--;
+					tempy = u0 + curry * jump;
+				}
+				scrollbar.y2 = tempy;
+				scrollbar.y1 = scrollbar.y2 - thumbHeight;
+				DrawButton(scrollbar, true);
+				word.PrintPage(false, showFileNameArea);
+			}
+			if (downButton.isHover(x, y) && word.size > word.linePerPage) { // thêm hiệu ứng bấm nút thì thanh cuộn tự nhảy xuống
+				downbutton:
+				int curry = (scrollbar.y2 - u0) / jump;
+				DeleteButton(scrollbar);
+				if (curry == word.size - word.linePerPage) {
+					tempy = downButton.y1;
+				} else if (curry < word.size - word.linePerPage) {
+					curry++;
+					tempy = u0 + curry * jump;
+				}
+				scrollbar.y2 = tempy;
+				scrollbar.y1 = scrollbar.y2 - thumbHeight;
+				DrawButton(scrollbar, true);
+				word.PrintPage(true, showFileNameArea);
+			}
+			if (word.GetIndex(x, y, showFileNameArea) != -1) {
+				index = word.GetIndex(x, y, showFileNameArea);
+				int x1 = showFileNameArea.x1, y1 = showFileNameArea.y1, x2 = showFileNameArea.x2;	
+				int height = textheight((char*)word.result[0].c_str());
+				if (tempIndex != -1) {
+					setfillstyle(1, WHITE);
+					int xBoxTop = x1 + 1;
+					int yBoxTop = y1 + margin + (height + marginLine) * (tempIndex - word.start);
+					int xBoxBot = x2 - word.toRight;
+					int yBoxBot = yBoxTop + height;
+					bar(xBoxTop, yBoxTop, xBoxBot, yBoxBot);
+					setbkcolor(WHITE);
+					outtextxy(x1 + margin, yBoxTop, (char*)word.result[tempIndex].c_str());
+					setbkcolor(WHITE);	
+				}	
+				setfillstyle(1, GREEN);
+				int xBoxTop = x1 + 1;
+				int yBoxTop = y1 + margin + (height + marginLine) * (index - word.start);
+				int xBoxBot = x2 - word.toRight;
+				int yBoxBot = yBoxTop + height;
+				bar(xBoxTop, yBoxTop, xBoxBot, yBoxBot);
+				setbkcolor(GREEN);
+				outtextxy(x1 + margin, yBoxTop, (char*)word.result[index].c_str());
+				setbkcolor(WHITE);
+				isChoose = true;
+				chooseIndex = index;
+				tempIndex = index;
+			}
+			if(CheckClickButton(fileNameButton, x, y)){
+				if(isOpened == false) isOpened = true;
+				key = getch();
+				if((key >= 'A' && key <= 'Z') || (key >= 'a' && key <='z') || (key >= '0' && key <= '9') || key == 8){
+					return "false";
+				}
+			}
+			if(CheckClickButton(OpenButton, x, y)){
+				if(isChoose == true){
+					res = word.result[chooseIndex];
+					cout<< word.result[chooseIndex];
+					// return res;
+					// break;
+					goto exit;
+				}
+				else{
+					for(int i=0; i<word.size; i++){
+						if(word.result[i] == ans + ".txt"){
+							res = word.result[i];
+							cout << word.result[i]; 
+							// return res;
+							// break;
+							goto exit;
+						} 
+					}
+				}
+			}
+			clearmouseclick(WM_LBUTTONDOWN);
+		}
+		if (ismouseclick(WM_LBUTTONUP)) {
+			if (isHover == true && draw) { // xóa cái vẽ button vì ko cần thiết
+				isHover = false;
+			}
+			clearmouseclick(WM_LBUTTONUP);
+		}
+		if (ismouseclick(WM_MOUSEMOVE)) {
+			if (isHover == true && draw) { // vẽ thanh cuộn trước r vẽ nội dung sau
+				getmouseclick(WM_MOUSEMOVE, nextx, nexty);
+				DeleteButton(scrollbar);
+				scrollbar.y1 = nexty - dist;
+				scrollbar.y2 = scrollbar.y1 + thumbHeight;
+				if (scrollbar.y2 > downButton.y1) {
+					scrollbar.y2 = downButton.y1;
+					scrollbar.y1 = scrollbar.y2 - thumbHeight;
+				} else if (scrollbar.y1 < upButton.y2) {
+					scrollbar.y1 = upButton.y2;
+					scrollbar.y2 = scrollbar.y1 + thumbHeight;
+				}
+				DrawButton(scrollbar, true);
+				int curry = (scrollbar.y2 - u0) / jump;
+				if (curry > tempy) {
+					word.PrintPage(true, showFileNameArea);
+				} else if (curry < tempy) {
+					word.PrintPage(false, showFileNameArea);
+				}
+				tempy = curry;
+			}
+			clearmouseclick(WM_MOUSEMOVE);
+		}	
+	}
+	exit:
+	return res;
 }
 int ChooseVertex(Graph graph, int &x, int &y){
 	int start = 0;
@@ -1394,6 +1765,7 @@ void CreateLine(Node *node1, Node *node2, char *tt, int color) {
 	outtextxy(xT - 13, yT - 13, tt);
 }
 void DrawGraph(Graph &graph) {
+	bar(processingArea.x1, processingArea.y1, processingArea.x2 - 1, processingArea.y2 - 1);
 	setlinestyle(0, 0, 2);
 	for (int i = 0; i < graph.numberNode; ++i) {
 		string s = graph.node[i]->name;
@@ -2187,210 +2559,199 @@ void ArticulationPoint(Graph graph) {
 ////////////////////////////////////////////////////////////////////////
 
 // ////////////////////////////Topo Sort///////////////////////////////////
-bool isAllSapce(string s) {
-	for (int i = 0; i < (int)s.length(); ++i)
-		if (s[i] != ' ' && s[i] != '\t')
-			return false;
-	return true; 
+string RemoveSpace(string s) {
+    int n = s.length();
+    int i, j = -1;
+    while(++j < n && (s[j] == ' ' || s[j] == '\t'));
+    string res;
+    for (i = j; i < n; ++i) {
+        if (s[i] == ' ' || s[i] == '\t') {
+            while((s[i] == ' ' || s[i] == '\t') && i < n)
+                i++;
+            i--; 
+            res += " ";
+        } else {
+            res += s[i];
+        }
+    }
+    j = res.length();
+    while(--j >= 0 && (res[j] == ' ' || res[j] == '\t'));
+    res = res.substr(0, j + 1);
+    return res;
 }
-string editString(string s) {
-	int n = s.length();
-	int i = 0, j = -1;
-	bool spaceFound = false;
-	while(++j < n && s[j] == ' ');
-	while(j < n) {
-		if (s[j] == ' ') {
-			s[i++] = s[j++];
-			spaceFound = false;
-		} else if(s[j++] == ' ') {
-			if (!spaceFound) {
-				s[i++] = ' ';
-				spaceFound = true;
-			}
-		}
-	}
-	if (i <= 1) 
-		s.erase(s.begin() + i, s.end());
-	else
-		s.erase(s.begin() + i - 1, s.end());
+int ReadFileTopo(char fileName[], string res[], int &size, int graphSize, bool checkData) {
+    ifstream file;
+    file.open(fileName);
+    if (!file.is_open()) {
+        file.close();
+        return 0;
+    }
+    string line;
+    int count = 0;
+    while(getline(file, line) && count < graphSize) {
+        string temp = RemoveSpace(line);
+        if (temp.length() > 50)
+            res[count++] = RemoveSpace(temp.substr(0, 50));
+        else
+            res[count++] = temp;
+    }
+    size = count;
+    if (checkData) {
+        if (size == graphSize)
+            return 1;
+        else
+            return -1;
+    }
+    return 1;
 }
-bool ReadListNoNumber(char *fileName, string res[], int size) {
-	ifstream myFile;
-	myFile.open(fileName);
-	if (!myFile.is_open()) {
-		myFile.close();
-		return false;
-	}
-	string temp;
-	int count = 0;
-	while(getline(myFile, temp) && count < size) 
-		res[count++] = temp;
-	myFile.close();
-	if (count != size) return false;
-	return true;
+int FindIdByName(string res[], int size, string s) {
+    for (int i = 0; i < size; ++i)
+        if (res[i] == s)
+            return i;
+    return -1;
 }
-bool ReadListWithNumber(char *fileName, string res[], int &size) {
-	ifstream myFile;
-	myFile.open(fileName);
-	if (!myFile.is_open()) {
-		myFile.close();
-		return false;
-	}
-	int n;
-	myFile >> n;
-	myFile.ignore();
-	size = n;
-	string temp;
-	int count = 0;
-	while(getline(myFile, temp) && count < n) { 
-		res[count++] = temp;
-	}
-	myFile.close();
-	if (count != n) return false;
-	return true;
-}
-int FindIdByName(string list[], int size, string str) {
-	for (int i = 0; i < size; ++i)
-		if (list[i] == str)
-			return i;
-	return -1;
-}
-void IndexList(string list[], int n, string stringList[], int size, int res[]) {
-	for (int i = 0; i < size; ++i) 
-		res[i] = FindIdByName(list, n, stringList[i]);
-}
-void PrintResult(Graph graph, int iDa[], int daDKSize, int iMuon[], int muonDKSize, string dsMon[], string dsDaDangKy[], string dsMuonDangKy[]) {
-	// Topological sort
-	const int graphSize = graph.numberNode;
-	int inDegree[graphSize];
-	int res[graphSize];
-	int group[graphSize];
-	for (int i = 0; i < graph.numberNode; ++i)
-		inDegree[i] = group[i] = 0;
-	int count = 0;
-	for (int u = 0; u < graph.numberNode; ++u) 
-		for (int v = 0; v < graph.numberNode; ++v) 
-			if (graph.adj[u][v])
-				inDegree[v]++;
-	
-	int index1 = 0, index2 = 0;
-	int size1 = 0, size2 = 0;
-	Queue queue;
-	for (int i = 0; i < graph.numberNode; ++i)
-		if (!inDegree[i])
-			queue.push(i), group[i] = count, size1++;
-	while(!queue.empty()) {
-		int u;
-		queue.pop(u);
-		res[index2++] = u;
-		group[u] = count;
-		for (int v = 0; v < graph.numberNode; ++v) 
-			if (graph.adj[u][v]) {
-				inDegree[v]--;
-				if (inDegree[v] == 0)
-					queue.push(v), size2++;
-			}
-		if (index2 - index1 == size1) {
-			index1 = index2;
-			size1 = size2;
-			size2 = 0;
-			count++;
-		}
-	}
-	bool vis[graphSize];
-	for (int i = 0; i < graphSize; ++i)
-		vis[i] = false;
-	for (int i = 0; i < daDKSize; ++i)
-		if (iDa[i] != -1)
-			vis[iDa[i]] = true;
-	bool ok = false;
-	int v;
-	for (int i = 0; i < muonDKSize; ++i) {
-		v = iMuon[i];
-		if (v == -1) {
-			cout << "MON " << dsMuonDangKy[i] << " KHONG NAM TRONG DANH SACH MON HOC\n"; 
-		}
-		if (group[v] == 0) { 
-			if (vis[v])
-				cout << "MON " << dsMon[v] << " KHONG THE DANG KY LAI VI DA HOC XONG\n";
-			else
-				cout << "MON " << dsMon[v] << " KHONG THE DANG KY DUOC VI LA MON CO SO\n";
-		} else {
-			ok = false;
-			for (int u = 0; u < graphSize; ++u) {
-				if (group[v] > group[u] && graph.adj[u][v] && vis[u]) {
-					cout << dsMon[v] << " CO THE DANG KY DUOC\n";
-					ok = true;
-					break;
-				}
-			}
-			if (!ok) {
-				for (int u = 0; u < graphSize; ++u) {
-					if (group[v] > group[u] && graph.adj[u][v] && !vis[u]) {
-						cout << dsMon[v] << " KHONG THE DANG KY DUOC VI MON " << dsMon[u] << " CHUA DUOC DANG KY\n";
-						break;
-					}
-				}
-			}
-		}
-	} 
-}
-void TopologicalSort(Graph graph) {
-	char DanhSachMon[] = "DanhSachMon.txt";
-	char DaDangKy[] = "DaDangKy.txt";
-	char MuonDangKy[] = "MuonDangKy.txt";
-	const int graphSize = graph.numberNode;
-	string dsMon[graphSize];
-	if (!ReadListNoNumber(DanhSachMon, dsMon, graph.numberNode)) {
-		cout << "FAILED TO OPEN FILE, PLEASE RETRY";
-		return;
-	}
-	int size1=0;
-	string dsDaDangKy[graphSize];
-	if (!ReadListWithNumber(DaDangKy, dsDaDangKy, size1)) {
-		cout << "FAILED TO OPEN FILE, PLEASE RETRY";
-		return;
-	}
-	int size2=0;
-	string dsMuonDangKy[graphSize];
-	if (!ReadListWithNumber(MuonDangKy, dsMuonDangKy, size2)) {
-		cout << "FAILED TO OPEN FILE, PLEASE RETRY";
-		return;
-	}
-	const int daDKSize = size1;
-	const int muonDKSize = size2;
-	int iDa[daDKSize];
-	int iMuon[muonDKSize];
-	IndexList(dsMon, graphSize, dsDaDangKy, daDKSize, iDa);
-	IndexList(dsMon, graphSize, dsMuonDangKy, muonDKSize, iMuon);
-	PrintResult(graph, iDa, daDKSize, iMuon, muonDKSize, dsMon, dsDaDangKy, dsMuonDangKy);
+void IndexArray(string a[], int size1, string b[], int res[], int size2) {
+    for (int i = 0; i < size2; ++i)
+        res[i] = FindIdByName(a, size1, b[i]);
 }
 bool isDAG(Graph graph) {
-	const int graphSize = graph.numberNode;
-	int inDegree[graphSize];
-	for (int i = 0; i < graphSize; ++i)
-		inDegree[i] = 0;
-	for (int u = 0; u < graphSize; ++u)
-		for (int v = 0; v < graphSize; ++v) 
-			if (graph.adj[u][v]) 
-				inDegree[v]++;
+    const int graphSize = graph.numberNode;
+    int inDegree[graphSize];
+    for (int i = 0; i < graphSize; ++i)
+        inDegree[i] = 0;
+    for (int u = 0; u < graphSize; ++u)
+        for (int v = 0; v < graphSize; ++v) 
+            if (graph.adj[u][v]) 
+                inDegree[v]++;
 
-	Queue queue;
-	for (int i = 0; i < graphSize; ++i)
-		if (inDegree[i] == 0)
-			queue.push(i);
-	int cnt = 0;
-	while(!queue.empty()) {
-		int u;
-		queue.pop(u);
-		for (int v = 0; v < graphSize; ++v)
-			if (graph.adj[u][v]) 
-				if (--inDegree[v] == 0)
-					queue.push(v);
-		cnt++;
-	}
-	if (cnt != graphSize) return false;
-	return true;
+    Queue queue;
+    for (int i = 0; i < graphSize; ++i)
+        if (inDegree[i] == 0)
+            queue.push(i);
+    int cnt = 0;
+    while(!queue.empty()) {
+        int u;
+        queue.pop(u);
+        for (int v = 0; v < graphSize; ++v)
+            if (graph.adj[u][v]) 
+                if (--inDegree[v] == 0)
+                    queue.push(v);
+        cnt++;
+    }
+    if (cnt != graphSize) return false;
+    return true;
+}
+void OutputTopoSort(Graph graph, int iDaDK[], int sizeDaDK, int iMuonDK[], int sizeMuonDK, string mon[], int sizeMon, string daDK[], string muonDK[]) {
+    if (!isDAG(graph)) {
+        cout << "Do thi ton tai chu trinh";
+        return;
+    }
+    int graphSize = graph.numberNode;
+    int inDegree[MAXN];
+    int group[MAXN];
+    for (int i = 0; i < graphSize; ++i)
+        inDegree[i] = group[i] = 0;
+    for (int u = 0; u < graphSize; ++u) 
+        for (int v = 0; v < graphSize; ++v)
+            if (graph.adj[u][v]) 
+                inDegree[v]++;
+    int count = 0;
+    int index1 = 0, index2 = 0;
+    int size1 = 0, size2 = 0;
+    Queue queue;
+    for (int i = 0; i < graph.numberNode; ++i)
+        if (!inDegree[i])
+            queue.push(i), group[i] = count, size1++;
+    while(!queue.empty()) {
+        int u;
+        queue.pop(u);
+        group[u] = count;
+        for (int v = 0; v < graph.numberNode; ++v) 
+            if (graph.adj[u][v]) {
+                inDegree[v]--;
+                if (inDegree[v] == 0)
+                    queue.push(v), size2++;
+            }
+        if (index2 - index1 == size1) {
+            index1 = index2;
+            size1 = size2;
+            size2 = 0;
+            count++;
+        }
+    } 
+    bool vis[MAXN];
+    for (int i = 0; i < graphSize; ++i)
+        vis[i] = false;
+    for (int i = 0; i < sizeDaDK; ++i)
+        if (iDaDK[i] != -1)
+            vis[iDaDK[i]] = true;
+    bool ok = false;
+    int v;
+    for (int i = 0; i < sizeMuonDK; ++i) {
+        v = iMuonDK[i];
+        if (v == -1) {
+            cout << "Mon " << muonDK[i] << " khong co trong danh sach mon hoc";
+            continue;
+        }
+        if (group[v] == 0) {
+            if (vis[v])
+                cout << "Mon " << mon[v] << " khong the dang ky vi da hoc xong";
+            else
+                cout << "Mon " << mon[v] << " khong the dang ky vi day la mon co so"; 
+        } else {
+            if (vis[v]) 
+                cout << "Mon " << mon[v] << " khong the dang ky vi da hoc xong";
+            else {
+                ok = false;
+                for (int u = 0; u < graphSize; ++u) {
+                    if (group[u] < group[v] && graph.adj[u][v] && vis[u]) {
+                        cout << "Mon " << mon[v] << " co the dang ky duoc";
+                        ok = true;
+                        break;
+                    }
+                }
+                if (!ok) {
+                    for (int u = 0; u < graphSize; ++u) {
+                        if (group[u] < group[v] && graph.adj[u][v] && !vis[u]) {
+                            cout << "Mon " << mon[v] << " khong the dang ky duoc vi mon " << mon[u] << " chua duoc dang ky";
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+void TopologicalSort1(Graph graph) {
+    int graphSize = graph.numberNode;
+    char dsMon[] = "DanhSachMon.txt";
+    char daDKy[] = "DaDangKy.txt";
+    char muonDky[] = "MuonDangKy.txt";
+    int sizeMon, sizeDaDK, sizeMuonDK;
+    string mon[MAXN], daDK[MAXN], muonDK[MAXN];
+    switch(ReadFileTopo(dsMon, mon, sizeMon, graphSize, true)) {
+        case -1: 
+            cout << "Du lieu nhap vao khong du! Vui long nhap it nhat " << graphSize << " mon";
+            return;
+        case 0:
+            cout << "Loi mo file";
+            return;
+        default:
+            break;
+    }
+    if (!ReadFileTopo(daDKy, daDK, sizeDaDK, graphSize, false)) {
+        cout << "Loi mo file";
+        return;
+    }
+    if (!ReadFileTopo(muonDky, muonDK, sizeMuonDK, graphSize, false)) {
+        cout << "Loi mo file";
+        return;
+    }
+    int iDaDK[MAXN];
+    int iMuonDK[MAXN];
+    IndexArray(mon, sizeMon, daDK, iDaDK, sizeDaDK);
+    IndexArray(mon, sizeMon, muonDK, iMuonDK, sizeMuonDK);
+    OutputTopoSort(graph, iDaDK, sizeDaDK, iMuonDK, sizeMuonDK, mon, sizeMon, daDK, muonDK);
 }
 void RunningTopologicalSort(Graph graph) {
 	NotificationFull("Bat dau thuat toan!");
