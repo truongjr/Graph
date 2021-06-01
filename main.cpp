@@ -415,7 +415,7 @@ bool OpenSave(Graph &graph, string nameFile){
 				return true;
 			}
 			else if(CheckClickButton(cancelButton, x, y)){
-				NotificationFull("Da luu");
+				NotificationFull("Khong luu");
 				return false;
 			} 
 		}
@@ -455,7 +455,7 @@ bool NewSave(Graph &graph, string &nameFile, bool &isFirstSave){
 				}
 			}
 			else if(CheckClickButton(cancelButton, x, y)){
-				NotificationFull("Da luu");
+				NotificationFull("Khong luu");
 				return false;
 			} 
 		}
@@ -487,11 +487,11 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 			else if(CheckClickButton(saveButton, x, y)){
 				if(flag == true){
 					OpenSave(graph, fileName);
-					return true;
+					goto gtnew;
 				}
 				else{
 					NewSave(graph, fileName, isFirstSave);
-					return true;
+					goto gtnew;
 				}
 			}
 			else if(CheckClickButton(algorithmArea, x, y)){
