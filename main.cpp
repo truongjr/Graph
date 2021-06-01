@@ -383,15 +383,14 @@ int main(){
 					string fileName = "";
 					if(RunningToolbar(graph, fileName, x, y, false) == false) return 0;
 				}
-
 				else if(CheckClickButton(openButton, x, y)){//Nhan nut Open  
-					NotificationFull(OpenScreen());
-					// string nameFile = OpenScreen();
-					// ReadFile((char*)nameFile.c_str(), graph);
-					// DrawGraph(graph);
-					// DrawWeightMatrix(graph);
-					// NotificationFull("HAY CHON CHUC NANG!");
-					// if(RunningToolbar(graph, nameFile, x, y, true) == false) return 0;
+					string nameFile = OpenScreen();
+					nameFile = "saves/" + nameFile;
+					ReadFile((char*)nameFile.c_str(), graph);
+					DrawGraph(graph);
+					DrawWeightMatrix(graph);
+					NotificationFull("HAY CHON CHUC NANG!");
+					if(RunningToolbar(graph, nameFile, x, y, true) == false) return 0;
 				}
 			}
 		}
@@ -412,9 +411,13 @@ bool OpenSave(Graph &graph, string nameFile){
 		if(x != -1 && y != -1){
 			if(CheckClickButton(continueButton, x, y)){
 				WriteFile((char*)nameFile.c_str(), graph);
+				NotificationFull("Da luu");
 				return true;
 			}
-			else if(CheckClickButton(cancelButton, x, y)) return false;
+			else if(CheckClickButton(cancelButton, x, y)){
+				NotificationFull("Da luu");
+				return false;
+			} 
 		}
 	}
 }
@@ -447,10 +450,14 @@ bool NewSave(Graph &graph, string &nameFile, bool &isFirstSave){
 				}
 				else {
 					WriteFile((char*)nameFile.c_str(), graph);
+					NotificationFull("Da luu");
 					return true;
 				}
 			}
-			else if(CheckClickButton(cancelButton, x, y)) return false;
+			else if(CheckClickButton(cancelButton, x, y)){
+				NotificationFull("Da luu");
+				return false;
+			} 
 		}
 	}
 }
@@ -475,6 +482,16 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 				else{
 					NewSave(graph, fileName, isFirstSave);
 					return false;
+				}
+			}
+			else if(CheckClickButton(saveButton, x, y)){
+				if(flag == true){
+					OpenSave(graph, fileName);
+					return true;
+				}
+				else{
+					NewSave(graph, fileName, isFirstSave);
+					return true;
 				}
 			}
 			else if(CheckClickButton(algorithmArea, x, y)){
@@ -915,7 +932,6 @@ string OpenScreen(){
 		}
 		closedir(dir);
 	}
-	// ShowFileName(word1, showFileNameArea);
 	bool isTrue = false, isOpened = false;
 	string ans = "";
 	char key;
@@ -924,7 +940,9 @@ string OpenScreen(){
 	if(isTrue == false){
 		word = word1;
 	}
-	while(ShowFileName(word, key, ans, showFileNameArea, fileNameButton, OpenButton, isOpened) == "false") {
+	label:
+	string s = ShowFileName(word, key, ans, showFileNameArea, fileNameButton, OpenButton, isOpened);
+	if(s == "false") {
 		if((key >= 'A' && key <= 'Z') || (key >= 'a' && key <='z') || (key >= '0' && key <= '9')){
 			ans += key;
 		}
@@ -941,12 +959,10 @@ string OpenScreen(){
 		else word = word1;
 		outtextxy(fileNameButton.x1 + 5, fileNameButton.y1 + 5, "                                            ");
 		outtextxy(fileNameButton.x1 + 5, fileNameButton.y1 + 5, (char*)ans.c_str());
-		// goto label;
+		goto label;
+	} else {
+		return s;
 	}
-	// else if(ShowFileName(word, key, ans, showFileNameArea, fileNameButton, OpenButton, isOpened) == "test1.txt"){
-		string r = ShowFileName(word, key, ans, showFileNameArea, fileNameButton, OpenButton, isOpened);
-		cout<<r;
-		// NotificationFull("jsfnsjkfn");
 }
 void DrawButton(Button btn, bool fill = false) {
 	if (fill) {
@@ -1091,19 +1107,13 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 			if(CheckClickButton(OpenButton, x, y)){
 				if(isChoose == true){
 					res = word.result[chooseIndex];
-					cout<< word.result[chooseIndex];
-					// return res;
-					// break;
-					goto exit;
+					return res;
 				}
 				else{
 					for(int i=0; i<word.size; i++){
 						if(word.result[i] == ans + ".txt"){
 							res = word.result[i];
-							cout << word.result[i]; 
-							// return res;
-							// break;
-							goto exit;
+							return res;
 						} 
 					}
 				}
@@ -1765,7 +1775,8 @@ void CreateLine(Node *node1, Node *node2, char *tt, int color) {
 	outtextxy(xT - 13, yT - 13, tt);
 }
 void DrawGraph(Graph &graph) {
-	bar(processingArea.x1, processingArea.y1, processingArea.x2 - 1, processingArea.y2 - 1);
+	setfillstyle(1, WHITE);
+	bar(processingArea.x1 + 1, processingArea.y1 + 1, processingArea.x2 - 1, processingArea.y2 - 1);
 	setlinestyle(0, 0, 2);
 	for (int i = 0; i < graph.numberNode; ++i) {
 		string s = graph.node[i]->name;
