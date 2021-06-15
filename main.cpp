@@ -12,7 +12,7 @@
 using namespace std;
 
 #define BLACK 0
-#define BLUE 1 
+#define BLUE 1
 #define GREEN 2 
 #define CYAN 3 
 #define RED 4
@@ -80,7 +80,7 @@ struct nodeTmp{
 typedef struct nodeTmp nodeTmp;
 
 /////////////////////////////////////////////////////////////////////_Initialization Button_/////////////////////////////////////////////////////////////////////
-Button newButton, openButton, saveButton, addVertexButton, addEdgeButton, moveButton, renameButton, deleteButton; 
+Button newButton, openButton, saveButton, addVertexButton, addEdgeButton, moveButton, deleteVertexButton, deleteEdgeButton; 
 Button dfsButton, bfsButton, shortestPathButton, ComponentButton, hamiltonButton, eulerButton, dinhTruButton, dinhThatButton, bridgeEdgeButton, topoSortButton;
 Button helpArea, processingArea, realProcessingArea, closeButton, scannerArea, continueButton, cancelButton, toolbarArea, algorithmArea;
 ButtonCircle delVertex, delEdge;
@@ -266,7 +266,7 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 /////////////////////////////////////////////////////////////////////_Check algorithm_/////////////////////////////////////////////////////////////////////
 bool CheckNode(int x, int y, int mx, int my);
 bool CheckClickButton(Button button, int x, int y);
-bool CheckClickCircle(ButtonCircle button, int x, int y);
+bool CheckReClickNode(Graph graph, int mx, int my);
 bool CheckName(Graph &graph, string name);
 bool CheckPos(Graph &graph, int mx, int my);
 
@@ -292,6 +292,8 @@ void RunningAlgorithm(Graph graph, int x, int y, WordWrap &word, Button helpArea
 int ChooseVertex(Graph graph, int &x, int &y);
 bool OpenSave(Graph &graph, string nameFile);
 bool NewSave(Graph &graph, string &nameFile, bool &isFirstSave);
+void EffectVertex(Graph graph, int u, int colorbk, int colortext);
+void EffectEdge(Graph graph, int u, int v, int color);
 void DFS (Graph graph, int f);
 void BFS (Graph graph, int start);
 void Component (Graph graph);
@@ -428,8 +430,37 @@ void createScreenWelcome(string s){
 	Sleep(2000);
 	closegraph();
 }
+void DisableMinimizeButton (HWND hwnd){
+ 	SetWindowLong (hwnd, GWL_STYLE,
+               GetWindowLong (hwnd, GWL_STYLE) & ~ WS_MINIMIZEBOX);
+}
+void EnableMinimizeButton (HWND hwnd){
+ 	SetWindowLong (hwnd, GWL_STYLE,
+               GetWindowLong (hwnd, GWL_STYLE) | WS_MINIMIZEBOX);
+}
+void DisableMaximizeButton (HWND hwnd){
+ 	SetWindowLong (hwnd, GWL_STYLE,
+               GetWindowLong (hwnd, GWL_STYLE) & ~ WS_MAXIMIZEBOX);
+}
+void EnableMaximizeButton (HWND hwnd){
+ 	SetWindowLong (hwnd, GWL_STYLE,
+               GetWindowLong (hwnd, GWL_STYLE) | WS_MAXIMIZEBOX);
+}
+void DisableCloseButton (HWND hwnd){
+ 	EnableMenuItem (GetSystemMenu (hwnd, FALSE), SC_CLOSE,
+                MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+}
+void EnableCloseButton (HWND hwnd){
+ 	EnableMenuItem (GetSystemMenu (hwnd, FALSE), SC_CLOSE,
+                MF_BYCOMMAND | MF_ENABLED);
+}
 void CreateScreen(){
 	initwindow(1209, 813);
+	HWND hwnd = GetActiveWindow();
+	if(hwnd) SetWindowText(hwnd, "Graph");
+	DisableMaximizeButton(hwnd);
+	DisableMinimizeButton(hwnd);
+	DisableCloseButton(hwnd);
 	setbkcolor(15);
 	setcolor(BLUE);
 	setlinestyle(0, 0, 10);
@@ -453,8 +484,8 @@ void CreateButton (){
 	addVertexButton.name = " AddVertex", addVertexButton.x1 = 445, addVertexButton.y1 = 10, addVertexButton.x2 = 590, addVertexButton.y2 = 52;
 	addEdgeButton.name = "  AddEdge", addEdgeButton.x1 = 590, addEdgeButton.y1 = 10, addEdgeButton.x2 = 735, addEdgeButton.y2 = 52;
 	moveButton.name = "     Move", moveButton.x1 = 735, moveButton.y1 = 10, moveButton.x2 = 880, moveButton.y2 = 52;
-	renameButton.name = "   Rename", renameButton.x1 = 880, renameButton.y1 = 10, renameButton.x2 = 1025, renameButton.y2 = 52;
-	deleteButton.name = "  Delete", deleteButton.x1 = 1025, deleteButton.y1 = 10, deleteButton.x2 = 1140, deleteButton.y2 = 52;
+	deleteVertexButton.name = " DelVertex", deleteVertexButton.x1 = 880, deleteVertexButton.y1 = 10, deleteVertexButton.x2 = 1025, deleteVertexButton.y2 = 52;
+	deleteEdgeButton.name = "DelEdge", deleteEdgeButton.x1 = 1025, deleteEdgeButton.y1 = 10, deleteEdgeButton.x2 = 1140, deleteEdgeButton.y2 = 52;
 	algorithmArea.name = "", algorithmArea.x1 = 10, algorithmArea.y1 = 52, algorithmArea.x2 = maxx / 3 + 2, algorithmArea.y2 = 395;                 
 	dfsButton.name = "    DFS", dfsButton.x1 = 14, dfsButton.y1 = 99, dfsButton.x2 = 139, dfsButton.y2 = 168;
 	bfsButton.name = "    BFS", bfsButton.x1 = 143, bfsButton.y1 = 99, bfsButton.x2 = 268, bfsButton.y2 = 168;
@@ -496,8 +527,8 @@ void DrawToolBar(){
 	DrawButtonForToolBar(addVertexButton);
 	DrawButtonForToolBar(addEdgeButton);
 	DrawButtonForToolBar(moveButton);
-	DrawButtonForToolBar(renameButton);
-	DrawButtonForToolBar(deleteButton);
+	DrawButtonForToolBar(deleteVertexButton);
+	DrawButtonForToolBar(deleteEdgeButton);
 	DrawButtonForToolBar(closeButton);
 }
 void DrawMenuTable(){
@@ -853,8 +884,13 @@ bool CheckNode(int x, int y, int mx, int my){
 bool CheckClickButton(Button button, int x, int y){	
 	return (x > button.x1 && x < button.x2 && y > button.y1 && y < button.y2);
 }
-bool CheckClickCircle(ButtonCircle button, int x, int y){
-	return ((x - button.x) * (x - button.x) + (y - button.y) * (y - button.y) <= button.r * button.r);
+bool CheckReClickNode(Graph graph, int mx, int my){
+	for(int i = 0; i < graph.numberNode; i++){
+		if(CheckNode(graph.node[i]->x, graph.node[i]->y, mx, my)){
+			return true;
+		}
+	}
+	return false;
 }
 bool CheckName(Graph &graph, string nameNode){
 	if(graph.numberNode == 0) return true;
@@ -1013,6 +1049,7 @@ string AddFileName(){
 	}
 }
 void NotificationFull(string Noti){
+	setbkcolor(WHITE);
 	setfillstyle(1, WHITE);
 	settextstyle(3, HORIZ_DIR, 2);
 	bar(helpArea.x1 + 1, helpArea.y1 + 1, helpArea.x2 - 1, helpArea.y2 - 1);
@@ -1037,6 +1074,7 @@ void DrawTriangle(int x1, int y1, int x2, int y2, int color) {
 }
 void FlipCurved(Node *node1, Node *node2, char *tt, int color) {
 	setcolor(color);
+	setbkcolor(WHITE);
 	setlinestyle(0, 0, 2);
 	int x1 = node1->x, y1 = node1->y, x2 = node2->x, y2 = node2->y;
   	// quay doan thang mot goc 90 do nguoc chieu kim dong ho
@@ -1079,6 +1117,7 @@ void FlipCurved(Node *node1, Node *node2, char *tt, int color) {
 }
 void CreateCurved(Node *node1, Node *node2, char *tt, int color) {
 	setcolor(color);
+	setbkcolor(WHITE);
 	setlinestyle(0, 0, 2);
 	settextstyle(3, HORIZ_DIR, 3);
 	int x1 = node1->x, y1 = node1->y, x2 = node2->x, y2 = node2->y;
@@ -1131,6 +1170,7 @@ void CreateCurved(Node *node1, Node *node2, char *tt, int color) {
 void CreateLine(Node *node1, Node *node2, char *tt, int color) {
 	// tim diem dau tien
 	setcolor(color);
+	setbkcolor(WHITE);
 	setlinestyle(0, 0, 2);
 	settextstyle(3, HORIZ_DIR, 3);
 	int x1 = node1->x, y1 = node1->y, x2 = node2->x, y2 = node2->y;
@@ -1398,7 +1438,28 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 								continue;
 							}
 							else if(CheckClickButton(realProcessingArea, x, y)){
-								if(CheckPos(graph, x, y)){
+								if(CheckReClickNode(graph, x, y)){
+									string nameNode = "";
+									for(int i=0; i < graph.numberNode; i++){
+										if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
+											setcolor(RED);
+											setlinestyle(0, 0, 3);
+											circle(graph.node[i]->x, graph.node[i]->y, 25);
+											setcolor(BLUE);
+											setlinestyle(0, 0, 2);
+											nameNode = AddNameWeight("ten dinh");
+											Rename(graph.node[i]->x, graph.node[i]->y, nameNode);
+											while(CheckName(graph, nameNode) == false){
+												nameNode = AddNameWeight("ten dinh");
+											}
+											Rename(graph.node[i]->x, graph.node[i]->y, nameNode);
+											graph.node[i]->name = nameNode;
+											DrawWeightMatrix(graph);
+											goto addV;
+										}
+									}
+								}
+								else if(CheckPos(graph, x, y)){
 									AddNode(graph, x, y, nameNode, true);
 									while(CheckName(graph, nameNode) == false){
 										nameNode = AddNameWeight("ten dinh");
@@ -1486,56 +1547,56 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 				}																			
 			}
 			// else goto gtnew;
-			else if(CheckClickButton(renameButton, x, y)){//Nhan nut Rename
-				DrawGraph(graph);
-				if(graph.numberNode < 1){
-					NotificationFull("DO THI RONG. HAY THEM DINH!");
-				}
-				else{
-					reN:
-					NotificationFull("HAY CLICK VAO DINH CAN DOI TEN!");
-					while(true){
-						if(kbhit()){
-							char key = getch();
-							if(key == 27) break;
-						}
-						getmouseclick(WM_LBUTTONDOWN, x, y);
-						if(x != -1 && y != -1){
-							if(CheckClickButton(closeButton, x, y)){
-								continue;
-							}
-							else if(CheckClickButton(realProcessingArea, x, y)){
-								string nameNode = "";
-								bool flag = true;
-								for(int i=0; i < graph.numberNode; i++){
-									if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
-										setcolor(RED);
-										setlinestyle(0, 0, 3);
-										circle(graph.node[i]->x, graph.node[i]->y, 25);
-										setcolor(BLUE);
-										setlinestyle(0, 0, 2);
-										nameNode = AddNameWeight("ten dinh");
-										Rename(graph.node[i]->x, graph.node[i]->y, nameNode);
-										while(CheckName(graph, nameNode) == false){
-											nameNode = AddNameWeight("ten dinh");
-										}
-										Rename(graph.node[i]->x, graph.node[i]->y, nameNode);
-										graph.node[i]->name = nameNode;
-										DrawWeightMatrix(graph);
-										flag = false;
-										break;
-									}
-								}
-								goto reN;	
-							}
-							else{
-								if(CheckClickButton(toolbarArea, x, y) || CheckClickButton(algorithmArea, x, y)) goto action;
-								else goto gtnew;
-							}
-						}
-					}	
-				}
-			}
+			// else if(CheckClickButton(deleteVertexButton, x, y)){//Nhan nut Rename
+			// 	DrawGraph(graph);
+			// 	if(graph.numberNode < 1){
+			// 		NotificationFull("DO THI RONG. HAY THEM DINH!");
+			// 	}
+			// 	else{
+			// 		reN:
+			// 		NotificationFull("HAY CLICK VAO DINH CAN DOI TEN!");
+			// 		while(true){
+			// 			if(kbhit()){
+			// 				char key = getch();
+			// 				if(key == 27) break;
+			// 			}
+			// 			getmouseclick(WM_LBUTTONDOWN, x, y);
+			// 			if(x != -1 && y != -1){
+			// 				if(CheckClickButton(closeButton, x, y)){
+			// 					continue;
+			// 				}
+			// 				else if(CheckClickButton(realProcessingArea, x, y)){
+			// 					string nameNode = "";
+			// 					bool flag = true;
+			// 					for(int i=0; i < graph.numberNode; i++){
+			// 						if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
+			// 							setcolor(RED);
+			// 							setlinestyle(0, 0, 3);
+			// 							circle(graph.node[i]->x, graph.node[i]->y, 25);
+			// 							setcolor(BLUE);
+			// 							setlinestyle(0, 0, 2);
+			// 							nameNode = AddNameWeight("ten dinh");
+			// 							Rename(graph.node[i]->x, graph.node[i]->y, nameNode);
+			// 							while(CheckName(graph, nameNode) == false){
+			// 								nameNode = AddNameWeight("ten dinh");
+			// 							}
+			// 							Rename(graph.node[i]->x, graph.node[i]->y, nameNode);
+			// 							graph.node[i]->name = nameNode;
+			// 							DrawWeightMatrix(graph);
+			// 							flag = false;
+			// 							break;
+			// 						}
+			// 					}
+			// 					goto reN;	
+			// 				}
+			// 				else{
+			// 					if(CheckClickButton(toolbarArea, x, y) || CheckClickButton(algorithmArea, x, y)) goto action;
+			// 					else goto gtnew;
+			// 				}
+			// 			}
+			// 		}	
+			// 	}
+			// }
 			else if(CheckClickButton(moveButton, x, y)){//Nhan nut Move
 				DrawGraph(graph);
 				if(graph.numberNode < 1){
@@ -1609,152 +1670,116 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 					}
 				}
 			}
-			else if(CheckClickButton(deleteButton, x, y)){//Nhan nut Delete
+			else if(CheckClickButton(deleteVertexButton, x, y)){// xoa dinh
+				delV:
+				bar(maxx/3 + 12, 61, maxx - 13, 592);
 				DrawGraph(graph);
-				del:
-				if(graph.numberNode < 1){
-					NotificationFull("DO THI RONG. HAY THEM DINH!");
+				NotificationFull("HAY CLICK VAO DINH CAN XOA!");
+				int idx;
+				bool flag = true;
+				while(true){//Bat phim dau
+					if(kbhit()){
+						char key = getch();
+						if(key == 27) break;
+					}
+					getmouseclick(WM_LBUTTONDOWN, x, y);
+					if(x != -1 && y != -1){
+						if(CheckClickButton(processingArea, x, y)){
+							for(int i=0; i<graph.numberNode; i++){
+								if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
+									setcolor(RED);
+									setlinestyle(0, 0, 3);
+									circle(graph.node[i]->x, graph.node[i]->y, 25);
+									x = graph.node[i]->x;
+									y = graph.node[i]->y;
+									idx = i;
+									flag = false;
+									break;
+								}
+							}
+							if(flag == true){
+								goto delV;
+							}
+							else{
+								int idx1 = x, idx2 = y;
+								Sleep(1000);
+								DeleteVertex(graph, idx1, idx2, idx);
+								DrawWeightMatrix(graph);
+								goto delV;
+							}
+						}
+						else if(CheckClickButton(toolbarArea, x, y) || CheckClickButton(algorithmArea, x, y)) goto action;
+						else goto gtnew;
+					}
+				}
+			}
+			else if(CheckClickButton(deleteEdgeButton, x, y)){//xoa canh
+				if(graph.numberNode < 2){
+					NotificationFull("DO THI KHONG CO CANH DE XOA!");
+					bar(maxx/3 + 12, 61, maxx - 13, 592);
+					DrawGraph(graph);
 				}
 				else{
-					NotificationFull("HAY CHON CHUC NANG!");
-					DrawSubDel();
-					while(true){
+					bar(maxx/3 + 12, 61, maxx - 13, 592);
+					DrawGraph(graph);
+					delS:
+					NotificationFull("HAY CLICK VAO DINH DAU!");
+					int x1, y1, x2, y2, idx1, idx2;
+					while(true){//Bat phim dau
 						if(kbhit()){
 							char key = getch();
 							if(key == 27) break;
 						}
-						// EffectDel();
 						getmouseclick(WM_LBUTTONDOWN, x, y);
 						if(x != -1 && y != -1){
-							if(CheckClickButton(closeButton, x, y)){
-								continue;
-							}
-							else if(CheckClickCircle(delVertex, x, y)){// xoa dinh
-								bar(maxx/3 + 12, 61, maxx - 13, 592);
-								DrawGraph(graph);
-								delV:
-								NotificationFull("HAY CLICK VAO DINH CAN XOA!");
-								int x, y, idx;
+							if(CheckClickButton(realProcessingArea, x, y)){
 								bool flag = true;
-								while(true){//Bat phim dau
-									if(kbhit()){
-										char key = getch();
-										if(key == 27) break;
+								for(int i=0; i < graph.numberNode; i++){
+									if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
+										x1 = graph.node[i]->x;
+										y1 = graph.node[i]->y;
+										idx1 = i;
+										setcolor(RED);
+										setlinestyle(0, 0, 3);
+										circle(graph.node[i]->x, graph.node[i]->y, 25);
+										flag = false;
+										break;
 									}
-									getmouseclick(WM_LBUTTONDOWN, x, y);
-									if(x != -1 && y != -1){
-										if(CheckClickButton(realProcessingArea, x, y)){
-											for(int i=0; i<graph.numberNode; i++){
-												if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
+								}
+								if(flag == true) goto delS;
+								else{
+									delE:
+									NotificationFull("HAY CLICK VAO DINH CUOI!");
+									while(!kbhit()){
+										getmouseclick(WM_LBUTTONDOWN, x, y);
+										if(x != -1 && y != -1){
+											bool flag = true;
+											for(int i=0; i < graph.numberNode; i++){
+												if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y) && graph.node[i]->x != x1 && graph.node[i]->y != y1){
+													x2 = graph.node[i]->x;
+													y2 = graph.node[i]->y;
+													idx2 = i;
 													setcolor(RED);
 													setlinestyle(0, 0, 3);
 													circle(graph.node[i]->x, graph.node[i]->y, 25);
-													x = graph.node[i]->x;
-													y = graph.node[i]->y;
-													idx = i;
 													flag = false;
 													break;
 												}
-											}
+											}	
 											if(flag == true){
-												goto delV;
-											}
-											else{
-												DeleteVertex(graph, x, y, idx);
-												DrawWeightMatrix(graph);
-												goto del;
-											}
-										}
-										else {
-											goto delV;
-										}
-									}
-								}
-							}
-							else if(CheckClickCircle(delEdge, x, y)){//xoa canh
-								if(graph.numberNode < 2){
-									NotificationFull("DO THI KHONG CO CANH DE XOA!");
-									bar(maxx/3 + 12, 61, maxx - 13, 592);
-									DrawGraph(graph);
-								}
-								else{
-									bar(maxx/3 + 12, 61, maxx - 13, 592);
-									DrawGraph(graph);
-									delE:
-									NotificationFull("HAY CLICK VAO DINH DAU!");
-									int x1, y1, x2, y2, idx1, idx2;
-									while(true){//Bat phim dau
-										if(kbhit()){
-											char key = getch();
-											if(key == 27) break;
-										}
-										getmouseclick(WM_LBUTTONDOWN, x, y);
-										if(x != -1 && y != -1){
-											if(CheckClickButton(realProcessingArea, x, y)){
-												bool flag = true;
-												for(int i=0; i < graph.numberNode; i++){
-													if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
-														x1 = graph.node[i]->x;
-														y1 = graph.node[i]->y;
-														idx1 = i;
-														setcolor(RED);
-														setlinestyle(0, 0, 3);
-														circle(graph.node[i]->x, graph.node[i]->y, 25);
-														flag = false;
-														break;
-													}
-												}
-												if(flag == true) goto delE;
-												else{
-													delEE:
-													NotificationFull("HAY CLICK VAO DINH CUOI!");
-													while(!kbhit()){
-														getmouseclick(WM_LBUTTONDOWN, x, y);
-														if(x != -1 && y != -1){
-															bool flag = true;
-															for(int i=0; i < graph.numberNode; i++){
-																if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y) && graph.node[i]->x != x1 && graph.node[i]->y != y1){
-																	x2 = graph.node[i]->x;
-																	y2 = graph.node[i]->y;
-																	idx2 = i;
-																	setcolor(RED);
-																	setlinestyle(0, 0, 3);
-																	circle(graph.node[i]->x, graph.node[i]->y, 25);
-																	flag = false;
-																	break;
-																}
-															}	
-															if(flag == true){
-																goto delEE;
-															}
-															else{
-																if(graph.adj[idx1][idx2]){
-																	DeleteEdge(graph, x1, y1, x2, y2, idx1, idx2);
-																	DrawWeightMatrix(graph);	
-																} 
-																else {
-																	bar(maxx/3 + 12, 61, maxx - 13, 592);
-																	DrawGraph(graph);
-																}
-																goto del;
-															}
-														}	
-													}
-												}
-											}
-											else{
 												goto delE;
 											}
-										}
+											else{
+												DeleteEdge(graph, x1, y1, x2, y2, idx1, idx2);
+												DrawWeightMatrix(graph);
+												goto delS;
+											}
+										}	
 									}
 								}
 							}
-							else{
-								bar(maxx/3 + 12, 61, maxx - 13, 592);
-								DrawGraph(graph);
-								if(CheckClickButton(toolbarArea, x, y) || CheckClickButton(algorithmArea, x, y)) goto action;
-								else goto gtnew;
-							} 
+							else if(CheckClickButton(toolbarArea, x, y) || CheckClickButton(algorithmArea, x, y)) goto action;
+							else goto gtnew;
 						}
 					}
 				}
@@ -1820,7 +1845,6 @@ void RunningAlgorithm(Graph graph, int x, int y, WordWrap &word, Button helpArea
 		int start = ChooseVertex(graph, x, y);
 		NotificationFull("BAT DAU THUAT TOAN!");
 		DFS(graph, start);
-		NotificationFull("KET THUC THUAT TOAN!");
 	}
 	else if(CheckClickButton(bfsButton, x, y)){
 		DrawGraph(graph);
@@ -1830,7 +1854,6 @@ void RunningAlgorithm(Graph graph, int x, int y, WordWrap &word, Button helpArea
 		int start = ChooseVertex(graph, x, y);
 		NotificationFull("BAT DAU THUAT TOAN!");
 		BFS(graph, start);
-		NotificationFull("KET THUC THUAT TOAN!");
 	}
 	else if(CheckClickButton(shortestPathButton, x, y)){
 		DrawGraph(graph);
@@ -1985,7 +2008,28 @@ bool NewSave(Graph &graph, string &nameFile, bool &isFirstSave){
 		}
 	}
 }
+void EffectVertex(Graph graph, int u, int colorbk, int colortext){
+	Sleep(1000);
+	setcolor(colorbk);
+	setbkcolor(colorbk);
+	setfillstyle(1, colorbk);
+	fillellipse(graph.node[u]->x, graph.node[u]->y, 25, 25);
+	CreateNode(graph.node[u]->x, graph.node[u]->y, (char*)graph.node[u]->name.c_str(), colortext);
+	setcolor(colorbk);
+	circle(graph.node[u]->x, graph.node[u]->y, 25);
+}
+void EffectEdge(Graph graph, int u, int v, int color){
+	Sleep(1000);
+	string value = ToStringLen2(graph.adj[u][v]);
+	if (graph.type[u][v] == 1) {
+		CreateLine(graph.node[u], graph.node[v], (char*)value.c_str(), color);
+	}				
+	else if (graph.type[u][v] == 2) {
+		CreateCurved(graph.node[u], graph.node[v], (char*)value.c_str(), color);
+	}
+}
 void DFS (Graph graph, int start){
+	string noti = "Thu tu duyet: "; 
 	bool isVisited[MAXN];
 	int tick[MAXN][MAXN];
 	for(int i=0; i<graph.numberNode; i++){
@@ -1996,6 +2040,7 @@ void DFS (Graph graph, int start){
 	}
 	Stack st;
 	st.push(start);
+	noti += graph.node[start]->name + " -> ";
 	cout<<start<<' ';
 	isVisited[start] = true;
 	while(!st.empty()){
@@ -2004,161 +2049,65 @@ void DFS (Graph graph, int start){
 		for(int v = 0; v < graph.numberNode; v++){
 			if(graph.adj[u][v] != 0 && isVisited[v] == false) {
 				cout<<v<<' ';
+				noti += graph.node[v]->name + " -> ";
 				st.push(u);
 				st.push(v);
 				tick[u][v] = 1;
 				isVisited[v] = true;
-				Sleep(1000);
-				setcolor(BLACK);
-				circle(graph.node[u]->x, graph.node[u]->y, 25);
-				setfillstyle(1, BLACK);
-				fillellipse(graph.node[u]->x, graph.node[u]->y, 25, 25);
-				setbkcolor(BLACK);
-				CreateNode(graph.node[u]->x, graph.node[u]->y, (char*)graph.node[u]->name.c_str(), WHITE);
-				Sleep(1000);
-				setlinestyle(0, 0, 3);
-				setfillstyle(1, WHITE);
-				fillellipse(graph.node[u]->x, graph.node[u]->y, 25, 25);
-				setbkcolor(WHITE);
-				CreateNode(graph.node[u]->x, graph.node[u]->y, (char*)graph.node[u]->name.c_str(), BLUE);
-				setcolor(GREEN);
-				circle(graph.node[u]->x, graph.node[u]->y, 25);
-				Sleep(1000);
-				string value = ToStringLen2(graph.adj[u][v]);
-				if (graph.type[u][v] == 1) {
-					CreateLine(graph.node[u], graph.node[v], (char*)value.c_str(), RED);
-				}				
-				else if (graph.type[u][v] == 2) {
-					CreateCurved(graph.node[u], graph.node[v], (char*)value.c_str(), RED);
-				}
-				Sleep(1000);
-				setlinestyle(0, 0, 3);
-				setcolor(GREEN);
-				circle(graph.node[v]->x, graph.node[v]->y, 25);
-				setcolor(WHITE);
+				EffectVertex(graph, u, COLOR(210,105,30), WHITE);
+				EffectVertex(graph, u, GREEN, WHITE);				
+				EffectEdge(graph, u, v, RED);
+				EffectVertex(graph, v, GREEN, WHITE);
 				break;
 			}
 			else if(graph.adj[u][v] != 0 && isVisited[v] == true && tick[u][v] == 0){
 				tick[u][v] = 1;
-				Sleep(1000);
-				setcolor(BLACK);
-				circle(graph.node[u]->x, graph.node[u]->y, 25);
-				setfillstyle(1, BLACK);
-				fillellipse(graph.node[u]->x, graph.node[u]->y, 25, 25);
-				setbkcolor(BLACK);
-				CreateNode(graph.node[u]->x, graph.node[u]->y, (char*)graph.node[u]->name.c_str(), WHITE);
-				Sleep(1000);
-				setlinestyle(0, 0, 3);
-				setfillstyle(1, WHITE);
-				fillellipse(graph.node[u]->x, graph.node[u]->y, 25, 25);
-				setbkcolor(WHITE);
-				CreateNode(graph.node[u]->x, graph.node[u]->y, (char*)graph.node[u]->name.c_str(), BLUE);
-				setcolor(GREEN);
-				circle(graph.node[u]->x, graph.node[u]->y, 25);
-				Sleep(1000);
-				string value = ToStringLen2(graph.adj[u][v]);
-				if (graph.type[u][v] == 1) {
-					CreateLine(graph.node[u], graph.node[v], (char*)value.c_str(), RED);
-					Sleep(1000);
-					CreateLine(graph.node[u], graph.node[v], (char*)value.c_str(), DARKGRAY);
-				}				
-				else if (graph.type[u][v] == 2) {
-					CreateCurved(graph.node[u], graph.node[v], (char*)value.c_str(), RED);
-					Sleep(1000);
-					CreateCurved(graph.node[u], graph.node[v], (char*)value.c_str(), DARKGRAY);
-
-				}
-				Sleep(1000);
-				setlinestyle(0, 0, 3);
-				setcolor(GREEN);
-				circle(graph.node[v]->x, graph.node[v]->y, 25);
-				setcolor(WHITE);
+				EffectVertex(graph, u, COLOR(210,105,30), WHITE);
+				EffectVertex(graph, u, GREEN, WHITE);				
+				EffectEdge(graph, u, v, BLACK);
 			}
 		}
 	}
+	noti.erase(noti.end()-4, noti.end());
+	NotificationFull(noti);
 }
 void BFS (Graph graph, int start){
-	bool vis[graph.numberNode]; // danh dau da tham hay chua
-	int parent[graph.numberNode]; 	// danh dau dinh cha
-	for (int i = 0; i < graph.numberNode; ++i)
-		vis[i] = false, parent[i] = -1;
+	bool isVisited[MAXN];
+	int tick[MAXN][MAXN];
+	string noti = "Thu tu duyet: "; 
+	for(int i=0; i<graph.numberNode; i++){
+		isVisited[i] = false;
+		for(int j = 0; j<graph.numberNode; j++){
+			tick[i][j] = 0;
+		}
+	}
 	Queue q;
 	q.push(start);
-	NotificationFull("DEMO THUAT TOAN DFS!");
+	isVisited[start] = true;
 	while(!q.empty()) {
 		int u;
 		q.pop(u);	
+		noti += graph.node[u]->name + " -> ";
 		for (int v = 0; v < graph.numberNode; v++) {
-			if (graph.adj[u][v] != 0 && vis[v] == false) {
+			if (graph.adj[u][v] != 0 && isVisited[v] == false) {
 				q.push(v);
-				parent[v] = u;
-				vis[v] = true;
-				Sleep(1000);
-				setcolor(BLACK);
-				circle(graph.node[u]->x, graph.node[u]->y, 25);
-				setfillstyle(1, BLACK);
-				fillellipse(graph.node[u]->x, graph.node[u]->y, 25, 25);
-				setbkcolor(BLACK);
-				CreateNode(graph.node[u]->x, graph.node[u]->y, (char*)graph.node[u]->name.c_str(), WHITE);
-				Sleep(1000);
-				setlinestyle(0, 0, 3);
-				setfillstyle(1, WHITE);
-				fillellipse(graph.node[u]->x, graph.node[u]->y, 25, 25);
-				setbkcolor(WHITE);
-				CreateNode(graph.node[u]->x, graph.node[u]->y, (char*)graph.node[u]->name.c_str(), BLUE);
-				setcolor(GREEN);
-				circle(graph.node[u]->x, graph.node[u]->y, 25);
-				Sleep(1000);
-				string value = ToStringLen2(graph.adj[u][v]);
-				if (graph.type[u][v] == 1) {
-					CreateLine(graph.node[u], graph.node[v], (char*)value.c_str(), RED);
-				}				
-				else if (graph.type[u][v] == 2) {
-					CreateCurved(graph.node[u], graph.node[v], (char*)value.c_str(), RED);
-				}
-				Sleep(1000);
-				setlinestyle(0, 0, 3);
-				setcolor(GREEN);
-				circle(graph.node[v]->x, graph.node[v]->y, 25);
-				setcolor(WHITE);
+				isVisited[v] = true;
+				tick[u][v] = 1;
+				EffectVertex(graph, u, COLOR(210,105,30), WHITE);
+				EffectVertex(graph, u, GREEN, WHITE);				
+				EffectEdge(graph, u, v, RED);
+				EffectVertex(graph, v, GREEN, WHITE);
 			}
-			else if(graph.adj[u][v] != 0 && vis[v] == true){
-				Sleep(1000);
-				setcolor(BLACK);
-				circle(graph.node[u]->x, graph.node[u]->y, 25);
-				setfillstyle(1, BLACK);
-				fillellipse(graph.node[u]->x, graph.node[u]->y, 25, 25);
-				setbkcolor(BLACK);
-				CreateNode(graph.node[u]->x, graph.node[u]->y, (char*)graph.node[u]->name.c_str(), WHITE);
-				Sleep(1000);
-				setlinestyle(0, 0, 3);
-				setfillstyle(1, WHITE);
-				fillellipse(graph.node[u]->x, graph.node[u]->y, 25, 25);
-				setbkcolor(WHITE);
-				CreateNode(graph.node[u]->x, graph.node[u]->y, (char*)graph.node[u]->name.c_str(), BLUE);
-				setcolor(GREEN);
-				circle(graph.node[u]->x, graph.node[u]->y, 25);
-				Sleep(1000);
-				string value = ToStringLen2(graph.adj[u][v]);
-				if (graph.type[u][v] == 1) {
-					CreateLine(graph.node[u], graph.node[v], (char*)value.c_str(), RED);
-					Sleep(1000);
-					CreateLine(graph.node[u], graph.node[v], (char*)value.c_str(), DARKGRAY);
-				}				
-				else if (graph.type[u][v] == 2) {
-					CreateCurved(graph.node[u], graph.node[v], (char*)value.c_str(), RED);
-					Sleep(1000);
-					CreateCurved(graph.node[u], graph.node[v], (char*)value.c_str(), DARKGRAY);
-				}
-				Sleep(1000);
-				setlinestyle(0, 0, 3);
-				setcolor(GREEN);
-				circle(graph.node[v]->x, graph.node[v]->y, 25);
-				setcolor(WHITE);
+			else if(graph.adj[u][v] != 0 && isVisited[v] == true && tick[u][v] == 0){
+				tick[u][v] = 1;
+				EffectVertex(graph, u, COLOR(210,105,30), WHITE);
+				EffectVertex(graph, u, GREEN, WHITE);				
+				EffectEdge(graph, u, v, BLACK);
 			}
 		}
 	}
-	NotificationFull("DA HOAN THANH!");
+	noti.erase(noti.end()-4, noti.end());
+	NotificationFull(noti);
 }	
 void Component (Graph graph){
 	int temp[MAXN][MAXN];
@@ -2274,32 +2223,9 @@ void Dijkstra(Graph graph, int start, int end){
 			if(sizeListAns > 0){
 				for(int i=0; i<sizeListAns; i++){
 					if(i>0){	
-						Sleep(1000);
-						string value = ToStringLen2(graph.adj[listAns[i-1]][listAns[i]]);
-						if (graph.type[listAns[i-1]][listAns[i]] == 1) {
-							CreateLine(graph.node[listAns[i-1]], graph.node[listAns[i]], (char*)value.c_str(), RED);
-						}				
-						else if (graph.type[listAns[i-1]][listAns[i]] == 2) {
-							CreateCurved(graph.node[listAns[i-1]], graph.node[listAns[i]], (char*)value.c_str(), RED);
-						}
+						EffectEdge(graph, listAns[i-1], listAns[i], RED);
 					}
-					// setcolor(GREEN);
-					// circle(graph.node[listAns[i]]->x, graph.node[listAns[i]]->y, 25);
-					// setcolor(WHITE);
-					Sleep(1000);
-					setfillstyle(1, GREEN);
-					fillellipse(graph.node[listAns[i]]->x, graph.node[listAns[i]]->y, 25, 25);
-					setbkcolor(GREEN);
-					CreateNode(graph.node[listAns[i]]->x, graph.node[listAns[i]]->y, (char*)graph.node[listAns[i]]->name.c_str(), GREEN);
-					setbkcolor(WHITE);
-					// Sleep(1000);
-					// setlinestyle(0, 0, 3);
-					// setfillstyle(1, WHITE);
-					// fillellipse(graph.node[listAns[i]]->x, graph.node[listAns[i]]->y, 25, 25);
-					// setbkcolor(WHITE);
-					// CreateNode(graph.node[listAns[i]]->x, graph.node[listAns[i]]->y, (char*)graph.node[listAns[i]]->name.c_str(), BLUE);
-					// setcolor(GREEN);
-					// circle(graph.node[listAns[i]]->x, graph.node[listAns[i]]->y, 25);
+					EffectVertex(graph, listAns[i], GREEN, WHITE);
 				}
 			}
 		}
