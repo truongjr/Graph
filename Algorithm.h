@@ -137,7 +137,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 									for(int i=0; i<graph.numberNode; i++){
 										if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
 											if(isChoose[i] == false){
-												EffectVertex(graph, i, COLOR(0,255,0), WHITE, false);
+												EffectVertex(graph, i, COLOR(184,134,11), WHITE, false);
 												wanttolearn[numberWanttolearn] = graph.node[i]->name;
 												isChoose[i] = true;
 												isWantToLearn[i] = true;
@@ -698,7 +698,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 			}
 		} 
 		if (ismouseclick(WM_LBUTTONUP)) {
-			if (isHover == true && showResult && showScrollbar) { // xóa cái v? button vì ko c?n thi?t
+			if (isHover == true && showResult && showScrollbar) { // xï¿½a cï¿½i v? button vï¿½ ko c?n thi?t
 				isHover = false;
 			}
 			clearmouseclick(WM_LBUTTONUP);
