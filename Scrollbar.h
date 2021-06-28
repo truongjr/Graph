@@ -1,3 +1,4 @@
+#pragma once
 void UpdateValue(WordWrap &word, int scrollbarArea, Button &scrollbar, int &thumbHeight, int &jump, int &u0) {
 	thumbHeight = round(word.linePerPage * scrollbarArea * 1.0 / word.size);
 	jump = round((scrollbarArea - thumbHeight) * 1.0 / (word.size - word.linePerPage));

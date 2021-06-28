@@ -1,3 +1,4 @@
+#pragma once
 void WriteFile(char *fileName, Graph &graph) {
 	ofstream myFile;
 	myFile.open(fileName);

@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string>
 #include <conio.h>
@@ -28,7 +29,7 @@ void Run() {
 	string nameNode, nameFile;
 	label:
 	NotificationFull("HAY MO DO THI CO SAN HOAC TAO MOT DO THI MOI!");
-	while(true){//Kiem tra khi m?i vào. CH? du?c nh?n 1 trong 2 nút: New, Open
+	while(true){//Kiem tra khi moi vao. Chi duoc chon 1 trong 2 nut: New, Open
 		if(kbhit()){
 			char key = getch();
 			if(key == 27) break;

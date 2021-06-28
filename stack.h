@@ -1,3 +1,4 @@
+#pragma once
 struct sNode{
 	int data;
 	sNode *next;

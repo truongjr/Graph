@@ -1,3 +1,4 @@
+#pragma once
 bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 	string nameNode;
 	bool isFirstSave = true, isRunningTopo = false;

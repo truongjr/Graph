@@ -1,3 +1,4 @@
+#pragma once
 bool CheckNode(int x, int y, int mx, int my){
 	return (((mx - x)*(mx - x) + (my - y)*(my - y) <= 25*25) && ((mx > processingArea.x1 && mx < processingArea.x2 && my > processingArea.y1 && my < processingArea.y2)));
 }

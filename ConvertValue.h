@@ -1,3 +1,4 @@
+#pragma once
 int ToInt(string s) {
 	int n = s.length(), res = 0;
 	for (int i = 0; i < n; ++i)

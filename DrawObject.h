@@ -1,3 +1,4 @@
+#pragma once
 void CreateNode(int x, int y, string name, int colortext, int colorbk){
 	setcolor(colortext);
 	setlinestyle(0, 0, 3);//(kieu duong, ..., kich thuoc)

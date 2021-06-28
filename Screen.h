@@ -75,7 +75,7 @@ void CreateScreen(){
 	DrawMatrix();
 }
 void CreateButton (){
-	matrixArea.name = "", matrixArea.x1 = 10, matrixArea.y1 = 400, matrixArea.x2 = maxx/3 + 2, matrixArea.y2 = maxy - 10;
+	matrixArea.name = "", matrixArea.x1 = 10, matrixArea.y1 = 400, matrixArea.x2 = 402, matrixArea.y2 = maxy - 10;
 	toolbarArea.name = "", toolbarArea.x1 = 10, toolbarArea.y1 = 10, toolbarArea.x2 = 1190, toolbarArea.y2 = 52;
 	newButton.name = "New", newButton.x1 = 10, newButton.y1 = 10, newButton.x2 = 155, newButton.y2 = 52;
 	openButton.name = "Open", openButton.x1 = 155, openButton.y1 = 10, openButton.x2 = 300, openButton.y2 = 52;
@@ -85,7 +85,7 @@ void CreateButton (){
 	moveButton.name = "Move", moveButton.x1 = 735, moveButton.y1 = 10, moveButton.x2 = 880, moveButton.y2 = 52;
 	deleteVertexButton.name = "DelVertex", deleteVertexButton.x1 = 880, deleteVertexButton.y1 = 10, deleteVertexButton.x2 = 1025, deleteVertexButton.y2 = 52;
 	deleteEdgeButton.name = "DelEdge", deleteEdgeButton.x1 = 1025, deleteEdgeButton.y1 = 10, deleteEdgeButton.x2 = 1140, deleteEdgeButton.y2 = 52;
-	algorithmArea.name = "", algorithmArea.x1 = 10, algorithmArea.y1 = 58, algorithmArea.x2 = maxx / 3 + 2, algorithmArea.y2 = 314;                 
+	algorithmArea.name = "", algorithmArea.x1 = 10, algorithmArea.y1 = 58, algorithmArea.x2 = 402, algorithmArea.y2 = 314;                 
 	dfsButton.name = "DFS", dfsButton.x1 = 16, dfsButton.y1 = 99, dfsButton.x2 = 139, dfsButton.y2 = 168;
 	bfsButton.name = "BFS", bfsButton.x1 = 143, bfsButton.y1 = 99, bfsButton.x2 = 268, bfsButton.y2 = 168;
 	shortestPathButton.name = "X=>Y", shortestPathButton.x1 = 272, shortestPathButton.y1 = 99, shortestPathButton.x2 = 397, shortestPathButton.y2 = 168;
@@ -95,15 +95,15 @@ void CreateButton (){
 	dinhTruButton.name = "Dinh tru", dinhTruButton.x1 = 16, dinhTruButton.y1 = 245, dinhTruButton.x2 = 139, dinhTruButton.y2 = 314;
 	dinhThatButton.name = "Dinh that", dinhThatButton.x1 = 143, dinhThatButton.y1 = 245, dinhThatButton.x2 = 268, dinhThatButton.y2 = 314;
 	bridgeEdgeButton.name = "Canh cau", bridgeEdgeButton.x1 = 272, bridgeEdgeButton.y1 = 245, bridgeEdgeButton.x2 = 397, bridgeEdgeButton.y2 = 314;
-	topoSortButton.name = "Topo Sort", topoSortButton.x1 = 16, topoSortButton.y1 = 318, topoSortButton.x2 = maxx/3 - 3, topoSortButton.y2 = maxy/2 - 9;
-	helpArea.name = "", helpArea.x1 = maxx/3 + 9, helpArea.y1 = 601, helpArea.x2 = maxx - 10, helpArea.y2 = maxy - 10;
-	processingArea.name = "", processingArea.x1 = maxx/3 + 9 + 7, processingArea.y1 = 58 + 7, processingArea.x2 = maxx - 10, processingArea.y2 = 595; 
+	topoSortButton.name = "Topo Sort", topoSortButton.x1 = 16, topoSortButton.y1 = 318, topoSortButton.x2 = 397, topoSortButton.y2 = 391;
+	helpArea.name = "", helpArea.x1 = 409, helpArea.y1 = 601, helpArea.x2 = 1190, helpArea.y2 = 790;
+	processingArea.name = "", processingArea.x1 = 416, processingArea.y1 = 65, processingArea.x2 = 1190, processingArea.y2 = 595; 
 	realProcessingArea.name = "", realProcessingArea.x1 = 446, realProcessingArea.y1 = 95, realProcessingArea.x2 = 1160, realProcessingArea.y2 = 565;
 	closeButton.name = "X", closeButton.x1 = 1140, closeButton.y1 = 10, closeButton.x2 = 1190, closeButton.y2 = 52;
-	continueButton.name = "Tiep tuc", continueButton.x1 = maxx/3 + 9 + 2, continueButton.y1 = 696, continueButton.x2 = 800, continueButton.y2 = maxy - 10 - 2;
-	cancelButton.name = "Huy", cancelButton.x1 = 800, cancelButton.y1 = 696, cancelButton.x2 = maxx-10 - 2, cancelButton.y2 = maxy - 10 - 2;
-	havelearnedButton.name = "Learned", havelearnedButton.x1 = 14, havelearnedButton.y1 = 318, havelearnedButton.x2 = 139, havelearnedButton.y2 = maxy/2 - 9;
-	wanttolearnButton.name = "Want learn", wanttolearnButton.x1 = 143, wanttolearnButton.y1 = 318, wanttolearnButton.x2 = 268, wanttolearnButton.y2 = maxy/2 - 9;
+	continueButton.name = "Tiep tuc", continueButton.x1 = 411, continueButton.y1 = 696, continueButton.x2 = 800, continueButton.y2 = 788;
+	cancelButton.name = "Huy", cancelButton.x1 = 800, cancelButton.y1 = 696, cancelButton.x2 = maxx-10 - 2, cancelButton.y2 = 788 	;
+	havelearnedButton.name = "Learned", havelearnedButton.x1 = 14, havelearnedButton.y1 = 318, havelearnedButton.x2 = 139, havelearnedButton.y2 = 391;
+	wanttolearnButton.name = "Want learn", wanttolearnButton.x1 = 143, wanttolearnButton.y1 = 318, wanttolearnButton.x2 = 268, wanttolearnButton.y2 = 391;
 	startButton.name = "Start", startButton.x1 = 272, startButton.y1 = 318, startButton.x2 = 397, startButton.y2 = 355;
 	endButton.name = "End", endButton.x1 = 272, endButton.y1 = 354, endButton.x2 = 397, endButton.y2 = 391;	
 }
@@ -177,9 +177,9 @@ void DrawMatrix(){
 	outtextxy(matrixArea.x1 + ((matrixArea.x2 - matrixArea.x1) - textwidth("WEIGHT MATRIX"))/2, matrixArea.y1 + (40 - textheight("WEIGHT MATRIX"))/2, "WEIGHT MATRIX");
 	setcolor(DARKAQUA);
 	setlinestyle(0, 0, 1);
-	for(int j = 0; j < 14; j++){
-		for(int i = 0; i < 14; i++){
-			rectangle(10 + i * 28, 440 + j * 25, 10 + i * 28 + 28, 440 + 25 + j * 25);
+	for(int j = 0; j < 13; j++){
+		for(int i = 0; i < 13; i++){
+			rectangle(10 + i * 28, 440 + j * 25, 38 + i * 28, 465 + j * 25);
 		}
 	}
 	setlinestyle(0, 0, 2);
@@ -192,13 +192,13 @@ void DrawWeightMatrix(Graph &graph){
 	for(int i = 0; i < graph.numberNode; i++){ 
 		if(graph.numberNode > i){
 			setcolor(BLACK);
-			outtextxy(10 + 5 - 1, maxy/2 + 40 + (i+1)*25 + 1, (char*)graph.node[i]->name.c_str());
-			outtextxy(10 + (i+1)*28 + 3, maxy/2 + 40 + 1, (char*)graph.node[i]->name.c_str());
+			outtextxy(14, 441 + (i+1)*25, (char*)graph.node[i]->name.c_str());
+			outtextxy(13 + (i+1)*28, 441, (char*)graph.node[i]->name.c_str());
 		}
 		for(int j = 0; j < graph.numberNode; j++){
 			setcolor(WHITE);
-			if(graph.adj[i][j] != 0) outtextxy(10 + (j+1)*28 + 5, maxy/2 + 40 + (i+1)*25 + 1, (char*)ToStringLen2(graph.adj[i][j]).c_str());
-			else outtextxy(10 + (j+1)*28 + 5 - 1, maxy/2 + 40 + (i+1)*25 + 1, " ");
+			if(graph.adj[i][j] != 0) outtextxy(15 + (j+1)*28, 441 + (i+1)*25, (char*)ToStringLen2(graph.adj[i][j]).c_str());
+			else outtextxy(14 + (j+1)*28, 441 + (i+1)*25, " ");
 		}
 	}
 	settextstyle(10, HORIZ_DIR, 3);
@@ -212,17 +212,17 @@ string OpenScreen(){
 	OpenButton.name = "Open", OpenButton.x1 = 890, OpenButton.y1 = 499, OpenButton.x2 = 988, OpenButton.y2 = 537;
 	setcolor(BLACK);
 	setlinestyle(0, 0, 1);
-	rectangle(maxx/3 + 9 + 100, 58 + 50, maxx - 110, 595 - 50);
-	rectangle(maxx/3 + 9 + 100, 58 + 50, maxx - 110, 108 + 40);
+	rectangle(509, 108, 1090, 545);
+	rectangle(509, 108, 1090, 148);
 	setfillstyle(1, COLOR(211,211,211));
-	bar(maxx/3 + 9 + 100+ 1, 58 + 50 + 1, maxx - 110, 108 + 41);
+	bar(510, 109, 1090, 149);
 	setcolor(BLACK);
 	setbkcolor(COLOR(211,211,211));
 	settextstyle(10, HORIZ_DIR, 3);
-	outtextxy(maxx/3 + 9 + 110, 108 + (40 - textheight("OPEN"))/2, "OPEN");
+	outtextxy(519, 108 + (40 - textheight("OPEN"))/2, "OPEN");
 	setcolor(BLACK);
 	setfillstyle(1, COLOR(211,211,211));
-	bar(maxx/3 + 9 + 101, 446, maxx - 111, 544);
+	bar(510, 446, 1090, 545);
 	setfillstyle(1, DODGERBLUE);
 	bar(helpArea.x1 + 1, helpArea.y1 + 1, helpArea.x2 - 1, helpArea.y2 - 1);
 	//thong bao
@@ -318,7 +318,7 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 	int nextx, nexty, dist = 0, d = 0;
 	int scrollbarArea = downButton.y1 - upButton.y2;
 	int thumbHeight = round(word.linePerPage * scrollbarArea * 1.0 / word.size);
-	int jump = round((scrollbarArea - thumbHeight) * 1.0 / (word.size - word.linePerPage)); // ch?nh ch? này, b? -1
+	int jump = round((scrollbarArea - thumbHeight) * 1.0 / (word.size - word.linePerPage)); // ch?nh ch? nï¿½y, b? -1
 	scrollbar.y2 = scrollbar.y1 + thumbHeight;
 	bool isHover = false;
 	bool draw = true;
@@ -408,7 +408,7 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 				chooseIndex = index;
 				tempIndex = index;
 			}
-			if (CheckClickButton(upButton, x, y) && draw) { // thêm hi?u ?ng b?m nút thì thanh cu?n t? nh?y lên
+			if (CheckClickButton(upButton, x, y) && draw) { // thï¿½m hi?u ?ng b?m nï¿½t thï¿½ thanh cu?n t? nh?y lï¿½n
 				upbutton:
 				DeleteButton(scrollbar);
 				if (d == 0) {
@@ -424,7 +424,7 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 				DrawButton(scrollbar, LIGHTGRAY, true);
 				word.PrintPage(false, showFileNameArea, WHITE);
 			}
-			if (CheckClickButton(downButton, x, y) && draw) { // thêm hi?u ?ng b?m nút thì thanh cu?n t? nh?y xu?ng
+			if (CheckClickButton(downButton, x, y) && draw) { // thï¿½m hi?u ?ng b?m nï¿½t thï¿½ thanh cu?n t? nh?y xu?ng
 				downbutton:
 				DeleteButton(scrollbar);
 				if (d == word.size - word.linePerPage) {
@@ -467,7 +467,7 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 			clearmouseclick(WM_LBUTTONDOWN);
 		}
 		if (ismouseclick(WM_LBUTTONUP)) {
-			if (isHover == true && draw) { // xóa cái v? button vì ko c?n thi?t
+			if (isHover == true && draw) { // xï¿½a cï¿½i v? button vï¿½ ko c?n thi?t
 				isHover = false;
 			}
 			clearmouseclick(WM_LBUTTONUP);

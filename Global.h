@@ -1,3 +1,4 @@
+#pragma once
 Button newButton, openButton, saveButton, addVertexButton, addEdgeButton, moveButton, deleteVertexButton, deleteEdgeButton; 
 Button startButton, endButton, havelearnedButton, wanttolearnButton, dfsButton, bfsButton, shortestPathButton, ComponentButton, hamiltonButton, eulerButton, dinhTruButton, dinhThatButton, bridgeEdgeButton, topoSortButton;
 Button helpArea, matrixArea, processingArea, realProcessingArea, closeButton, continueButton, cancelButton, toolbarArea, algorithmArea;
