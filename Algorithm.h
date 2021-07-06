@@ -1,5 +1,5 @@
 #pragma once
-bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
+bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSave){
 	string nameNode;
 	bool isFirstSave = true, isRunningTopo = false;
 	Button upButton;
@@ -43,7 +43,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 				EffectToolbar(closeButton, BLACK, WHITE, BLACK);
 				if(isRunningTopo) DrawGraphTopo(graph);
 				else DrawGraph(graph);
-				if(flag == true){
+				if(isOpenSave == true){
 					OpenSave(graph, fileName);
 					return false;
 				}
@@ -57,7 +57,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 				EffectToolbar(saveButton, GREEN, WHITE, BLACK);
 				if(isRunningTopo) DrawGraphTopo(graph);
 				else DrawGraph(graph);
-				if(flag == true){
+				if(isOpenSave == true){
 					OpenSave(graph, fileName);
 					goto gtnew;
 				}
@@ -220,7 +220,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 					EffectAlgorithm(topoSortButton, GREEN, WHITE, BLACK);
 					if(isRunningTopo) DrawGraphTopo(graph);
 					else DrawGraph(graph);
-					if(flag == true){
+					if(isOpenSave == true){
 						OpenSave(graph, fileName);
 					}
 					else{
@@ -299,13 +299,13 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 				EffectToolbar(newButton, GREEN, WHITE, BLACK);
 				if(isRunningTopo) DrawGraphTopo(graph);
 				else DrawGraph(graph);
-				if(flag == true){
+				if(isOpenSave == true){
 					OpenSave(graph, fileName);
 				} 
 				else{
 					NewSave(graph, fileName, isFirstSave);
 				}
-				flag = false;	
+				isOpenSave = false;	
 				isFirstSave = true;			
 				Graph g;
 				graph = g;
@@ -320,7 +320,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 				EffectToolbar(openButton, GREEN, WHITE, BLACK);
 				if(isRunningTopo) DrawGraphTopo(graph);
 				else DrawGraph(graph);
-				if(flag == true){
+				if(isOpenSave == true){
 					OpenSave(graph, fileName);
 				}
 				else{
@@ -337,7 +337,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 				ReadFile((char*)nameFile.c_str(), graph);
 				if(isRunningTopo) DrawGraphTopo(graph);
 				else DrawGraph(graph);
-				flag = true;
+				isOpenSave = true;
 				goto gtnew;
 			}
 			else if(CheckClickButton(addVertexButton, x, y)){//Nhan nut AddVerTex
@@ -357,7 +357,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 						if(ismouseclick(WM_LBUTTONDOWN)){
 							getmouseclick(WM_LBUTTONDOWN, x, y);
 							if(CheckClickButton(realProcessingArea, x, y)){
-								if(CheckReClickNode(graph, x, y)){
+								if(CheckReClickNode(graph, x, y)){//rename
 									string nameNode = "";
 									for(int i=0; i < graph.numberNode; i++){
 										if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
@@ -386,7 +386,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 										}
 									}
 								}
-								else if(CheckPos(graph, x, y)){
+								else if(CheckPos(graph, x, y)){//them moi
 									AddNode(graph, x, y, nameNode, isRunningTopo);
 									if(isRunningTopo){
 										while(CheckName(graph, nameNode) == false){
@@ -431,13 +431,13 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 				if(isRunningTopo) DrawGraphTopo(graph);
 				else DrawGraph(graph);
 				if(graph.numberNode < 2){
-					NotificationFull("SO LUONG DINH CHUA DU. MOI NHAP THEM DINH!");
+					NotificationFull("So luong dinh khong du. Moi them dinh!");
 				}
 				else{
 					reClick:
 					int start = 0;
 					bool flag = true;
-					NotificationFull("CLICK VAO HAI DINH BAT KY THEM CUNG HOAC THAY DOI TRONG SO CUA CUNG!");
+					NotificationFull("Click vao hai dinh bat ky de them cung hoac thay doi trong so cua cung!");
 					while(true){
 						if(kbhit()){
 							char key = getch();
@@ -461,12 +461,12 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 								if(flag == true) goto reClick;
 								else{
 									int idx1 = start;
-									NotificationFull("CLICK VAO DINH CUOI!");
+									NotificationFull("Click vao dinh cuoi!");
 									int idx2 = ChooseVertex(graph, x, y);
 									string value;
 									if(isRunningTopo) value = "";
 									else
-										value  = AddNameWeight("trong so");
+										value = AddNameWeight("trong so");
 									if(graph.adj[idx1][idx2] == 0 && graph.adj[idx2][idx1] != 0) {
 										CreateCurved(graph.node[idx1], graph.node[idx2], (char*)value.c_str(), WHITE);
 										graph.type[idx1][idx2] = 2;
@@ -485,7 +485,8 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 								}
 							}
 							else{
-								if(CheckClickButton(toolbarArea, x, y) || CheckClickButton(algorithmArea, x, y)) goto action;
+								if(CheckClickButton(closeButton, x, y)) goto exit;
+								else if(CheckClickButton(toolbarArea, x, y) || CheckClickButton(algorithmArea, x, y)) goto action;
 								else if(CheckClickButton(topoSortButton, x, y)){
 									if(isRunningTopo) goto reChoose;
 									else goto topo;
@@ -502,11 +503,11 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 				if(isRunningTopo) DrawGraphTopo(graph);
 				else DrawGraph(graph);
 				if(graph.numberNode < 1){
-					NotificationFull("DO THI RONG. HAY THEM DINH");
+					NotificationFull("Do thi rong. Hay them dinh!");
 				}
 				else{
 					move:
-					NotificationFull("CLICK VAO DINH CAN DI CHUYEN!");
+					NotificationFull("Click vao dinh can di chuyen!");
 					int x1 = 0, y1 = 0, x2 = 0, y2 = 0, idx = -1;
 					while(true){//Bat phim dau
 						if(kbhit()){
@@ -517,7 +518,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 						if(x != -1 && y != -1){
 							if(CheckClickButton(processingArea, x, y)){
 								string nameNode="";
-								bool flag = true;
+								bool isOpenSave = true;
 								for(int i=0; i<graph.numberNode; i++){
 									if(CheckNode(graph.node[i]->x, graph.node[i]->y, x, y)){
 										x1 = graph.node[i]->x;
@@ -527,16 +528,18 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 										setcolor(BLACK);
 										setlinestyle(0, 0, 3);
 										circle(graph.node[i]->x, graph.node[i]->y, 25);
-										flag = false;
+										isOpenSave = false;
 										break;
 									}
 								}
-								if(flag == true) goto move;
+								if(isOpenSave == true) goto move;
 								else{
 									movee:
 									NotificationFull("HAY CLICK VAO VI TRI CAN DI CHUYEN TOI!");
 									while(1){
 										if (kbhit()) {
+											char key = getch();
+											if(key == 27) break;
 										}
 										getmouseclick(WM_LBUTTONDOWN, x, y);
 										if(x != -1 && y != -1){
@@ -564,6 +567,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 								}
 							}
 							else{
+								if(CheckClickButton(closeButton, x, y)) goto exit;
 								if(CheckClickButton(toolbarArea, x, y) || CheckClickButton(algorithmArea, x, y)) goto action;
 								else if(CheckClickButton(topoSortButton, x, y)){
 									if(isRunningTopo) goto reChoose;
@@ -616,12 +620,15 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 								goto delV;
 							}
 						}
-						else if(CheckClickButton(toolbarArea, x, y) || CheckClickButton(algorithmArea, x, y)) goto action;
-						else if(CheckClickButton(topoSortButton, x, y)){
-							if(isRunningTopo) goto reChoose;
-							else goto topo;
+						else{
+							if(CheckClickButton(closeButton, x, y)) goto exit;
+							else if(CheckClickButton(toolbarArea, x, y) || CheckClickButton(algorithmArea, x, y)) goto action;
+							else if(CheckClickButton(topoSortButton, x, y)){
+								if(isRunningTopo) goto reChoose;
+								else goto topo;
+							}
+							else goto gtnew;
 						}
-						else goto gtnew;
 					}
 				}
 			}
@@ -631,11 +638,11 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 				if(isRunningTopo) DrawGraphTopo(graph);
 				else DrawGraph(graph);
 				if(graph.numberNode < 2){
-					NotificationFull("DO THI KHONG CO CANH DE XOA!");
+					NotificationFull("Do thi khong co canh de xoa!");
 				}
 				else{
 					delS:
-					NotificationFull("HAY CLICK VAO DINH DAU!");
+					NotificationFull("Hay click vao dinh bat dau!");
 					int x1, y1, x2, y2, idx1, idx2;
 					while(true){//Bat phim dau
 						if(kbhit()){
@@ -661,7 +668,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 								if(flag == true) goto delS;
 								else{
 									delE:
-									NotificationFull("HAY CLICK VAO DINH CUOI!");
+									NotificationFull("Hay click vao dinh cuoi!");
 									while(!kbhit()){
 										getmouseclick(WM_LBUTTONDOWN, x, y);
 										if(x != -1 && y != -1){
@@ -691,25 +698,28 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 									}
 								}
 							}
-							else if(CheckClickButton(toolbarArea, x, y) || CheckClickButton(algorithmArea, x, y)) goto action;
-							else if(CheckClickButton(topoSortButton, x, y)){
-								if(isRunningTopo) goto reChoose;
-								else goto topo;
+							else{
+								if(CheckClickButton(closeButton, x, y)) goto exit;
+								else if(CheckClickButton(toolbarArea, x, y) || CheckClickButton(algorithmArea, x, y)) goto action;
+								else if(CheckClickButton(topoSortButton, x, y)){
+									if(isRunningTopo) goto reChoose;
+									else goto topo;
+								}
+								else goto gtnew;
 							}
-							else goto gtnew;
 						}
 					}
 				}
 			}
 		} 
 		if (ismouseclick(WM_LBUTTONUP)) {
-			if (isHover == true && showResult && showScrollbar) { // x�a c�i v? button v� ko c?n thi?t
+			if (isHover == true && showResult && showScrollbar) {
 				isHover = false;
 			}
 			clearmouseclick(WM_LBUTTONUP);
 		}
 		if (ismouseclick(WM_MOUSEMOVE)) {
-			if (isHover == true && showResult) { // v? thanh cu?n tru?c r v? n?i dung sau
+			if (isHover == true && showResult) {
 				getmouseclick(WM_MOUSEMOVE, nextx, nexty);
 				DeleteButton(scrollbar);
 				bool changed = false;
@@ -755,9 +765,9 @@ void RunningAlgorithm(Graph graph, int x, int y, WordWrap &word, Button helpArea
 		EffectAlgorithm(dfsButton, GREEN, WHITE, BLACK);
 		DrawGraph(graph);
 		showResult = true;
-		NotificationFull("HAY CLICK VAO DINH BAT DAU!");
+		NotificationFull("Hay click vao dinh bat dau!");
 		int start = ChooseVertex(graph, x, y);
-		NotificationFull("BAT DAU THUAT TOAN!");
+		NotificationFull("Bat dau thuat toan!");
 		DFS(graph, start, word, helpArea);
 	}
 	else if(CheckClickButton(bfsButton, x, y)){
@@ -765,9 +775,9 @@ void RunningAlgorithm(Graph graph, int x, int y, WordWrap &word, Button helpArea
 		EffectAlgorithm(bfsButton, GREEN, WHITE, BLACK);
 		DrawGraph(graph);
 		showResult = true;
-		NotificationFull("HAY CLICK VAO DINH BAT DAU!");
+		NotificationFull("Hay click vao dinh bat dau!");
 		int start = ChooseVertex(graph, x, y);
-		NotificationFull("BAT DAU THUAT TOAN!");
+		NotificationFull("Bat dau thuat toan!");
 		BFS(graph, start, word, helpArea);
 	}
 	else if(CheckClickButton(shortestPathButton, x, y)){
@@ -779,11 +789,11 @@ void RunningAlgorithm(Graph graph, int x, int y, WordWrap &word, Button helpArea
 		}
 		else{
 			showResult = true;
-			NotificationFull("HAY CLICK VAO DINH BAT DAU!");
+			NotificationFull("Hay click vao dinh bat dau!");
 			int start = ChooseVertex(graph, x, y);
-			NotificationFull("HAY CLICK VAO DINH KET THUC!");
+			NotificationFull("Hay click vao dinh ket thuc!");
 			int end = ChooseVertex(graph, x, y);
-			NotificationFull("BAT DAU THUAT TOAN!");
+			NotificationFull("Bat dau thuat toan!");
 			Dijkstra(graph, start, end, word, helpArea);
 		}
 	}
@@ -823,9 +833,9 @@ void RunningAlgorithm(Graph graph, int x, int y, WordWrap &word, Button helpArea
 			NotificationFull("Do thi chua du dinh de thuc hien thuat toan!");	
 		} else {
 			showResult = true;
-			NotificationFull("HAY CLICK VAO DINH BAT DAU!");
+			NotificationFull("Hay click vao dinh bat dau!");
 			int start = ChooseVertex(graph, x, y);
-			NotificationFull("HAY CLICK VAO DINH KET THUC!");
+			NotificationFull("Hay click vao dinh ket thuc!");
 			int end = ChooseVertex(graph, x, y);
 			KnotPoint(graph, start, end, word, helpArea); 
 		}	
@@ -868,11 +878,11 @@ int ChooseVertex(Graph graph, int &x, int &y){
 			else goto reClick;
 		}
 	}
-	return start;
+	return start
 }
-bool OpenSave(Graph &graph, string nameFile){
+void OpenSave(Graph &graph, string nameFile){
 	int x = -1, y = -1;
-	NotificationFull("BAN CO MUON LUU LAI KHONG?");
+	NotificationFull("Ban co muon luu lai khong?");
 	DrawButtonForNoti(continueButton);
 	DrawButtonForNoti(cancelButton);
 	while(true){
@@ -885,18 +895,16 @@ bool OpenSave(Graph &graph, string nameFile){
 			if(CheckClickButton(continueButton, x, y)){
 				WriteFile((char*)nameFile.c_str(), graph);
 				NotificationFull("Da luu");
-				return true;
 			}
 			else if(CheckClickButton(cancelButton, x, y)){
 				NotificationFull("Khong luu");
-				return false;
 			} 
 		}
 	}
 }
-bool OpenSaveTopo(Graph &graph, string nameFile){
+void OpenSaveTopo(Graph &graph, string nameFile){
 	int x = -1, y = -1;
-	NotificationFull("BAN CO MUON LUU LAI KHONG?");
+	NotificationFull("Ban co muon luu lai khong?");
 	DrawButtonForNoti(continueButton);
 	DrawButtonForNoti(cancelButton);
 	while(true){
@@ -909,18 +917,16 @@ bool OpenSaveTopo(Graph &graph, string nameFile){
 			if(CheckClickButton(continueButton, x, y)){
 				WriteGraphTopo((char*)nameFile.c_str(), graph);
 				NotificationFull("Da luu");
-				return true;
 			}
 			else if(CheckClickButton(cancelButton, x, y)){
 				NotificationFull("Khong luu");
-				return false;
 			} 
 		}
 	}
 }
-bool NewSave(Graph &graph, string &nameFile, bool &isFirstSave){
+void NewSave(Graph &graph, string &nameFile, bool &isFirstSave){
 	int x = -1, y = -1;
-	NotificationFull("BAN CO MUON LUU LAI KHONG?");
+	NotificationFull("Ban co muon luu lai khong?");
 	DrawButtonForNoti(continueButton);
 	DrawButtonForNoti(cancelButton);
 	while(true){
@@ -941,19 +947,16 @@ bool NewSave(Graph &graph, string &nameFile, bool &isFirstSave){
 						graphFile.close();
 						WriteFile((char*)nameFile.c_str(), graph);
 						isFirstSave = false;
-						return true;
 					}
 					else goto reAddName;
 				}
 				else {
 					WriteFile((char*)nameFile.c_str(), graph);
 					NotificationFull("Da luu");
-					return true;
 				}
 			}
 			else if(CheckClickButton(cancelButton, x, y)){
 				NotificationFull("Khong luu");
-				return false;
 			} 
 		}
 	}
@@ -1299,14 +1302,13 @@ void KnotPoint(Graph graph, int u, int v, WordWrap &word, Button helpArea) {
 bool IsEulerCircuit(Graph g) {
     int numberComponents = CountSCCs(g, -1);
     if (numberComponents != 1) return false;
-    const int size = g.numberNode;
-    int inWards[size], outWards[size];
-    for (int i = 0; i < size; ++i)
+    int inWards[MAXN], outWards[MAXN];
+    for (int i = 0; i < MAXN; ++i)
         inWards[i] = outWards[i] = 0;
     int sum = 0;
-    for (int u = 0; u < size; ++u) {
+    for (int u = 0; u < g.numberNode; ++u) {
         sum = 0;
-        for (int v = 0; v < size; ++v) {
+        for (int v = 0; v < g.numberNode; ++v) {
             if (g.adj[u][v]) {
                 inWards[v]++;
                 sum++;
@@ -1314,7 +1316,7 @@ bool IsEulerCircuit(Graph g) {
         }
         outWards[u] = sum;
     }
-    for (int i = 0; i < size; ++i)
+    for (int i = 0; i < g.numberNode; ++i)
         if (inWards[i] != outWards[i])
             return false;
     return true;
@@ -1387,6 +1389,7 @@ void EulerCycle(Graph graph, WordWrap &word, Button helpArea) {
 /* Ham kiem tra xem dinh 'v' co the them vao vi tri 'pos' 
 trong chu trinh hamilton duoc hay khong */
 bool IsSafe(int v, Graph g, int path[], int count[], int pos) {
+	// path luu danh sach dinh the hien chu trinh hamilton
     /* Kiem tra dinh hien tai co phai la dinh lien ke 
         cua dinh truoc do hay khong */ 
     if (!g.adj[path[pos - 1]][v]) return false;

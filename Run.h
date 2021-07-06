@@ -66,8 +66,6 @@ void Run() {
 				exit:
 				closegraph();
 				return;
-				// setbkcolor(BLACK);
-				// createScreenWelcome("VIET NAM VO DOI");
 			}
 			else{
 				bool flag = true;

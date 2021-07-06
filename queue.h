@@ -1,4 +1,5 @@
 #pragma once
+//them dau xoa cuoi
 struct qNode{
 	int data;
 	qNode *next;
@@ -21,9 +22,9 @@ bool Queue::empty(){
 }
 void Queue::push(int value){
 	qNode *p= new qNode;
-	p->data=value;
-	p->next=NULL;
-	if (front==NULL){
+	p->data = value;
+	p->next = NULL;
+	if (front == NULL){
 		front = p;
 	}else {
 		rear->next = p;

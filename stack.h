@@ -1,4 +1,5 @@
 #pragma once
+//them vao dau, xoa dau
 struct sNode{
 	int data;
 	sNode *next;

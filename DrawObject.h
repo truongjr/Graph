@@ -1,8 +1,8 @@
 #pragma once
 void CreateNode(int x, int y, string name, int colortext, int colorbk){
 	setcolor(colortext);
-	setlinestyle(0, 0, 3);//(kieu duong, ..., kich thuoc)
-	settextstyle(10, HORIZ_DIR, 1);//(font, ngang doc, do dam)
+	setlinestyle(0, 0, 3);
+	settextstyle(10, HORIZ_DIR, 1);
 	setbkcolor(colorbk);
 	outtextxy(x - textwidth((char*)name.c_str())/2, y - textheight((char*)name.c_str())/2, (char*)name.c_str());
 	circle(x, y, 25);
@@ -25,11 +25,11 @@ void Rename(int x, int y, string &ten){// x, y sau nay se truyen node[i].x, node
 }
 string AddNameWeight(string name){
 	add:
-	setbkcolor(DODGERBLUE);
 	setfillstyle(1, DODGERBLUE);
 	bar(helpArea.x1 + 1, helpArea.y1 + 1, helpArea.x2 - 1, helpArea.y2 - 1);
 	string s = "Nhap vao " + name + " (01 -> 99): ";
 	settextstyle(10, HORIZ_DIR, 2); 	
+	setbkcolor(DODGERBLUE);
 	outtextxy(helpArea.x1 + 5, helpArea.y1 + 5, (char*)s.c_str());
 	string ans = "";
 	int n = 0;
@@ -120,14 +120,12 @@ string AddFileName(){
 	}
 }
 void NotificationFull(string Noti){
-	setbkcolor(DODGERBLUE);
 	setfillstyle(1, DODGERBLUE);
-	settextstyle(10, HORIZ_DIR, 1);
 	bar(helpArea.x1 + 1, helpArea.y1 + 1, helpArea.x2 - 1, helpArea.y2 - 1);
+	settextstyle(10, HORIZ_DIR, 1);
+	setbkcolor(DODGERBLUE);
 	setcolor(BLACK);
 	outtextxy(helpArea.x1 + 5, helpArea.y1 + 5, (char *)Noti.c_str());
-	setcolor(WHITE);
-	settextstyle(10, HORIZ_DIR, 2);
 }
 void DrawTriangle(int x1, int y1, int x2, int y2, int color) {
 	setcolor(color);
@@ -279,7 +277,6 @@ void CreateLine(Node *node1, Node *node2, char *tt, int color) {
 }
 void DrawGraph(Graph &graph) {
 	setfillstyle(1, DODGERBLUE);
-	setbkcolor(DODGERBLUE);
 	bar(processingArea.x1 + 1, processingArea.y1 + 1, processingArea.x2 - 1, processingArea.y2 - 1);
 	setlinestyle(0, 0, 2);
 	for (int i = 0; i < graph.numberNode; ++i) {
@@ -427,10 +424,6 @@ void EffectAlgorithm(Button button, int colorbk, int colortext, int colorborder)
 	bar(button.x1 + 1, button.y1, button.x2 - 2, button.y2 - 2);
 	setcolor(colortext);
 	outtextxy(button.x1 + ((button.x2 - button.x1) - textwidth((char*)button.name.c_str()))/2, button.y1 + ((button.y2 - button.y1) - textheight((char*)button.name.c_str()))/2, (char*)button.name.c_str());
-	// if(button.name == "Topo Sort")
-	// 	outtextxy(button.x1 + ((button.x2 - button.x1) - textwidth((char*)button.name.c_str()))/2, button.y1 + ((button.y2 - button.y1) - textheight((char*)button.name.c_str()))/2, (char*)button.name.c_str());
-	// else
-	// 	outtextxy(button.x1 + (125 - textwidth((char*)button.name.c_str()))/2, button.y1 + (69 - textheight((char*)button.name.c_str()))/2, (char*)button.name.c_str());
 }
 void EffectToolbar(Button button, int colorbk, int colortext, int colorborder){
 	setlinestyle(0, 0, 3);
@@ -442,15 +435,8 @@ void EffectToolbar(Button button, int colorbk, int colortext, int colorborder){
 	setfillstyle(1, colorbk);
 	bar(button.x1 + 1, button.y1, button.x2 - 2, button.y2 - 2);
 	setcolor(colortext);
-	if(button.name == "DelEdge") 
-		outtextxy(button.x1 + (115 - textwidth((char*)button.name.c_str()))/2, button.y1 + (42 - textheight((char*)button.name.c_str()))/2, (char*)button.name.c_str());
-	else if(button.name == "X")
-		outtextxy(button.x1 + (50 - textwidth((char*)button.name.c_str()))/2, button.y1 + (42 - textheight((char*)button.name.c_str()))/2, (char*)button.name.c_str());
-	else 
-		outtextxy(button.x1 + (145 - textwidth((char*)button.name.c_str()))/2, button.y1 + (42 - textheight((char*)button.name.c_str()))/2, (char*)button.name.c_str());
-
+	outtextxy(button.x1 + ((button.x2 - button.x1) - textwidth((char*)button.name.c_str()))/2, button.y1 + ((button.y2 - button.y1) - textheight((char*)button.name.c_str()))/2, (char*)button.name.c_str());
 }
-
 void DrawButton(bool isRunningTopo = false){
 	DrawToolBar();
 	DrawMenuTable();
@@ -472,12 +458,12 @@ void DrawTopoButton(){
 	outtextxy(havelearnedButton.x1 + (126 - textwidth((char*)havelearnedButton.name.c_str()))/2, havelearnedButton.y1 + (73 - textheight((char*)havelearnedButton.name.c_str()))/2, (char*)havelearnedButton.name.c_str());
 	outtextxy(wanttolearnButton.x1 + (126 - textwidth((char*)wanttolearnButton.name.c_str()))/2, wanttolearnButton.y1 + (73 - textheight((char*)wanttolearnButton.name.c_str()))/2, (char*)wanttolearnButton.name.c_str());
 }
-void ShowSelectedList(string havelearned[MAXN], string wanttolearn[MAXN]){
+void ShowSelectedList(string havelearned[], string wanttolearn[]){
 	Button haveLearned, wantToLearn;
 	haveLearned.name = "Have Learned", haveLearned.x1 = 10, haveLearned.y1 = 440, haveLearned.x2 = 206, haveLearned.y2 = maxy - 10;
 	wantToLearn.name = "Want To Learn", wantToLearn.x1 = 206, wantToLearn.y1 = 440, wantToLearn.x2 = 402, wantToLearn.y2 = maxy - 10;
 	setfillstyle(1, DODGERBLUE);
-	bar(matrixArea.x1 - 1, matrixArea.y1- 1, matrixArea.x2 + 1, matrixArea.y2 + 1);
+	bar(matrixArea.x1 - 1, matrixArea.y1 - 1, matrixArea.x2 + 1, matrixArea.y2 + 1);
 	setlinestyle(0, 0, 2);
 	setcolor(WHITE);
 	rectangle(haveLearned.x1, haveLearned.y1 - 40, haveLearned.x2, haveLearned.y2);

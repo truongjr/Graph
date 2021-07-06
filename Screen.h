@@ -1,52 +1,14 @@
-void createScreenWelcome(string s){
-	initwindow(1209, 813);
-	settextstyle(1, HORIZ_DIR, 1);
-	outtextxy(100, 100, (char*)s.c_str());
-	int mx = getmaxx() / 2; int my = getmaxy() / 2;
-	setbkcolor(WHITE);
-	setcolor(BLACK);
-	setfillstyle(1, BLACK);
-	bar(mx - 150, my - 100, mx + 150, my + 100);
-	setcolor(YELLOW);
-	setfillstyle(1, YELLOW);
-	moveto(mx, my - 70);
-	lineto(mx + 50, my + 60);
-	lineto(mx - 70, my - 25);
-	lineto(mx + 70, my - 25);
-	lineto(mx - 50, my + 60);
-	lineto(mx, my - 70);
-	floodfill(mx, my, YELLOW);
-	floodfill(mx, my - 30, YELLOW);
-	floodfill(mx + 20, my + 30, YELLOW);
-	floodfill(mx - 20, my + 30, YELLOW);
-	floodfill(mx - 50, my - 20, YELLOW);
-	floodfill(mx + 50, my - 20, YELLOW);
-	Sleep(2000);
-	closegraph();
-}
 void DisableMinimizeButton (HWND hwnd){
  	SetWindowLong (hwnd, GWL_STYLE,
                GetWindowLong (hwnd, GWL_STYLE) & ~ WS_MINIMIZEBOX);
-}
-void EnableMinimizeButton (HWND hwnd){
- 	SetWindowLong (hwnd, GWL_STYLE,
-               GetWindowLong (hwnd, GWL_STYLE) | WS_MINIMIZEBOX);
 }
 void DisableMaximizeButton (HWND hwnd){
  	SetWindowLong (hwnd, GWL_STYLE,
                GetWindowLong (hwnd, GWL_STYLE) & ~ WS_MAXIMIZEBOX);
 }
-void EnableMaximizeButton (HWND hwnd){
- 	SetWindowLong (hwnd, GWL_STYLE,
-               GetWindowLong (hwnd, GWL_STYLE) | WS_MAXIMIZEBOX);
-}
 void DisableCloseButton (HWND hwnd){
  	EnableMenuItem (GetSystemMenu (hwnd, FALSE), SC_CLOSE,
                 MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-}
-void EnableCloseButton (HWND hwnd){
- 	EnableMenuItem (GetSystemMenu (hwnd, FALSE), SC_CLOSE,
-                MF_BYCOMMAND | MF_ENABLED);
 }
 void CreateScreen(){
 	initwindow(1209, 813);
@@ -56,18 +18,15 @@ void CreateScreen(){
 	DisableMinimizeButton(hwnd);
 	// DisableCloseButton(hwnd);
 	setbkcolor(AQUA);
-	setcolor(WHITE);
 	setlinestyle(0, 0, 10);
 	cleardevice();
 	CreateButton();
 	//ve khung man hinh
-	setcolor(0);
+	setcolor(COLOR(0,76,153));
 	rectangle(0, 0, maxx, maxy);
 	setlinestyle(0, 0, 2);
-	settextstyle(3, HORIZ_DIR, 3);
 	setfillstyle(1, DARKAQUA);
 	bar(processingArea.x1 - 7, processingArea.y1 - 7, processingArea.x2 - 7, processingArea.y2 - 7);
-	setcolor(RED);
 	setfillstyle(1, DODGERBLUE);
 	bar(processingArea.x1, processingArea.y1, processingArea.x2, processingArea.y2);	
 	DrawToolBar();
@@ -107,9 +66,9 @@ void CreateButton (){
 	startButton.name = "Start", startButton.x1 = 272, startButton.y1 = 318, startButton.x2 = 397, startButton.y2 = 355;
 	endButton.name = "End", endButton.x1 = 272, endButton.y1 = 354, endButton.x2 = 397, endButton.y2 = 391;	
 }
-void DrawButtonForMenu(Button button){
+void DrawButtonForAlgorithm(Button button){
 	setlinestyle(0, 0, 2);
-	settextstyle(10, HORIZ_DIR, 2);//(font, ngang doc, do dam)
+	settextstyle(10, HORIZ_DIR, 2);
 	setbkcolor(DODGERBLUE);
 	setfillstyle(1, DODGERBLUE);
 	bar(button.x1, button.y1, button.x2, button.y2);
@@ -135,7 +94,6 @@ void DrawButtonForNoti(Button button){
 	settextstyle(10, HORIZ_DIR, 3);//(font, ngang doc, do dam)
 	rectangle(button.x1, button.y1, button.x2, button.y2);
 	outtextxy(button.x1 + ((button.x2 - button.x1) - textwidth((char*)button.name.c_str()))/2, button.y1 + ((button.y2 - button.y1) - textheight((char*)button.name.c_str()))/2, (char*)button.name.c_str());
-
 }
 void DrawToolBar(){
 	DrawButtonForToolBar(newButton);
@@ -150,23 +108,23 @@ void DrawToolBar(){
 }
 void DrawMenuTable(){
 	setfillstyle(1, DARKAQUA);
-	bar(algorithmArea.x1 + 1, algorithmArea.y1 + 1, algorithmArea.x2, 395);
+	bar(algorithmArea.x1 + 1, algorithmArea.y1 + 1, algorithmArea.x2, algorithmArea.y2 + 81);
 	settextstyle(10, HORIZ_DIR, 3);
 	setfillstyle(1, DODGERBLUE);
 	bar(algorithmArea.x1, algorithmArea.y1, algorithmArea.x2, algorithmArea.y1 + 37);
 	setbkcolor(DODGERBLUE);
 	setcolor(BLACK);
 	outtextxy(algorithmArea.x1 + ((algorithmArea.x2 - algorithmArea.x1) - textwidth("ALGORITHM"))/2, algorithmArea.y1 + (37 - textheight("ALGORITHM"))/2, "ALGORITHM");
-	DrawButtonForMenu(dfsButton);
-	DrawButtonForMenu(bfsButton);
-	DrawButtonForMenu(shortestPathButton);
-	DrawButtonForMenu(ComponentButton);
-	DrawButtonForMenu(hamiltonButton);
-	DrawButtonForMenu(eulerButton);
-	DrawButtonForMenu(dinhTruButton);
-	DrawButtonForMenu(dinhThatButton);
-	DrawButtonForMenu(bridgeEdgeButton);
-	DrawButtonForMenu(topoSortButton);
+	DrawButtonForAlgorithm(dfsButton);
+	DrawButtonForAlgorithm(bfsButton);
+	DrawButtonForAlgorithm(shortestPathButton);
+	DrawButtonForAlgorithm(ComponentButton);
+	DrawButtonForAlgorithm(hamiltonButton);
+	DrawButtonForAlgorithm(eulerButton);
+	DrawButtonForAlgorithm(dinhTruButton);
+	DrawButtonForAlgorithm(dinhThatButton);
+	DrawButtonForAlgorithm(bridgeEdgeButton);
+	DrawButtonForAlgorithm(topoSortButton);
 }
 void DrawMatrix(){
 	setfillstyle(1, DODGERBLUE);
@@ -177,8 +135,8 @@ void DrawMatrix(){
 	outtextxy(matrixArea.x1 + ((matrixArea.x2 - matrixArea.x1) - textwidth("WEIGHT MATRIX"))/2, matrixArea.y1 + (40 - textheight("WEIGHT MATRIX"))/2, "WEIGHT MATRIX");
 	setcolor(DARKAQUA);
 	setlinestyle(0, 0, 1);
-	for(int j = 0; j < 13; j++){
-		for(int i = 0; i < 13; i++){
+	for(int j = 0; j < 14; j++){
+		for(int i = 0; i < 14; i++){
 			rectangle(10 + i * 28, 440 + j * 25, 38 + i * 28, 465 + j * 25);
 		}
 	}
@@ -198,10 +156,9 @@ void DrawWeightMatrix(Graph &graph){
 		for(int j = 0; j < graph.numberNode; j++){
 			setcolor(WHITE);
 			if(graph.adj[i][j] != 0) outtextxy(15 + (j+1)*28, 441 + (i+1)*25, (char*)ToStringLen2(graph.adj[i][j]).c_str());
-			else outtextxy(14 + (j+1)*28, 441 + (i+1)*25, " ");
+			else outtextxy(14 + (j+1)*28, 441 + (i+1)*25, "  ");
 		}
 	}
-	settextstyle(10, HORIZ_DIR, 3);
 }
 string OpenScreen(){
 	Button fileNameButton, propertyButton, exitButton, OpenButton, showFileNameArea, upButton, downButton;
@@ -213,16 +170,13 @@ string OpenScreen(){
 	setcolor(BLACK);
 	setlinestyle(0, 0, 1);
 	rectangle(509, 108, 1090, 545);
-	rectangle(509, 108, 1090, 148);
-	setfillstyle(1, COLOR(211,211,211));
-	bar(510, 109, 1090, 149);
-	setcolor(BLACK);
+	setfillstyle(1, COLOR(211,211,211));// mau xam
+	bar(510, 109, 1090, 149);//khung cua chu OPEN
 	setbkcolor(COLOR(211,211,211));
 	settextstyle(10, HORIZ_DIR, 3);
 	outtextxy(519, 108 + (40 - textheight("OPEN"))/2, "OPEN");
-	setcolor(BLACK);
-	setfillstyle(1, COLOR(211,211,211));
 	bar(510, 446, 1090, 545);
+	//xoa phan help
 	setfillstyle(1, DODGERBLUE);
 	bar(helpArea.x1 + 1, helpArea.y1 + 1, helpArea.x2 - 1, helpArea.y2 - 1);
 	//thong bao
@@ -238,8 +192,6 @@ string OpenScreen(){
 	//ten file
 	rectangle(fileNameButton.x1, fileNameButton.y1, fileNameButton.x2, fileNameButton.y2);
 	bar(fileNameButton.x1 + 1, fileNameButton.y1 + 1, fileNameButton.x2, fileNameButton.y2);
-	setcolor(BLACK);
-	setbkcolor(COLOR(211,211,211));
 	settextstyle(10, HORIZ_DIR, 1);
 	outtextxy(515, 450, "File name:");
 	setbkcolor(WHITE);
@@ -248,7 +200,7 @@ string OpenScreen(){
 	outtextxy(exitButton.x1 + ((exitButton.x2 - exitButton.x1) - textwidth((char*)exitButton.name.c_str()))/2, exitButton.y1 + ((exitButton.y2 - exitButton.y1) - textheight((char*)exitButton.name.c_str()))/2, (char*)exitButton.name.c_str());
 	///////////////////////////////////////////////////////////////////////////////////////////////////////
 	dirent *entry;
-	WordWrap word1(20);
+	WordWrap word1(22);
 	char path[] = "saves";
 	DIR *dir = opendir(path);
 	if(dir == NULL) return "";
@@ -262,23 +214,24 @@ string OpenScreen(){
 		}
 		closedir(dir);
 	}
-	bool isTrue = false, isOpened = false;
+	bool isOpened = false;
 	string ans = "";
 	char key;
 	WordWrap word(22);
-	if(isTrue == false){
-		word = word1;
-	}
+	word = word1;//word 1 luu danh sach tep tin trong thu muc
 	label:
 	string s = ShowFileName(word, key, ans, showFileNameArea, fileNameButton, OpenButton, exitButton, isOpened);
 	if(s == "false") {
-		if((key >= 'A' && key <= 'Z') || (key >= 'a' && key <='z') || (key >= '0' && key <= '9')){
-			ans += key;
+		if((key >= 'A' && key <= 'Z') || (key >= 'a' && key <='z') || (key >= '0' && key <= '9') ){
+			if(ans.size() < 30)
+				ans += key;
 		}
-		if(key == 8 && ans.size() > 0){
-			ans.resize(ans.length() - 1);
+		else if(key == 8 && ans.size() > 0){
+			ans.resize(ans.length() - 1);//= pop_back()
 		}
-		WordWrap wordTemp(20);
+		outtextxy(fileNameButton.x1 + 5, fileNameButton.y1 + 5, "                                ");
+		outtextxy(fileNameButton.x1 + 5, fileNameButton.y1 + 5, (char*)ans.c_str());
+		WordWrap wordTemp(22);
 		for(int i = 0; i < word1.size; i++){
 			if(word1.result[i].substr(0, ans.size()) == ans) {
 				wordTemp.StoreString(word1.result[i], showFileNameArea);
@@ -286,8 +239,6 @@ string OpenScreen(){
 		}
 		if(wordTemp.size > 0) word = wordTemp;
 		else word = word1;
-		outtextxy(fileNameButton.x1 + 5, fileNameButton.y1 + 5, "                                ");
-		outtextxy(fileNameButton.x1 + 5, fileNameButton.y1 + 5, (char*)ans.c_str());
 		goto label;
 	} 
 	else{
@@ -312,13 +263,13 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 	scrollbar.x1 = upButton.x1;
 	scrollbar.y1 = upButton.y2;
 	scrollbar.x2 = upButton.x2;
-	int x, y;
+	int x = -1, y = -1;
 	int tempIndex = -1;
-	int index;
-	int nextx, nexty, dist = 0, d = 0;
+	int index = -1;
+	int nextx = -1, nexty = -1, dist = 0, d = 0;
 	int scrollbarArea = downButton.y1 - upButton.y2;
 	int thumbHeight = round(word.linePerPage * scrollbarArea * 1.0 / word.size);
-	int jump = round((scrollbarArea - thumbHeight) * 1.0 / (word.size - word.linePerPage)); // ch?nh ch? n�y, b? -1
+	int jump = round((scrollbarArea - thumbHeight) * 1.0 / (word.size - word.linePerPage)); // buoc nhay cho moi lan bam nut (pixel)
 	scrollbar.y2 = scrollbar.y1 + thumbHeight;
 	bool isHover = false;
 	bool draw = true;
@@ -326,7 +277,7 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 	bool isChoose = false;
 	string res = "";
 	int chooseIndex = -1;
-	if (word.size > word.linePerPage) {
+	if (word.size > word.linePerPage) { // neu kich thuoc word > kich thuoc hien thi thi se co thanh cuon
 		setlinestyle(0, 0, 1);
 		DrawButton(upButton, BLACK, false);
 		DrawButton(downButton, BLACK, false);
@@ -346,10 +297,8 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 		if (kbhit()) {
 			key = getch();
 			if(key && key != 224){
-				if(isOpened == true){
-					if((key >= 'A' && key <= 'Z') || (key >= 'a' && key <='z') || (key >= '0' && key <= '9') || key == 8){
-						return "false";
-					}
+				if((key >= 'A' && key <= 'Z') || (key >= 'a' && key <='z') || (key >= '0' && key <= '9') || key == 8){
+					return "false";
 				}
 			}
 			else{
@@ -408,7 +357,7 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 				chooseIndex = index;
 				tempIndex = index;
 			}
-			if (CheckClickButton(upButton, x, y) && draw) { // th�m hi?u ?ng b?m n�t th� thanh cu?n t? nh?y l�n
+			if (CheckClickButton(upButton, x, y) && draw) {
 				upbutton:
 				DeleteButton(scrollbar);
 				if (d == 0) {
@@ -424,7 +373,7 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 				DrawButton(scrollbar, LIGHTGRAY, true);
 				word.PrintPage(false, showFileNameArea, WHITE);
 			}
-			if (CheckClickButton(downButton, x, y) && draw) { // th�m hi?u ?ng b?m n�t th� thanh cu?n t? nh?y xu?ng
+			if (CheckClickButton(downButton, x, y) && draw) {
 				downbutton:
 				DeleteButton(scrollbar);
 				if (d == word.size - word.linePerPage) {
@@ -441,7 +390,6 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 				word.PrintPage(true, showFileNameArea, WHITE);
 			}
 			if(CheckClickButton(fileNameButton, x, y)){
-				if(isOpened == false) isOpened = true;
 				key = getch();
 				if((key >= 'A' && key <= 'Z') || (key >= 'a' && key <='z') || (key >= '0' && key <= '9') || key == 8){
 					return "false";
@@ -467,13 +415,13 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 			clearmouseclick(WM_LBUTTONDOWN);
 		}
 		if (ismouseclick(WM_LBUTTONUP)) {
-			if (isHover == true && draw) { // x�a c�i v? button v� ko c?n thi?t
+			if (isHover == true && draw) {
 				isHover = false;
 			}
 			clearmouseclick(WM_LBUTTONUP);
 		}
 		if (ismouseclick(WM_MOUSEMOVE)) {
-			if (isHover == true && draw) { // v? thanh cu?n tru?c r v? n?i dung sau
+			if (isHover == true && draw) {
 				getmouseclick(WM_MOUSEMOVE, nextx, nexty);
 				DeleteButton(scrollbar);
 				bool changed = false;

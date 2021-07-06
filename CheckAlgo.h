@@ -1,6 +1,6 @@
 #pragma once
 bool CheckNode(int x, int y, int mx, int my){
-	return (((mx - x)*(mx - x) + (my - y)*(my - y) <= 25*25) && ((mx > processingArea.x1 && mx < processingArea.x2 && my > processingArea.y1 && my < processingArea.y2)));
+	return ((mx - x)*(mx - x) + (my - y)*(my - y) <= 25*25);
 }
 bool CheckClickButton(Button button, int x, int y){	
 	return (x > button.x1 && x < button.x2 && y > button.y1 && y < button.y2);
