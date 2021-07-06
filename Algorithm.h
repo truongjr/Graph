@@ -878,7 +878,7 @@ int ChooseVertex(Graph graph, int &x, int &y){
 			else goto reClick;
 		}
 	}
-	return start
+	return start;
 }
 void OpenSave(Graph &graph, string nameFile){
 	int x = -1, y = -1;
@@ -895,9 +895,11 @@ void OpenSave(Graph &graph, string nameFile){
 			if(CheckClickButton(continueButton, x, y)){
 				WriteFile((char*)nameFile.c_str(), graph);
 				NotificationFull("Da luu");
+				return;
 			}
 			else if(CheckClickButton(cancelButton, x, y)){
 				NotificationFull("Khong luu");
+				return;
 			} 
 		}
 	}
