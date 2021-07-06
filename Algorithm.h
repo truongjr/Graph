@@ -239,20 +239,24 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag){
 				}
 			}
 			else if(CheckClickButton(algorithmArea, x, y) && isRunningTopo == false){
-				RunningAlgorithm(graph, x, y, word, helpArea, upButton, downButton, scrollbar, showResult);
-				if (showResult) {
-					scrollbar.x1 = upButton.x1, scrollbar.y1 = upButton.y2, scrollbar.x2 = upButton.x2;
-					UpdateValue(word, scrollbarArea, scrollbar, thumbHeight, jump, u0);
-					if (word.size > word.linePerPage) {
-						showScrollbar = true;
-						d = 0;
-						DrawResult(upButton, downButton, scrollbar);
-					} else {
-						showScrollbar = false;
-					}
-					word.PrintPage(true, helpArea, DODGERBLUE);
+				if(graph.numberNode == 0){
+					NotificationFull("Do thi rong!");
 				}
-				
+				else{
+					RunningAlgorithm(graph, x, y, word, helpArea, upButton, downButton, scrollbar, showResult);
+					if (showResult) {
+						scrollbar.x1 = upButton.x1, scrollbar.y1 = upButton.y2, scrollbar.x2 = upButton.x2;
+						UpdateValue(word, scrollbarArea, scrollbar, thumbHeight, jump, u0);
+						if (word.size > word.linePerPage) {
+							showScrollbar = true;
+							d = 0;
+							DrawResult(upButton, downButton, scrollbar);
+						} else {
+							showScrollbar = false;
+						}
+						word.PrintPage(true, helpArea, DODGERBLUE);
+					}
+				}
 			} 
 			else if (CheckClickButton(scrollbar, x, y) && showResult && showScrollbar) {
 				isHover = true;
@@ -1434,7 +1438,7 @@ void HamCycle(Graph graph, WordWrap &word, Button helpArea) {
 	ans = "";
     for (int i = 0; i <= graph.numberNode; ++i){
 		if(i > 0){	
-			delay(500);
+			delay(500);	
 			string value = ToStringLen2(graph.adj[path[i-1]][path[i]]);
 			if (graph.type[path[i-1]][path[i]] == 1) {
 				CreateLine(graph.node[path[i-1]], graph.node[path[i]], (char*)value.c_str(), BLACK);
