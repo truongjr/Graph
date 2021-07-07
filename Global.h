@@ -80,10 +80,11 @@ void SCCTravel(int u, int &time, int &count, int disc[], int low[], bool stackMe
 int CountSCCs(Graph graph, int start);
 void BridgeEdge(Graph graph, WordWrap &word, Button helpArea);
 void ArticulationPoint(Graph graph, WordWrap &word, Button helpArea);
+int CountWCC(Graph g, int start);
 bool IsEulerCircuit(Graph graph);
-void EulerCycle(Graph graph, WordWrap &word, Button helpArea);
+void EulerCycle(Graph graph, WordWrap &word, Button helpArea, int start);
 bool IsSafe(int v, Graph graph, int path[], int count[], int pos);
-void HamCycle(Graph graph, WordWrap &word, Button helpArea);
+void HamCycle(Graph graph, WordWrap &word, Button helpArea, int start);
 bool RecursiveHam(Graph graph, int path[], int count[], int pos);
 bool CheckDAG(Graph graph, int topoOrder[], bool degZero[]);
 void TopoSort(Graph graph, string haveLearned[], int numHaveLearned, string wantToLearn[], int numWantToLearn, WordWrap &word, Button helpArea);

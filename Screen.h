@@ -250,9 +250,9 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
     bar(showFileNameArea.x1 + 1, showFileNameArea.y1 + 1, showFileNameArea.x2, showFileNameArea.y2 + 1);
 	Button upButton;
 	upButton.x1 = showFileNameArea.x2 - 20;
-	upButton.y1 = showFileNameArea.y1;
+	upButton.y1 = showFileNameArea.y1 + 1;
 	upButton.x2 = showFileNameArea.x2;
-	upButton.y2 = showFileNameArea.y1 + 20;
+	upButton.y2 = showFileNameArea.y1 + 21;
 	Button downButton;
 	downButton.x1 = showFileNameArea.x2 - 20;
 	downButton.y1 = showFileNameArea.y2 - 20;
@@ -336,7 +336,6 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 						setbkcolor(WHITE);
 						setcolor(BLACK);
 						outtextxy(x1 + margin, yBoxTop, (char*)word.result[tempIndex].c_str());
-						setcolor(WHITE);
 						setbkcolor(WHITE);
 					}	
 				}	
@@ -351,7 +350,6 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 				setbkcolor(GREEN);
 				setcolor(BLACK);
 				outtextxy(x1 + margin, yBoxTop, (char*)word.result[index].c_str());
-				setcolor(WHITE);
 				setbkcolor(WHITE);
 				isChoose = true;
 				chooseIndex = index;
@@ -388,12 +386,6 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 				scrollbar.y1 = scrollbar.y2 - thumbHeight;
 				DrawButton(scrollbar, LIGHTGRAY, true);
 				word.PrintPage(true, showFileNameArea, WHITE);
-			}
-			if(CheckClickButton(fileNameButton, x, y)){
-				key = getch();
-				if((key >= 'A' && key <= 'Z') || (key >= 'a' && key <='z') || (key >= '0' && key <= '9') || key == 8){
-					return "false";
-				}
 			}
 			if(CheckClickButton(OpenButton, x, y)){
 				if(isChoose == true){

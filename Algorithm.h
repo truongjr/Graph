@@ -809,14 +809,18 @@ void RunningAlgorithm(Graph graph, int x, int y, WordWrap &word, Button helpArea
 		EffectAlgorithm(hamiltonButton, GREEN, WHITE, BLACK);
 		DrawGraph(graph);
 		showResult = true;
-		HamCycle(graph, word, helpArea);
+		NotificationFull("Hay click vao dinh bat dau!");
+		int start = ChooseVertex(graph, x, y);
+		HamCycle(graph, word, helpArea, start);
 	}
 	else if(CheckClickButton(eulerButton, x, y)){
 		DrawButton(false);
 		EffectAlgorithm(eulerButton, GREEN, WHITE, BLACK);
 		DrawGraph(graph);
 		showResult = true;
-		EulerCycle(graph, word, helpArea);	
+		NotificationFull("Hay click vao dinh bat dau!");
+		int start = ChooseVertex(graph, x, y);
+		EulerCycle(graph, word, helpArea, start);
 	}
 	else if(CheckClickButton(dinhTruButton, x, y)){
 		DrawButton(false);
@@ -1301,9 +1305,41 @@ void KnotPoint(Graph graph, int u, int v, WordWrap &word, Button helpArea) {
 ///////////////////////////////////////////////////////////////
 
 // /////////////////////Chu trinh Euler///////////////////////////
+int CountWCC(Graph g, int start) {
+    int temp[MAXN][MAXN];
+    for (int i = 0; i < MAXN; ++i)
+        for (int j = 0; j < MAXN; ++j)
+            temp[i][j] = 0;
+    for (int i = 0; i < g.numberNode; ++i) 
+        for (int j = 0; j < g.numberNode; ++j)
+            if (g.adj[i][j]) 
+                temp[i][j] = temp[j][i] = 1;       
+    bool vis[MAXN];
+    for (int i = 0; i < g.numberNode; ++i) vis[i] = false;
+    if (start != -1) vis[start] = true;
+    int count = 0;
+    for (int i = 0; i < g.numberNode; ++i) {
+        if (vis[i] == false) {
+            count++;
+            Queue q;
+            q.push(i);
+            vis[i] = true;
+            while(!q.empty()) {
+                int u;
+                q.pop(u);
+                for (int i = 0; i < g.numberNode; ++i) {
+                    if (temp[u][i] && vis[i] == false) {
+                        q.push(i);
+                        vis[i] = true;
+                    }
+                }
+            }
+        }
+    }
+    return count;
+}
 bool IsEulerCircuit(Graph g) {
-    int numberComponents = CountSCCs(g, -1);
-    if (numberComponents != 1) return false;
+    if(CountWCC(g, 0) > 1) return false;
     int inWards[MAXN], outWards[MAXN];
     for (int i = 0; i < MAXN; ++i)
         inWards[i] = outWards[i] = 0;
@@ -1323,7 +1359,7 @@ bool IsEulerCircuit(Graph g) {
             return false;
     return true;
 }
-void EulerCycle(Graph graph, WordWrap &word, Button helpArea) {
+void EulerCycle(Graph graph, WordWrap &word, Button helpArea, int start) {
     string ans;
 	WordWrap wordTemp(22);
 	word = wordTemp;
@@ -1343,7 +1379,7 @@ void EulerCycle(Graph graph, WordWrap &word, Button helpArea) {
         for (int v = 0; v < graph.numberNode; ++v)
             temp[u][v] = graph.adj[u][v];
     int path[MAXN + 1];
-    stack.push(0);
+    stack.push(start);
     int index = 0;
     while(!stack.empty()) {
         int s;
@@ -1409,8 +1445,7 @@ bool RecursiveHam(Graph g, int path[], int count[], int pos) {
         else
             return false;
     }
-    /* Khong tham dinh 0 vi ta mac dinh 0 la diem bat dau cua chu trinh*/
-    for (int v = 1; v < g.numberNode; ++v) {
+    for (int v = 0; v < g.numberNode; ++v) {
         if (IsSafe(v, g, path, count, pos)) {
             path[pos] = v;
             if (RecursiveHam(g, path, count, pos + 1))
@@ -1420,15 +1455,15 @@ bool RecursiveHam(Graph g, int path[], int count[], int pos) {
     }
     return false;
 }
-void HamCycle(Graph graph, WordWrap &word, Button helpArea) { 
+void HamCycle(Graph graph, WordWrap &word, Button helpArea, int start) { 
     int path[MAXN];
     int count[MAXN];
     for (int i = 0; i < graph.numberNode; ++i) {
         path[i] = -1;
         count[i] = 0;
     }
-    path[0] = 0;
-    count[0] = 1;
+    path[0] = start;
+    count[start] = 1;
 	WordWrap wordTemp(22);
 	word = wordTemp;
 	string ans;
@@ -1439,7 +1474,7 @@ void HamCycle(Graph graph, WordWrap &word, Button helpArea) {
     } 
 	ans = "Ton tai chu trinh Hamilton: ";
 	word.StoreString(ans, helpArea);
-	path[graph.numberNode] = 0;
+	path[graph.numberNode] = start;
 	ans = "";
     for (int i = 0; i <= graph.numberNode; ++i){
 		if(i > 0){	
