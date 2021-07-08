@@ -35,5 +35,5 @@ void DrawResult(Button upButton, Button downButton, Button scrollbar) {
     outtextxy((downButton.x1 + downButton.x2) / 2 - width / 2, (downButton.y1 + downButton.y2) / 2 - height / 2, (char*)down.c_str());
 	line(upButton.x1, upButton.y1, downButton.x1, downButton.y2);
 	line(upButton.x2, upButton.y1, downButton.x2, downButton.y2);
-	settextstyle(10, HORIZ_DIR, 2);
+	settextstyle(10, HORIZ_DIR, 1);
 }

@@ -449,16 +449,6 @@ void DrawTopoButton(){
 	DrawButtonForAlgorithm(havelearnedButton);
 	DrawButtonForAlgorithm(startButton);
 	DrawButtonForAlgorithm(endButton);
-	// rectangle(topoSortButton.x1, topoSortButton.y1, topoSortButton.x2, topoSortButton.y2);
-	// rectangle(wanttolearnButton.x1, wanttolearnButton.y1, wanttolearnButton.x2, wanttolearnButton.y2);
-	// rectangle(havelearnedButton.x1, havelearnedButton.y1, havelearnedButton.x2, havelearnedButton.y2);
-	// rectangle(startButton.x1, startButton.y1, startButton.x2, startButton.y2);
-	// rectangle(endButton.x1, endButton.y1, endButton.x2, endButton.y2);
-	// outtextxy(startButton.x1 + (126 - textwidth((char*)startButton.name.c_str()))/2, startButton.y1 + (36 - textheight((char*)startButton.name.c_str()))/2, (char*)startButton.name.c_str());
-	// outtextxy(endButton.x1 + (126 - textwidth((char*)endButton.name.c_str()))/2, endButton.y1 + (36 - textheight((char*)endButton.name.c_str()))/2, (char*)endButton.name.c_str());
-	// outtextxy(havelearnedButton.x1 + (126 - textwidth((char*)havelearnedButton.name.c_str()))/2, havelearnedButton.y1 + (73 - textheight((char*)havelearnedButton.name.c_str()))/2, (char*)havelearnedButton.name.c_str());
-	// outtextxy(wanttolearnButton.x1 + (126 - textwidth((char*)wanttolearnButton.name.c_str()))/2, wanttolearnButton.y1 + (73 - textheight((char*)wanttolearnButton.name.c_str()))/2, (char*)wanttolearnButton.name.c_str());
-	
 }
 void ShowSelectedList(string havelearned[], string wanttolearn[]){
 	Button haveLearned, wantToLearn;

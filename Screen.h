@@ -90,9 +90,11 @@ void DrawButtonForToolBar(Button button){
 }
 void DrawButtonForNoti(Button button){
 	setbkcolor(DODGERBLUE);
+	setcolor(DARKAQUA);
 	setlinestyle(0, 0, 2);
 	settextstyle(10, HORIZ_DIR, 3);//(font, ngang doc, do dam)
 	rectangle(button.x1, button.y1, button.x2, button.y2);
+	setcolor(BLACK);
 	outtextxy(button.x1 + ((button.x2 - button.x1) - textwidth((char*)button.name.c_str()))/2, button.y1 + ((button.y2 - button.y1) - textheight((char*)button.name.c_str()))/2, (char*)button.name.c_str());
 }
 void DrawToolBar(){
@@ -167,9 +169,9 @@ string OpenScreen(){
 	propertyButton. name = "File text(.txt)", propertyButton.x1 = 890, propertyButton.y1 = 452, propertyButton.x2 = 1083, propertyButton.y2 = 490;
 	exitButton.name = "Cancel", exitButton.x1 = 995, exitButton.y1 = 499, exitButton.x2 = 1083, exitButton.y2 = 537;
 	OpenButton.name = "Open", OpenButton.x1 = 890, OpenButton.y1 = 499, OpenButton.x2 = 988, OpenButton.y2 = 537;
-	setcolor(BLACK);
-	setlinestyle(0, 0, 1);
-	rectangle(509, 108, 1090, 545);
+	// setcolor(BLACK);
+	// setlinestyle(0, 0, 1);
+	// rectangle(509, 108, 1090, 545);
 	setfillstyle(1, COLOR(211,211,211));// mau xam
 	bar(510, 109, 1090, 149);//khung cua chu OPEN
 	setbkcolor(COLOR(211,211,211));
@@ -179,18 +181,10 @@ string OpenScreen(){
 	//xoa phan help
 	setfillstyle(1, DODGERBLUE);
 	bar(helpArea.x1 + 1, helpArea.y1 + 1, helpArea.x2 - 1, helpArea.y2 - 1);
-	//thong bao
 	setfillstyle(1, WHITE);
-	rectangle(propertyButton.x1, propertyButton.y1, propertyButton.x2, propertyButton.y2);
 	bar(propertyButton.x1 + 1, propertyButton.y1 + 1, propertyButton.x2, propertyButton.y2);
-	//open
-	rectangle(OpenButton.x1, OpenButton.y1, OpenButton.x2, OpenButton.y2);
 	bar(OpenButton.x1 + 1, OpenButton.y1 + 1, OpenButton.x2, OpenButton.y2);
-	//cancle
-	rectangle(exitButton.x1, exitButton.y1, exitButton.x2, exitButton.y2);
 	bar(exitButton.x1 + 1, exitButton.y1 + 1, exitButton.x2, exitButton.y2);
-	//ten file
-	rectangle(fileNameButton.x1, fileNameButton.y1, fileNameButton.x2, fileNameButton.y2);
 	bar(fileNameButton.x1 + 1, fileNameButton.y1 + 1, fileNameButton.x2, fileNameButton.y2);
 	settextstyle(10, HORIZ_DIR, 1);
 	outtextxy(515, 450, "File name:");

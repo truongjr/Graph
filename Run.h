@@ -28,23 +28,17 @@ void Run() {
 	int x, y;
 	string nameNode, nameFile;
 	label:
-	NotificationFull("HAY MO DO THI CO SAN HOAC TAO MOT DO THI MOI!");
+	NotificationFull("Hay mo mot do thi co san hoac tao mot do thi moi!");
 	while(true){//Kiem tra khi moi vao. Chi duoc chon 1 trong 2 nut: New, Open
-		if(kbhit()){
-			char key = getch();
-			if(key == 27) break;
-		}
+		if(kbhit()){}
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if(x != -1 && y != -1){
 			if(CheckClickButton(closeButton, x, y)){// VO TINH NHAN NUT THOAT LUON
-				NotificationFull("BAN CO MUON LUU LAI KHONG?");
+				NotificationFull("Ban co muon luu lai khong?");
 				DrawButtonForNoti(continueButton);
 				DrawButtonForNoti(cancelButton);
 				while(true){
-					if(kbhit()){
-						char key = getch();
-						if(key == 27) break;
-					}
+					if(kbhit()){}
 					getmouseclick(WM_LBUTTONDOWN, x, y);
 					if(x != -1 && y != -1){
 						if(CheckClickButton(continueButton, x, y)){
@@ -82,7 +76,7 @@ void Run() {
 						ReadFile((char*)nameFile.c_str(), graph);
 						DrawGraph(graph);
 						DrawWeightMatrix(graph);
-						NotificationFull("HAY CHON CHUC NANG!");
+						NotificationFull("Hay chon chuc nang!");
 						flag = true;
 						if(RunningToolbar(graph, nameFile, x, y, flag) == false) return;
 					}

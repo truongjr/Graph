@@ -5,7 +5,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 	Button upButton;
 	upButton.x1 = helpArea.x2 - 22, upButton.y1 = helpArea.y1 + 1, upButton.x2 = helpArea.x2 - 2, upButton.y2 = helpArea.y1 + 20;
 	Button downButton;
-	downButton.x1 = helpArea.x2 - 22, downButton.y1 = helpArea.y2 - 20, downButton.x2 = helpArea.x2 - 2, downButton.y2 = helpArea.y2;
+	downButton.x1 = helpArea.x2 - 22, downButton.y1 = helpArea.y2 - 22, downButton.x2 = helpArea.x2 - 2, downButton.y2 = helpArea.y2 - 2;
 	Button scrollbar;
 	int nextx, nexty, dist = 0, range = 0;
 	int scrollbarArea = downButton.y1 - upButton.y2;
@@ -25,8 +25,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 	while(true){
 		if(kbhit()){
 			char key = getch();
-			if(key == 27) break;
-			else if (!(key && key != 224) && showScrollbar) {
+			if (!(key && key != 224) && showScrollbar) {
 				char ex = getch();
 				if (ex == KEY_UP) 
 					goto upbutton;
@@ -76,10 +75,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 						clearmouseclick(WM_LBUTTONDOWN);
 						ShowSelectedList(havelearned, wanttolearn);
 						while(true){
-							if(kbhit()){
-								char key = getch();
-								if(key == 27) break;
-							}
+							if(kbhit()){}
 							if(ismouseclick(WM_LBUTTONDOWN)){
 								getmouseclick(WM_LBUTTONDOWN, x, y);
 								if(CheckClickButton(processingArea, x, y)){
@@ -128,10 +124,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 						clearmouseclick(WM_LBUTTONDOWN);
 						ShowSelectedList(havelearned, wanttolearn);
 						while(true){
-							if(kbhit()){
-								char key = getch();
-								if(key == 27) break;
-							}
+							if(kbhit()){}
 							if(ismouseclick(WM_LBUTTONDOWN)){
 								getmouseclick(WM_LBUTTONDOWN, x, y);
 								if(CheckClickButton(processingArea, x, y)){
@@ -348,10 +341,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 				if(graph.numberNode < 14){
 					NotificationFull("Click vao vung trong de them dinh hoac doi ten!");
 					while(true){
-						if(kbhit()){
-							char key = getch();
-							if(key == 27) break;
-						}
+						if(kbhit()){}
 						if(ismouseclick(WM_LBUTTONDOWN)){
 							getmouseclick(WM_LBUTTONDOWN, x, y);
 							if(CheckClickButton(realProcessingArea, x, y)){
@@ -437,10 +427,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 					bool flag = true;
 					NotificationFull("Click vao hai dinh de them cung hoac thay doi trong so cua cung!");
 					while(true){
-						if(kbhit()){
-							char key = getch();
-							if(key == 27) break;
-						}
+						if(kbhit()){}
 						getmouseclick(WM_LBUTTONDOWN, x, y);
 						if(x != -1 && y != -1){
 							if(CheckClickButton(processingArea, x, y)){
@@ -508,10 +495,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 					NotificationFull("Click vao dinh can di chuyen!");
 					int x1 = 0, y1 = 0, x2 = 0, y2 = 0, idx = -1;
 					while(true){//Bat phim dau
-						if(kbhit()){
-							char key = getch();
-							if(key == 27) break;
-						}
+						if(kbhit()){}
 						getmouseclick(WM_LBUTTONDOWN, x, y);
 						if(x != -1 && y != -1){
 							if(CheckClickButton(processingArea, x, y)){
@@ -535,10 +519,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 									movee:
 									NotificationFull("HAY CLICK VAO VI TRI CAN DI CHUYEN TOI!");
 									while(1){
-										if (kbhit()) {
-											char key = getch();
-											if(key == 27) break;
-										}
+										if (kbhit()) {}
 										getmouseclick(WM_LBUTTONDOWN, x, y);
 										if(x != -1 && y != -1){
 											if((graph.node[idx]->x - x)*(graph.node[idx]->x - x) + (graph.node[idx]->y - y)*(graph.node[idx]->y - y) <= 100*100){
@@ -587,10 +568,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 				int idx;
 				bool flag = true;
 				while(true){//Bat phim dau
-					if(kbhit()){
-						char key = getch();
-						if(key == 27) break;
-					}
+					if(kbhit()){}
 					getmouseclick(WM_LBUTTONDOWN, x, y);
 					if(x != -1 && y != -1){
 						if(CheckClickButton(processingArea, x, y)){
@@ -643,10 +621,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 					NotificationFull("Hay click vao dinh bat dau!");
 					int x1, y1, x2, y2, idx1, idx2;
 					while(true){//Bat phim dau
-						if(kbhit()){
-							char key = getch();
-							if(key == 27) break;
-						}
+						if(kbhit()){}
 						getmouseclick(WM_LBUTTONDOWN, x, y);
 						if(x != -1 && y != -1){
 							if(CheckClickButton(processingArea, x, y)){
@@ -757,7 +732,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 }
 void RunningAlgorithm(Graph graph, int x, int y, WordWrap &word, Button helpArea, Button upButton, Button downButton, Button scrollbar, bool &showResult){
 	setfillstyle(1, DODGERBLUE);
-	bar(helpArea.x1 + 1, helpArea.y1 + 1, helpArea.x2 - 1, helpArea.y2 - 1);
+	bar(helpArea.x1 + 1, helpArea.y1 + 1, helpArea.x2 - 1, helpArea.y2);
 	if(CheckClickButton(dfsButton, x, y)){
 		DrawButton(false);
 		EffectAlgorithm(dfsButton, GREEN, WHITE, BLACK);
@@ -861,10 +836,7 @@ int ChooseVertex(Graph graph, int &x, int &y){
 	bool flag = true;
 	reClick:
 	while(true){
-		if(kbhit()){
-			char key = getch();
-			if(key == 27) break;
-		}
+		if(kbhit()){}
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if(x != -1 && y != -1){
 			if(CheckClickButton(processingArea, x, y)){
@@ -894,10 +866,7 @@ void OpenSave(Graph &graph, string nameFile){
 	DrawButtonForNoti(continueButton);
 	DrawButtonForNoti(cancelButton);
 	while(true){
-		if(kbhit()){
-			char key = getch();
-			if(key == 27) break;
-		}
+		if(kbhit()){}
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if(x != -1 && y != -1){
 			if(CheckClickButton(continueButton, x, y)){
@@ -920,10 +889,7 @@ void OpenSaveTopo(Graph &graph, string nameFile){
 	DrawButtonForNoti(continueButton);
 	DrawButtonForNoti(cancelButton);
 	while(true){
-		if(kbhit()){
-			char key = getch();
-			if(key == 27) break;
-		}
+		if(kbhit()){}
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if(x != -1 && y != -1){
 			if(CheckClickButton(continueButton, x, y)){
@@ -946,10 +912,7 @@ void NewSave(Graph &graph, string &nameFile, bool &isFirstSave){
 	DrawButtonForNoti(continueButton);
 	DrawButtonForNoti(cancelButton);
 	while(true){
-		if(kbhit()){
-			char key = getch();
-			if(key == 27) break;
-		}
+		if(kbhit()){}
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if(x != -1 && y != -1){
 			if(CheckClickButton(continueButton, x, y)){
@@ -1319,42 +1282,8 @@ void KnotPoint(Graph graph, int u, int v, WordWrap &word, Button helpArea) {
 ///////////////////////////////////////////////////////////////
 
 // /////////////////////Chu trinh Euler///////////////////////////
-int CountWCC(Graph g, int start) {
-    int temp[MAXN][MAXN];
-    for (int i = 0; i < MAXN; ++i)
-        for (int j = 0; j < MAXN; ++j)
-            temp[i][j] = 0;
-    for (int i = 0; i < g.numberNode; ++i) 
-        for (int j = 0; j < g.numberNode; ++j)
-            if (g.adj[i][j]) 
-                temp[i][j] = temp[j][i] = 1;       
-    bool vis[MAXN];
-    for (int i = 0; i < g.numberNode; ++i) vis[i] = false;
-    if (start != -1) vis[start] = true;
-    int count = 0;
-    for (int i = 0; i < g.numberNode; ++i) {
-        if (vis[i] == false) {
-            count++;
-            Queue q;
-            q.push(i);
-            vis[i] = true;
-            while(!q.empty()) {
-                int u;
-                q.pop(u);
-                for (int i = 0; i < g.numberNode; ++i) {
-                    if (temp[u][i] && vis[i] == false) {
-                        q.push(i);
-                        vis[i] = true;
-                    }
-                }
-            }
-        }
-    }
-    return count;
-}
 bool IsEulerCircuit(Graph g) {
-    int numberComponents = CountSCCs(g, -1);
-    if (numberComponents != 1) return false;
+    if(CountSCCs(g, 0) > 1) return false; 
     int inWards[MAXN], outWards[MAXN];
     for (int i = 0; i < MAXN; ++i)
         inWards[i] = outWards[i] = 0;
