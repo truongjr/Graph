@@ -7,9 +7,9 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 	Button downButton;
 	downButton.x1 = helpArea.x2 - 22, downButton.y1 = helpArea.y2 - 20, downButton.x2 = helpArea.x2 - 2, downButton.y2 = helpArea.y2;
 	Button scrollbar;
-	int nextx, nexty, dist = 0, d = 0;
+	int nextx, nexty, dist = 0, range = 0;
 	int scrollbarArea = downButton.y1 - upButton.y2;
-	int thumbHeight, jump, u0;
+	int thumbHeight, jump, firstPosition;
 	bool isHover = false, showResult = false, showScrollbar = false;
 	WordWrap word(22);
 	gtnew:	
@@ -174,7 +174,8 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 						}
 					}
 					else if(CheckClickButton(startButton, x, y)){
-						if(numberHavelearned > 0 || numberWanttolearn > 0){
+						if(numberHavelearned == 0 && numberWanttolearn == 0) goto reChoose;
+						else{
 							DrawButton(true);
 							EffectAlgorithm(startButton, GREEN, WHITE, BLACK);
 							if (showResult) {
@@ -185,19 +186,16 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 							showResult = true;
 							if (showResult) {
 								scrollbar.x1 = upButton.x1, scrollbar.y1 = upButton.y2, scrollbar.x2 = upButton.x2;
-								UpdateValue(word, scrollbarArea, scrollbar, thumbHeight, jump, u0);
+								UpdateValue(word, scrollbarArea, scrollbar, thumbHeight, jump, firstPosition);
 								if (word.size > word.linePerPage) {
 									showScrollbar = true;
-									d = 0;
+									range = 0;
 									DrawResult(upButton, downButton, scrollbar);
 								} else {
 									showScrollbar = false;
 								}
 								word.PrintPage(true, helpArea, DODGERBLUE);
 							}
-						}
-						else{
-							goto reChoose;
 						}
 					}
 					else if(CheckClickButton(endButton, x, y)){
@@ -246,10 +244,10 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 					RunningAlgorithm(graph, x, y, word, helpArea, upButton, downButton, scrollbar, showResult);
 					if (showResult) {
 						scrollbar.x1 = upButton.x1, scrollbar.y1 = upButton.y2, scrollbar.x2 = upButton.x2;
-						UpdateValue(word, scrollbarArea, scrollbar, thumbHeight, jump, u0);
+						UpdateValue(word, scrollbarArea, scrollbar, thumbHeight, jump, firstPosition);
 						if (word.size > word.linePerPage) {
 							showScrollbar = true;
-							d = 0;
+							range = 0;
 							DrawResult(upButton, downButton, scrollbar);
 						} else {
 							showScrollbar = false;
@@ -264,34 +262,34 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 			} 
 			else if (CheckClickButton(upButton, x, y) && showResult && showScrollbar) {
 				upbutton:
-				DeleteButton(scrollbar);
-				if (d == 0) {
-					scrollbar.y2 = u0;
+				DeleteScrollbar(scrollbar);
+				if (range == 0) {
+					scrollbar.y2 = firstPosition;
 				} else {
-					d--;
-					if (d == 0)
-						scrollbar.y2 = u0;
+					range--;
+					if (range == 0)
+						scrollbar.y2 = firstPosition;
 					else 
-						scrollbar.y2 = u0 + d * jump;
+						scrollbar.y2 = firstPosition + range * jump;
 				}
 				scrollbar.y1 = scrollbar.y2 - thumbHeight;
-				DrawButton(scrollbar, COLOR(192, 192, 192), true);
+				DrawScrollbar(scrollbar, COLOR(192, 192, 192));
 				word.PrintPage(false, helpArea, DODGERBLUE);
 			}
 			else if (CheckClickButton(downButton, x, y) && showResult && showScrollbar) {
 				downbutton:
-				DeleteButton(scrollbar);
-				if (d == word.size - word.linePerPage) {
+				DeleteScrollbar(scrollbar);
+				if (range == word.size - word.linePerPage) {
 					scrollbar.y2 = downButton.y1;
-				} else if (d < word.size - word.linePerPage) {
-					d++;
-					if (d == word.size - word.linePerPage) 
+				} else if (range < word.size - word.linePerPage) {
+					range++;
+					if (range == word.size - word.linePerPage) 
 						scrollbar.y2 = downButton.y1;
 					else
-						scrollbar.y2 = u0 + d * jump;
+						scrollbar.y2 = firstPosition + range * jump;
 				}
 				scrollbar.y1 = scrollbar.y2 - thumbHeight;
-				DrawButton(scrollbar, COLOR(192, 192, 192), true);
+				DrawScrollbar(scrollbar, COLOR(192, 192, 192));
 				word.PrintPage(true, helpArea, DODGERBLUE);
 			} 
 			else if(CheckClickButton(newButton, x, y) && isRunningTopo == false){
@@ -348,7 +346,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 				addV:
 				clearmouseclick(WM_LBUTTONDOWN);
 				if(graph.numberNode < 14){
-					NotificationFull("CLICK VAO VUNG TRONG DE THEM DINH HOAC VAO DINH CO SAN DE DOI TEN!");
+					NotificationFull("Click vao vung trong de them dinh hoac doi ten!");
 					while(true){
 						if(kbhit()){
 							char key = getch();
@@ -420,7 +418,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 					}	
 				}
 				else{
-					NotificationFull("DO THI DA DAY, KHONG THE THEM DINH!");
+					NotificationFull("Do thi da day!");
 					goto gtnew;
 				}
 			}
@@ -437,7 +435,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 					reClick:
 					int start = 0;
 					bool flag = true;
-					NotificationFull("Click vao hai dinh bat ky de them cung hoac thay doi trong so cua cung!");
+					NotificationFull("Click vao hai dinh de them cung hoac thay doi trong so cua cung!");
 					while(true){
 						if(kbhit()){
 							char key = getch();
@@ -721,35 +719,35 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 		if (ismouseclick(WM_MOUSEMOVE)) {
 			if (isHover == true && showResult) {
 				getmouseclick(WM_MOUSEMOVE, nextx, nexty);
-				DeleteButton(scrollbar);
+				DeleteScrollbar(scrollbar);
 				bool changed = false;
-                int currd = d;
+                int currRange = range;
                 scrollbar.y1 = nexty - dist;
                 scrollbar.y2 = scrollbar.y1 + thumbHeight;
                 if (scrollbar.y2 > downButton.y1) {
                     scrollbar.y2 = downButton.y1;
                     scrollbar.y1 = scrollbar.y2 - thumbHeight;
-                    d = word.size - word.linePerPage;
+                    range = word.size - word.linePerPage;
                     changed = true;
                 } else if (scrollbar.y1 < upButton.y2) {
                     scrollbar.y1 = upButton.y2;
                     scrollbar.y2 = scrollbar.y1 + thumbHeight;
-                    d = 0;
+                    range = 0;
                     changed = true;
                 }
                 int after = scrollbar.y2;
-                int afterd = round((after - u0) * 1.0 / jump);
-                if (afterd > word.size - word.linePerPage) {
-                    afterd = word.size - word.linePerPage;
+                int rangeAfter = round((after - firstPosition) * 1.0 / jump);
+                if (rangeAfter > word.size - word.linePerPage) {
+                    rangeAfter = word.size - word.linePerPage;
                 }
-                DrawButton(scrollbar, COLOR(192, 192, 192), true);
+                DrawScrollbar(scrollbar, COLOR(192, 192, 192));
                 if (!changed) {
-                    if (afterd > d) d++;
-                    else if (afterd < d) d--;
+                    if (rangeAfter > range) range++;
+                    else if (rangeAfter < range) range--;
                 }
-                if (afterd > currd) {
+                if (rangeAfter > currRange) {
                     word.PrintPage(true, helpArea, DODGERBLUE);
-                } else if (afterd < currd) {
+                } else if (rangeAfter < currRange) {
                     word.PrintPage(false, helpArea, DODGERBLUE);
                 }
 			}
@@ -793,6 +791,9 @@ void RunningAlgorithm(Graph graph, int x, int y, WordWrap &word, Button helpArea
 			int start = ChooseVertex(graph, x, y);
 			NotificationFull("Hay click vao dinh ket thuc!");
 			int end = ChooseVertex(graph, x, y);
+			while(end == start){
+				end = ChooseVertex(graph, x, y);
+			}
 			NotificationFull("Bat dau thuat toan!");
 			Dijkstra(graph, start, end, word, helpArea);
 		}
@@ -841,6 +842,9 @@ void RunningAlgorithm(Graph graph, int x, int y, WordWrap &word, Button helpArea
 			int start = ChooseVertex(graph, x, y);
 			NotificationFull("Hay click vao dinh ket thuc!");
 			int end = ChooseVertex(graph, x, y);
+			while(end == start){
+				end = ChooseVertex(graph, x, y);
+			}
 			KnotPoint(graph, start, end, word, helpArea); 
 		}	
 	}
@@ -898,11 +902,13 @@ void OpenSave(Graph &graph, string nameFile){
 		if(x != -1 && y != -1){
 			if(CheckClickButton(continueButton, x, y)){
 				WriteFile((char*)nameFile.c_str(), graph);
-				NotificationFull("Da luu");
+				setfillstyle(1, DODGERBLUE);
+				bar(helpArea.x1, helpArea.y1, helpArea.x2, helpArea.y2);
 				return;
 			}
 			else if(CheckClickButton(cancelButton, x, y)){
-				NotificationFull("Khong luu");
+				setfillstyle(1, DODGERBLUE);
+				bar(helpArea.x1, helpArea.y1, helpArea.x2, helpArea.y2);
 				return;
 			} 
 		}
@@ -922,10 +928,14 @@ void OpenSaveTopo(Graph &graph, string nameFile){
 		if(x != -1 && y != -1){
 			if(CheckClickButton(continueButton, x, y)){
 				WriteGraphTopo((char*)nameFile.c_str(), graph);
-				NotificationFull("Da luu");
+				setfillstyle(1, DODGERBLUE);
+				bar(helpArea.x1, helpArea.y1, helpArea.x2, helpArea.y2);
+				return;
 			}
 			else if(CheckClickButton(cancelButton, x, y)){
-				NotificationFull("Khong luu");
+				setfillstyle(1, DODGERBLUE);
+				bar(helpArea.x1, helpArea.y1, helpArea.x2, helpArea.y2);
+				return;
 			} 
 		}
 	}
@@ -958,11 +968,15 @@ void NewSave(Graph &graph, string &nameFile, bool &isFirstSave){
 				}
 				else {
 					WriteFile((char*)nameFile.c_str(), graph);
-					NotificationFull("Da luu");
+					setfillstyle(1, DODGERBLUE);
+					bar(helpArea.x1, helpArea.y1, helpArea.x2, helpArea.y2);
+					return;
 				}
 			}
 			else if(CheckClickButton(cancelButton, x, y)){
-				NotificationFull("Khong luu");
+				setfillstyle(1, DODGERBLUE);
+				bar(helpArea.x1, helpArea.y1, helpArea.x2, helpArea.y2);
+				return;
 			} 
 		}
 	}
@@ -1339,7 +1353,8 @@ int CountWCC(Graph g, int start) {
     return count;
 }
 bool IsEulerCircuit(Graph g) {
-    if(CountWCC(g, 0) > 1) return false;
+    int numberComponents = CountSCCs(g, -1);
+    if (numberComponents != 1) return false;
     int inWards[MAXN], outWards[MAXN];
     for (int i = 0; i < MAXN; ++i)
         inWards[i] = outWards[i] = 0;
@@ -1448,9 +1463,11 @@ bool RecursiveHam(Graph g, int path[], int count[], int pos) {
     for (int v = 0; v < g.numberNode; ++v) {
         if (IsSafe(v, g, path, count, pos)) {
             path[pos] = v;
+			count[v]++;
             if (RecursiveHam(g, path, count, pos + 1))
                 return true;
             path[pos] = -1;
+			count[v]--;
         }
     }
     return false;

@@ -1,7 +1,7 @@
 #pragma once
-void WriteFile(char *fileName, Graph &graph) {
+void WriteFile(char *path, Graph &graph) {
 	ofstream myFile;
-	myFile.open(fileName);
+	myFile.open(path);
 	myFile << graph.numberNode << "\n";
 	for (int i = 0; i < graph.numberNode; ++i) {
 		for (int j = 0; j < graph.numberNode; ++j) 
@@ -14,9 +14,9 @@ void WriteFile(char *fileName, Graph &graph) {
 	}
 	myFile.close();
 }
-void ReadFile(char *fileName, Graph &graph) {
+void ReadFile(char *path, Graph &graph) {
 	ifstream myFile;
-	myFile.open(fileName);
+	myFile.open(path);
 	myFile >> graph.numberNode;
 	for (int i = 0; i < graph.numberNode; ++i) 
 		for (int j = 0; j < graph.numberNode; ++j) {

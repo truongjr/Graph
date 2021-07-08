@@ -58,7 +58,7 @@ void EffectFile();
 void EffectToolbar();
 void DrawTopoButton();
 void EffectTopo(Graph graph);
-void ShowSelectedList(string havelearned[MAXN], string wanttolearn[MAXN]);
+void ShowSelectedList(string havelearned[], string wanttolearn[]);
 bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool flag);
 void RunningAlgorithm(Graph graph, int x, int y, WordWrap &word, Button helpArea, Button upButton, Button downButton, Button scrollbar, bool &showResult);
 int ChooseVertex(Graph graph, int &x, int &y);
@@ -90,13 +90,14 @@ bool CheckDAG(Graph graph, int topoOrder[], bool degZero[]);
 void TopoSort(Graph graph, string haveLearned[], int numHaveLearned, string wantToLearn[], int numWantToLearn, WordWrap &word, Button helpArea);
 
 /////////////////////////////////////////////////////////////////////_Scrollbar.h_/////////////////////////////////////////////////////////////////////
-void DrawButton(Button btn, int color, bool fill);
-void DeleteButton(Button btn);
+void DrawScrollbar(Button btn, int color);
+void DrawUpDownButton(Button btn, int color);
+void DeleteScrollbar(Button btn);
 void UpdateValue(WordWrap &word, int scrollbarArea, Button &scrollbar, int &thumbHeight, int &jump, int &u0);
 void DrawResult(Button upButton, Button downButton, Button scrollbar);
 
 /////////////////////////////////////////////////////////////////////_File.h_/////////////////////////////////////////////////////////////////////
-void WriteFile(char *fileName, Graph &graph);
-void ReadFile(char *fileName, Graph &graph);
+void WriteFile(char *path, Graph &graph);
+void ReadFile(char *path, Graph &graph);
 void WriteGraphTopo(char *path, Graph &graph);
 void ReadGraphTopo(char *path, Graph &graph);

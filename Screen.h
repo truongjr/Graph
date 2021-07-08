@@ -34,7 +34,7 @@ void CreateScreen(){
 	DrawMatrix();
 }
 void CreateButton (){
-	matrixArea.name = "", matrixArea.x1 = 10, matrixArea.y1 = 400, matrixArea.x2 = 402, matrixArea.y2 = maxy - 10;
+	matrixArea.name = "", matrixArea.x1 = 11, matrixArea.y1 = 400, matrixArea.x2 = 402, matrixArea.y2 = maxy - 10;
 	toolbarArea.name = "", toolbarArea.x1 = 10, toolbarArea.y1 = 10, toolbarArea.x2 = 1190, toolbarArea.y2 = 52;
 	newButton.name = "New", newButton.x1 = 10, newButton.y1 = 10, newButton.x2 = 155, newButton.y2 = 52;
 	openButton.name = "Open", openButton.x1 = 155, openButton.y1 = 10, openButton.x2 = 300, openButton.y2 = 52;
@@ -63,8 +63,8 @@ void CreateButton (){
 	cancelButton.name = "Huy", cancelButton.x1 = 800, cancelButton.y1 = 696, cancelButton.x2 = maxx-10 - 2, cancelButton.y2 = 788 	;
 	havelearnedButton.name = "Learned", havelearnedButton.x1 = 14, havelearnedButton.y1 = 318, havelearnedButton.x2 = 139, havelearnedButton.y2 = 391;
 	wanttolearnButton.name = "Want learn", wanttolearnButton.x1 = 143, wanttolearnButton.y1 = 318, wanttolearnButton.x2 = 268, wanttolearnButton.y2 = 391;
-	startButton.name = "Start", startButton.x1 = 272, startButton.y1 = 318, startButton.x2 = 397, startButton.y2 = 355;
-	endButton.name = "End", endButton.x1 = 272, endButton.y1 = 354, endButton.x2 = 397, endButton.y2 = 391;	
+	startButton.name = "Start", startButton.x1 = 272, startButton.y1 = 318, startButton.x2 = 397, startButton.y2 = 353;
+	endButton.name = "End", endButton.x1 = 272, endButton.y1 = 355, endButton.x2 = 397, endButton.y2 = 391;	
 }
 void DrawButtonForAlgorithm(Button button){
 	setlinestyle(0, 0, 2);
@@ -128,7 +128,7 @@ void DrawMenuTable(){
 }
 void DrawMatrix(){
 	setfillstyle(1, DODGERBLUE);
-	bar(matrixArea.x1, matrixArea.y1, matrixArea.x2+1, matrixArea.y2);
+	bar(matrixArea.x1, matrixArea.y1, matrixArea.x2, matrixArea.y2);
 	settextstyle(10, HORIZ_DIR, 3);
 	setcolor(BLACK);
 	setbkcolor(DODGERBLUE);
@@ -266,33 +266,21 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 	int x = -1, y = -1;
 	int tempIndex = -1;
 	int index = -1;
-	int nextx = -1, nexty = -1, dist = 0, d = 0;
+	int nextx = -1, nexty = -1, dist = 0, range = 0;
 	int scrollbarArea = downButton.y1 - upButton.y2;
 	int thumbHeight = round(word.linePerPage * scrollbarArea * 1.0 / word.size);
 	int jump = round((scrollbarArea - thumbHeight) * 1.0 / (word.size - word.linePerPage)); // buoc nhay cho moi lan bam nut (pixel)
 	scrollbar.y2 = scrollbar.y1 + thumbHeight;
 	bool isHover = false;
 	bool draw = true;
-	int u0 = scrollbar.y2;
+	int firstPosition = scrollbar.y2;
 	bool isChoose = false;
 	string res = "";
 	int chooseIndex = -1;
-	if (word.size > word.linePerPage) { // neu kich thuoc word > kich thuoc hien thi thi se co thanh cuon
-		setlinestyle(0, 0, 1);
-		DrawButton(upButton, BLACK, false);
-		DrawButton(downButton, BLACK, false);
-		DrawButton(scrollbar, COLOR(192, 192, 192), true);
-		line(upButton.x1, upButton.y2, downButton.x1, downButton.y1);
-		settextstyle(11, HORIZ_DIR, 1);
-		setbkcolor(WHITE);
-		string up = "/\\";
-		string down = "\\/";
-		int height = textheight((char*)up.c_str());
-		int width = textwidth((char*)up.c_str());
-		outtextxy((upButton.x1 + upButton.x2) / 2 - width / 2, (upButton.y1 + upButton.y2) / 2 - height / 2, (char*)up.c_str());
-		outtextxy((downButton.x1 + downButton.x2) / 2 - width / 2, (downButton.y1 + downButton.y2) / 2 - height / 2, (char*)down.c_str());
-		settextstyle(10, HORIZ_DIR, 1);
-	} else draw = false;
+	if (word.size > word.linePerPage) // neu kich thuoc word > kich thuoc hien thi thi se co thanh cuon
+		DrawResult(upButton, downButton, scrollbar);
+	else 
+		draw = false;
 	while(true) {
 		if (kbhit()) {
 			key = getch();
@@ -357,34 +345,34 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 			}
 			if (CheckClickButton(upButton, x, y) && draw) {
 				upbutton:
-				DeleteButton(scrollbar);
-				if (d == 0) {
-					scrollbar.y2 = u0;
+				DeleteScrollbar(scrollbar);
+				if (range == 0) {
+					scrollbar.y2 = firstPosition;
 				} else {
-					d--;
-					if (d == 0)
-						scrollbar.y2 = u0;
+					range--;
+					if (range == 0)
+						scrollbar.y2 = firstPosition;
 					else 
-						scrollbar.y2 = u0 + d * jump;
+						scrollbar.y2 = firstPosition + range * jump;
 				}
 				scrollbar.y1 = scrollbar.y2 - thumbHeight;
-				DrawButton(scrollbar, LIGHTGRAY, true);
+				DrawScrollbar(scrollbar, LIGHTGRAY);
 				word.PrintPage(false, showFileNameArea, WHITE);
 			}
 			if (CheckClickButton(downButton, x, y) && draw) {
 				downbutton:
-				DeleteButton(scrollbar);
-				if (d == word.size - word.linePerPage) {
+				DeleteScrollbar(scrollbar);
+				if (range == word.size - word.linePerPage) {
 					scrollbar.y2 = downButton.y1;
-				} else if (d < word.size - word.linePerPage) {
-					d++;
-					if (d == word.size - word.linePerPage) 
+				} else if (range < word.size - word.linePerPage) {
+					range++;
+					if (range == word.size - word.linePerPage) 
 						scrollbar.y2 = downButton.y1;
 					else
-						scrollbar.y2 = u0 + d * jump;
+						scrollbar.y2 = firstPosition + range * jump;
 				}
 				scrollbar.y1 = scrollbar.y2 - thumbHeight;
-				DrawButton(scrollbar, LIGHTGRAY, true);
+				DrawScrollbar(scrollbar, LIGHTGRAY);
 				word.PrintPage(true, showFileNameArea, WHITE);
 			}
 			if(CheckClickButton(OpenButton, x, y)){
@@ -415,35 +403,35 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 		if (ismouseclick(WM_MOUSEMOVE)) {
 			if (isHover == true && draw) {
 				getmouseclick(WM_MOUSEMOVE, nextx, nexty);
-				DeleteButton(scrollbar);
+				DeleteScrollbar(scrollbar);
 				bool changed = false;
-                int currd = d;
+                int currRange = range;
                 scrollbar.y1 = nexty - dist;
                 scrollbar.y2 = scrollbar.y1 + thumbHeight;
                 if (scrollbar.y2 > downButton.y1) {
                     scrollbar.y2 = downButton.y1;
                     scrollbar.y1 = scrollbar.y2 - thumbHeight;
-                    d = word.size - word.linePerPage;
+                    range = word.size - word.linePerPage;
                     changed = true;
                 } else if (scrollbar.y1 < upButton.y2) {
                     scrollbar.y1 = upButton.y2;
                     scrollbar.y2 = scrollbar.y1 + thumbHeight;
-                    d = 0;
+                    range = 0;
                     changed = true;
                 }
                 int after = scrollbar.y2;
-                int afterd = round((after - u0) * 1.0 / jump);
-                if (afterd > word.size - word.linePerPage) {
-                    afterd = word.size - word.linePerPage;
+                int rangeAfter = round((after - firstPosition) * 1.0 / jump);
+                if (rangeAfter > word.size - word.linePerPage) {
+                    rangeAfter = word.size - word.linePerPage;
                 }
-                DrawButton(scrollbar, LIGHTGRAY, true);
+                DrawScrollbar(scrollbar, LIGHTGRAY);
                 if (!changed) {
-                    if (afterd > d) d++;
-                    else if (afterd < d) d--;
+                    if (rangeAfter > range) range++;
+                    else if (rangeAfter < range) range--;
                 }
-                if (afterd > currd) {
+                if (rangeAfter > currRange) {
                     word.PrintPage(true, showFileNameArea, WHITE);
-                } else if (afterd < currd) {
+                } else if (rangeAfter < currRange) {
                     word.PrintPage(false, showFileNameArea, WHITE);
                 }
 			}

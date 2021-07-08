@@ -1,20 +1,19 @@
 #pragma once
-void UpdateValue(WordWrap &word, int scrollbarArea, Button &scrollbar, int &thumbHeight, int &jump, int &u0) {
+void UpdateValue(WordWrap &word, int scrollbarArea, Button &scrollbar, int &thumbHeight, int &jump, int &firstPosition) {
 	thumbHeight = round(word.linePerPage * scrollbarArea * 1.0 / word.size);
 	jump = round((scrollbarArea - thumbHeight) * 1.0 / (word.size - word.linePerPage));
 	scrollbar.y2 = scrollbar.y1 + thumbHeight;
-	u0 = scrollbar.y2;
+	firstPosition = scrollbar.y2;
 }
-void DrawButton(Button btn, int color, bool fill) {
-	if (fill) {
-		setfillstyle(1, color);
-		bar(btn.x1 + 1, btn.y1 + 1, btn.x2, btn.y2);
-	} else {
-		setcolor(color);
-		rectangle(btn.x1, btn.y1, btn.x2, btn.y2);
-	}
+void DrawScrollbar(Button btn, int color) {
+	setfillstyle(1, color);
+	bar(btn.x1 + 1, btn.y1 + 1, btn.x2, btn.y2);
 }
-void DeleteButton(Button btn) {
+void DrawUpDownButton(Button btn, int color) {
+	setcolor(color);
+	rectangle(btn.x1, btn.y1, btn.x2, btn.y2);
+}
+void DeleteScrollbar(Button btn) {
 	setfillstyle(1, WHITE);
 	bar(btn.x1 + 1, btn.y1 + 1, btn.x2, btn.y2);
 }
@@ -23,9 +22,9 @@ void DrawResult(Button upButton, Button downButton, Button scrollbar) {
 	setlinestyle(0, 0, 1);
 	setfillstyle(1, WHITE);
     bar(upButton.x1, upButton.y1, downButton.x2, downButton.y2);
-	DrawButton(upButton, BLACK, false);
-	DrawButton(downButton, BLACK, false);
-	DrawButton(scrollbar, COLOR(192, 192, 192), true);
+	DrawUpDownButton(upButton, BLACK);
+	DrawUpDownButton(downButton, BLACK);
+	DrawScrollbar(scrollbar, COLOR(192, 192, 192));
 	settextstyle(11, HORIZ_DIR, 1);
 	string up = "/\\";
     string down = "\\/";

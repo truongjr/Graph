@@ -443,39 +443,42 @@ void DrawButton(bool isRunningTopo = false){
 	if(isRunningTopo == true) DrawTopoButton();
 }
 void DrawTopoButton(){	
-	setfillstyle(1, DODGERBLUE);
-	setcolor(WHITE);
-	setbkcolor(DODGERBLUE);
-	settextstyle(10, HORIZ_DIR, 2);
-	bar(topoSortButton.x1, topoSortButton.y1, topoSortButton.x2, topoSortButton.y2);
-	rectangle(topoSortButton.x1, topoSortButton.y1, topoSortButton.x2, topoSortButton.y2);
-	rectangle(wanttolearnButton.x1, wanttolearnButton.y1, wanttolearnButton.x2, wanttolearnButton.y2);
-	rectangle(havelearnedButton.x1, havelearnedButton.y1, havelearnedButton.x2, havelearnedButton.y2);
-	rectangle(startButton.x1, startButton.y1, startButton.x2, startButton.y2);
-	rectangle(endButton.x1, endButton.y1, endButton.x2, endButton.y2);
-	outtextxy(startButton.x1 + (126 - textwidth((char*)startButton.name.c_str()))/2, startButton.y1 + (36 - textheight((char*)startButton.name.c_str()))/2, (char*)startButton.name.c_str());
-	outtextxy(endButton.x1 + (126 - textwidth((char*)endButton.name.c_str()))/2, endButton.y1 + (36 - textheight((char*)endButton.name.c_str()))/2, (char*)endButton.name.c_str());
-	outtextxy(havelearnedButton.x1 + (126 - textwidth((char*)havelearnedButton.name.c_str()))/2, havelearnedButton.y1 + (73 - textheight((char*)havelearnedButton.name.c_str()))/2, (char*)havelearnedButton.name.c_str());
-	outtextxy(wanttolearnButton.x1 + (126 - textwidth((char*)wanttolearnButton.name.c_str()))/2, wanttolearnButton.y1 + (73 - textheight((char*)wanttolearnButton.name.c_str()))/2, (char*)wanttolearnButton.name.c_str());
+	setfillstyle(1, DARKAQUA);
+	bar(topoSortButton.x1-1, topoSortButton.y1-1, topoSortButton.x2+1, topoSortButton.y2+1);
+	DrawButtonForAlgorithm(wanttolearnButton);
+	DrawButtonForAlgorithm(havelearnedButton);
+	DrawButtonForAlgorithm(startButton);
+	DrawButtonForAlgorithm(endButton);
+	// rectangle(topoSortButton.x1, topoSortButton.y1, topoSortButton.x2, topoSortButton.y2);
+	// rectangle(wanttolearnButton.x1, wanttolearnButton.y1, wanttolearnButton.x2, wanttolearnButton.y2);
+	// rectangle(havelearnedButton.x1, havelearnedButton.y1, havelearnedButton.x2, havelearnedButton.y2);
+	// rectangle(startButton.x1, startButton.y1, startButton.x2, startButton.y2);
+	// rectangle(endButton.x1, endButton.y1, endButton.x2, endButton.y2);
+	// outtextxy(startButton.x1 + (126 - textwidth((char*)startButton.name.c_str()))/2, startButton.y1 + (36 - textheight((char*)startButton.name.c_str()))/2, (char*)startButton.name.c_str());
+	// outtextxy(endButton.x1 + (126 - textwidth((char*)endButton.name.c_str()))/2, endButton.y1 + (36 - textheight((char*)endButton.name.c_str()))/2, (char*)endButton.name.c_str());
+	// outtextxy(havelearnedButton.x1 + (126 - textwidth((char*)havelearnedButton.name.c_str()))/2, havelearnedButton.y1 + (73 - textheight((char*)havelearnedButton.name.c_str()))/2, (char*)havelearnedButton.name.c_str());
+	// outtextxy(wanttolearnButton.x1 + (126 - textwidth((char*)wanttolearnButton.name.c_str()))/2, wanttolearnButton.y1 + (73 - textheight((char*)wanttolearnButton.name.c_str()))/2, (char*)wanttolearnButton.name.c_str());
+	
 }
 void ShowSelectedList(string havelearned[], string wanttolearn[]){
 	Button haveLearned, wantToLearn;
 	haveLearned.name = "Have Learned", haveLearned.x1 = 10, haveLearned.y1 = 440, haveLearned.x2 = 206, haveLearned.y2 = maxy - 10;
 	wantToLearn.name = "Want To Learn", wantToLearn.x1 = 206, wantToLearn.y1 = 440, wantToLearn.x2 = 402, wantToLearn.y2 = maxy - 10;
 	setfillstyle(1, DODGERBLUE);
-	bar(matrixArea.x1 - 1, matrixArea.y1 - 1, matrixArea.x2 + 1, matrixArea.y2 + 1);
-	setlinestyle(0, 0, 2);
-	setcolor(WHITE);
+	bar(matrixArea.x1, matrixArea.y1, matrixArea.x2, matrixArea.y2);
+	setlinestyle(0, 0, 3);
+	setcolor(DARKAQUA);
 	rectangle(haveLearned.x1, haveLearned.y1 - 40, haveLearned.x2, haveLearned.y2);
 	rectangle(wantToLearn.x1, wantToLearn.y1, wantToLearn.x2, wantToLearn.y2);
 	rectangle(matrixArea.x1, matrixArea.y1, matrixArea.x2, matrixArea.y1 + 40);
 	settextstyle(10, HORIZ_DIR, 2);
+	setcolor(WHITE);
 	setbkcolor(DODGERBLUE);
 	outtextxy(endButton.x1 + (126 - textwidth((char*)endButton.name.c_str()))/2, endButton.y1 + (36 - textheight((char*)endButton.name.c_str()))/2, (char*)endButton.name.c_str());
 	outtextxy(haveLearned.x1 + (196 - textwidth((char*)haveLearned.name.c_str()))/2, haveLearned.y1 - 40 + (40 - textheight((char*)haveLearned.name.c_str()))/2, (char*)haveLearned.name.c_str());
 	outtextxy(wantToLearn.x1 + (196 - textwidth((char*)wantToLearn.name.c_str()))/2, wantToLearn.y1 - 40 + (40 - textheight((char*)wantToLearn.name.c_str()))/2, (char*)wantToLearn.name.c_str());
 	for(int i=0; i<MAXN; i++){
-		outtextxy(haveLearned.x1 + (196 - textwidth((char*)havelearned[i].c_str()))/2, haveLearned.y1 + 1 + i*(textheight((char*)havelearned[i].c_str())), (char*)havelearned[i].c_str());
-		outtextxy(wantToLearn.x1 + (196 - textwidth((char*)wanttolearn[i].c_str()))/2, wantToLearn.y1 + 1 + i*(textheight((char*)wanttolearn[i].c_str())), (char*)wanttolearn[i].c_str());	
+		outtextxy(haveLearned.x1 + (196 - textwidth((char*)havelearned[i].c_str()))/2, haveLearned.y1 + 3 + i*(textheight((char*)havelearned[i].c_str())), (char*)havelearned[i].c_str());
+		outtextxy(wantToLearn.x1 + (196 - textwidth((char*)wanttolearn[i].c_str()))/2, wantToLearn.y1 + 3 + i*(textheight((char*)wanttolearn[i].c_str())), (char*)wanttolearn[i].c_str());	
 	}
 }
