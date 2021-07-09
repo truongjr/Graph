@@ -82,7 +82,7 @@ string AddNameTopo(){
 			if(n > 0){
 				if(key == 8){
 					ans.resize(ans.length() - 1);
-					outtextxy(helpArea.x1 + 5 + textwidth((char*)s.c_str()), helpArea.y1 + 5, "   ");
+					outtextxy(helpArea.x1 + 5 + textwidth((char*)s.c_str()), helpArea.y1 + 5, "             ");
 					outtextxy(helpArea.x1 + 5 + textwidth((char*)s.c_str()), helpArea.y1 + 5, (char*)ans.c_str());
 					n--;
 				}
