@@ -24,7 +24,7 @@ void DrawWeightMatrix(Graph &graph);
 void DrawSubDel();
 string OpenScreen();
 string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameArea, Button fileNameButton, Button OpenButton, Button exitButton, bool &isOpened);
-
+void ClearBuffer();
 /////////////////////////////////////////////////////////////////////_CheckAlgo.h_/////////////////////////////////////////////////////////////////////
 bool CheckNode(int x, int y, int mx, int my);
 bool CheckClickButton(Button button, int x, int y);

@@ -30,7 +30,8 @@ void Run() {
 	label:
 	NotificationFull("Hay mo mot do thi co san hoac tao mot do thi moi!");
 	while(true){//Kiem tra khi moi vao. Chi duoc chon 1 trong 2 nut: New, Open
-		if(kbhit()){}
+		if(kbhit())
+			ClearBuffer();
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if(x != -1 && y != -1){
 			if(CheckClickButton(closeButton, x, y)){// VO TINH NHAN NUT THOAT LUON

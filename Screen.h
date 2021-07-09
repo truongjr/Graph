@@ -175,6 +175,7 @@ string OpenScreen(){
 	setfillstyle(1, COLOR(211,211,211));// mau xam
 	bar(510, 109, 1090, 149);//khung cua chu OPEN
 	setbkcolor(COLOR(211,211,211));
+	setcolor(BLACK);
 	settextstyle(10, HORIZ_DIR, 3);
 	outtextxy(519, 108 + (40 - textheight("OPEN"))/2, "OPEN");
 	bar(510, 446, 1090, 545);
@@ -433,4 +434,9 @@ string ShowFileName(WordWrap word, char &key, string ans, Button showFileNameAre
 		}	
 	}
 	return res;
+}
+void ClearBuffer() {
+	while(kbhit()) {
+		getch();
+	}
 }

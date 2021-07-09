@@ -75,7 +75,8 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 						clearmouseclick(WM_LBUTTONDOWN);
 						ShowSelectedList(havelearned, wanttolearn);
 						while(true){
-							if(kbhit()){}
+							if(kbhit())
+								ClearBuffer();
 							if(ismouseclick(WM_LBUTTONDOWN)){
 								getmouseclick(WM_LBUTTONDOWN, x, y);
 								if(CheckClickButton(processingArea, x, y)){
@@ -124,7 +125,8 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 						clearmouseclick(WM_LBUTTONDOWN);
 						ShowSelectedList(havelearned, wanttolearn);
 						while(true){
-							if(kbhit()){}
+							if(kbhit())
+								ClearBuffer();
 							if(ismouseclick(WM_LBUTTONDOWN)){
 								getmouseclick(WM_LBUTTONDOWN, x, y);
 								if(CheckClickButton(processingArea, x, y)){
@@ -317,6 +319,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 				else{
 					NewSave(graph, fileName, isFirstSave);
 				}
+
 				Graph g;
 				graph = g;
 				setfillstyle(1, DODGERBLUE);
@@ -329,6 +332,7 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 				if(isRunningTopo) DrawGraphTopo(graph);
 				else DrawGraph(graph);
 				isOpenSave = true;
+				isFirstSave = false;
 				goto gtnew;
 			}
 			else if(CheckClickButton(addVertexButton, x, y)){//Nhan nut AddVerTex
@@ -341,7 +345,8 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 				if(graph.numberNode < 14){
 					NotificationFull("Click vao vung trong de them dinh hoac doi ten!");
 					while(true){
-						if(kbhit()){}
+						if(kbhit())
+							ClearBuffer();
 						if(ismouseclick(WM_LBUTTONDOWN)){
 							getmouseclick(WM_LBUTTONDOWN, x, y);
 							if(CheckClickButton(realProcessingArea, x, y)){
@@ -427,7 +432,8 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 					bool flag = true;
 					NotificationFull("Click vao hai dinh de them cung hoac thay doi trong so cua cung!");
 					while(true){
-						if(kbhit()){}
+						if(kbhit())
+							ClearBuffer();
 						getmouseclick(WM_LBUTTONDOWN, x, y);
 						if(x != -1 && y != -1){
 							if(CheckClickButton(processingArea, x, y)){
@@ -495,7 +501,8 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 					NotificationFull("Click vao dinh can di chuyen!");
 					int x1 = 0, y1 = 0, x2 = 0, y2 = 0, idx = -1;
 					while(true){//Bat phim dau
-						if(kbhit()){}
+						if(kbhit()) 
+							ClearBuffer();
 						getmouseclick(WM_LBUTTONDOWN, x, y);
 						if(x != -1 && y != -1){
 							if(CheckClickButton(processingArea, x, y)){
@@ -568,7 +575,8 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 				int idx;
 				bool flag = true;
 				while(true){//Bat phim dau
-					if(kbhit()){}
+					if(kbhit())
+						ClearBuffer();
 					getmouseclick(WM_LBUTTONDOWN, x, y);
 					if(x != -1 && y != -1){
 						if(CheckClickButton(processingArea, x, y)){
@@ -621,7 +629,8 @@ bool RunningToolbar(Graph &graph, string fileName, int &x, int &y, bool isOpenSa
 					NotificationFull("Hay click vao dinh bat dau!");
 					int x1, y1, x2, y2, idx1, idx2;
 					while(true){//Bat phim dau
-						if(kbhit()){}
+						if(kbhit())
+							ClearBuffer();
 						getmouseclick(WM_LBUTTONDOWN, x, y);
 						if(x != -1 && y != -1){
 							if(CheckClickButton(processingArea, x, y)){
@@ -836,7 +845,8 @@ int ChooseVertex(Graph graph, int &x, int &y){
 	bool flag = true;
 	reClick:
 	while(true){
-		if(kbhit()){}
+		if(kbhit())
+			ClearBuffer();
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if(x != -1 && y != -1){
 			if(CheckClickButton(processingArea, x, y)){
@@ -866,7 +876,8 @@ void OpenSave(Graph &graph, string nameFile){
 	DrawButtonForNoti(continueButton);
 	DrawButtonForNoti(cancelButton);
 	while(true){
-		if(kbhit()){}
+		if(kbhit())
+			ClearBuffer();
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if(x != -1 && y != -1){
 			if(CheckClickButton(continueButton, x, y)){
@@ -889,7 +900,8 @@ void OpenSaveTopo(Graph &graph, string nameFile){
 	DrawButtonForNoti(continueButton);
 	DrawButtonForNoti(cancelButton);
 	while(true){
-		if(kbhit()){}
+		if(kbhit())
+			ClearBuffer();
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if(x != -1 && y != -1){
 			if(CheckClickButton(continueButton, x, y)){
@@ -912,7 +924,8 @@ void NewSave(Graph &graph, string &nameFile, bool &isFirstSave){
 	DrawButtonForNoti(continueButton);
 	DrawButtonForNoti(cancelButton);
 	while(true){
-		if(kbhit()){}
+		if(kbhit())
+			ClearBuffer();
 		getmouseclick(WM_LBUTTONDOWN, x, y);
 		if(x != -1 && y != -1){
 			if(CheckClickButton(continueButton, x, y)){
@@ -926,6 +939,7 @@ void NewSave(Graph &graph, string &nameFile, bool &isFirstSave){
 						graphFile.close();
 						WriteFile((char*)nameFile.c_str(), graph);
 						isFirstSave = false;
+						return;
 					}
 					else goto reAddName;
 				}
